@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Смачні рецепти - Ваш кулінарний путівник</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Фіксоване меню -->
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo">
+                <h1>CookBook</h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" class="active">Головна</a></li>
+                <li><a href="#">Рецепти</a></li>
+                <li><a href="#">Про нас</a></li>
+                <li><a href="#">Контакти</a></li>
+            </ul>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Пошук рецептів...">
+                <button class="search-btn">🔍</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero секція -->
+    <section class="hero">
+        <div class="hero-image">
+            <img src="images/mediterranean-pasta.jpg" alt="Середземноморська паста з креветками">
+        </div>
+        <div class="hero-content">
+            <span class="recipe-type">РЕЦЕПТ ДНЯ</span>
+            <h2>Середземноморська паста з креветками</h2>
+            <p>Насичений смак пасти з соковитими креветками, помідорами чері та ароматним базиліком. Ідеальний вибір для романтичної вечері.</p>
+            <button class="cta-button">Переглянути рецепт</button>
+        </div>
+    </section>
+
+    <!-- Категорії рецептів -->
+    <section class="recipes-section">
+        <h2>Вегетаріанські страви</h2>
+        <div class="categories-grid">
+            <div class="recipe-card">
+                <div class="recipe-image" style="background-image: url('images/salad1.jpg');"></div>
+                <div class="recipe-info">
+                    <h4>Овочевий Buddha Bowl</h4>
+                    <button class="view-recipe">Переглянути</button>
+                </div>
+                <p>25 хв</p>
+            </div>
+            <div class="recipe-card">
+                <div class="recipe-image" style="background-image: url('images/salad2.jpg');"></div>
+                <div class="recipe-info">
+                    <h4>Грецький салат</h4>
+                    <button class="view-recipe">Переглянути</button>
+                </div>
+                <p>15 хв</p>
+            </div>
+            <div class="recipe-card">
+                <div class="recipe-image" style="background-image: url('images/salad3.jpg');"></div>
+                <div class="recipe-info">
+                    <h4>Quinoa з овочами</h4>
+                    <button class="view-recipe">Переглянути</button>
+                </div>
+                <p>30 хв</p>
+            </div>
+            <div class="recipe-card">
+                <div class="recipe-image" style="background-image: url('images/salad4.jpg');"></div>
+                <div class="recipe-info">
+                    <h4>Овочеве рагу</h4>
+                    <button class="view-recipe">Переглянути</button>
+                </div>
+                <p>45 хв</p>
+            </div>
+        </div>
+
+        <h2>Пасти</h2>
+        <div class="categories-grid">
+            <div class="recipe-card">
+                <div class="recipe-image" style="background-image: url('images/pasta1.jpg');"></div>
+                <div class="recipe-info">
+                    <h4>Паста Карбонара</h4>
+                    <button class="view-recipe">Переглянути</button>
+                </div>
+                <p>30 хв</p>
+            </div>
+            <div class="recipe-card">
+                <div class="recipe-image" style="background-image: url('images/pasta2.jpg');"></div>
+                <div class="recipe-info">
+                    <h4>Спагетті Болоньєзе</h4>
+                    <button class="view-recipe">Переглянути</button>
+                </div>
+                <p>40 хв</p>
+            </div>
+            <div class="recipe-card">
+                <div class="recipe-image" style="background-image: url('images/pasta3.jpg');"></div>
+                <div class="recipe-info">
+                    <h4>Пенне Арабіата</h4>
+                    <button class="view-recipe">Переглянути</button>
+                </div>
+                <p>25 хв</p>
+            </div>
+            <div class="recipe-card">
+                <div class="recipe-image" style="background-image: url('images/pasta4.jpg');"></div>
+                <div class="recipe-info">
+                    <h4>Фетучіні Альфредо</h4>
+                    <button class="view-recipe">Переглянути</button>
+                </div>
+                <p>35 хв</p>
+            </div>
+        </div>
+
+        <h2>Десерти</h2>
+        <div class="categories-grid">
+            <div class="recipe-card">
+                <div class="recipe-image" style="background-image: url('images/dessert1.jpg');"></div>
+                <div class="recipe-info">
+                    <h4>Тірамісу</h4>
+                    <button class="view-recipe">Переглянути</button>
+                </div>
+                <p>20 хв</p>
+            </div>
+            <div class="recipe-card">
+                <div class="recipe-image" style="background-image: url('images/dessert2.jpg');"></div>
+                <div class="recipe-info">
+                    <h4>Чізкейк</h4>
+                    <button class="view-recipe">Переглянути</button>
+                </div>
+                <p>60 хв</p>
+            </div>
+            <div class="recipe-card">
+                <div class="recipe-image" style="background-image: url('images/dessert3.jpg');"></div>
+                <div class="recipe-info">
+                    <h4>Шоколадний фондан</h4>
+                    <button class="view-recipe">Переглянути</button>
+                </div>
+                <p>25 хв</p>
+            </div>
+            <div class="recipe-card">
+                <div class="recipe-image" style="background-image: url('images/dessert4.jpg');"></div>
+                <div class="recipe-info">
+                    <h4>Яблучний штрудель</h4>
+                    <button class="view-recipe">Переглянути</button>
+                </div>
+                <p>50 хв</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Категорії та сезони -->
+    <section class="seasons-section">
+        <h2>Категорії та сезони</h2>
+        <div class="seasons-grid">
+            <div class="season-card">
+                <img src="images/spring.jpg" alt="Весняні рецепти">
+                <h3>Весняні страви</h3>
+            </div>
+            <div class="season-card">
+                <img src="images/summer.jpg" alt="Літні рецепти">
+                <h3>Літні страви</h3>
+            </div>
+            <div class="season-card">
+                <img src="images/autumn.jpg" alt="Осінні рецепти">
+                <h3>Осінні страви</h3>
+            </div>
+            <div class="season-card">
+                <img src="images/winter.jpg" alt="Зимові рецепти">
+                <h3>Зимові страви</h3>
+            </div>
+        </div>
+    </section>
+
+    <!-- Футер -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-info">
+                <h3>Про CookBook</h3>
+                <p>Ваш надійний помічник у світі кулінарії. Знаходьте найкращі рецепти та діліться своїми кулінарними шедеврами.</p>
+            </div>
+            <div class="social-links">
+                <a href="#" class="social-link">Facebook</a>
+                <a href="#" class="social-link">Instagram</a>
+                <a href="#" class="social-link">Twitter</a>
+                <a href="#" class="social-link">Pinterest</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 CookBook. Всі права захищено.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
