@@ -80,8 +80,190 @@
 
         <!-- Сітка карток -->
         <section class="recipes-grid" id="recipesGrid">
-            <!-- Статично додаю 12 карток (показ 4 карток на сторінку -> пагінація 3 сторінки) -->
-            <!-- Картка з даними: data-category використовується для фільтрації -->
+            <!-- Сніданки -->
+            <article class="recipe-card" data-category="Сніданки" data-ingredients="яйця|хліб|авокадо|помідори|сіль" data-steps="Підсмажити хліб|Приготувати пюре з авокадо|Приготувати яйця пашот|Зібрати тост" data-difficulty="Середня">
+                <div class="recipe-image" style="background-image:url('images/breakfast/tost-z-avokado.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Тост з авокадо та яйцем пашот</h4>
+                    <p class="recipe-description">Поживний сніданок з авокадо та яйцем.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">15 хв</span>
+                            <span class="recipe-category">Сніданки</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Сніданки" data-ingredients="млинцеве тісто|ягоди|кленовий сироп|масло" data-steps="Приготувати тісто|Спекти млинці|Подавати з ягодами та сиропом" data-difficulty="Легка">
+                <div class="recipe-image" style="background-image:url('images/breakfast/mlyntsi-z-yahodamy.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Млинці з ягодами</h4>
+                    <p class="recipe-description">Пухкі млинці з свіжими ягодами.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">20 хв</span>
+                            <span class="recipe-category">Сніданки</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Сніданки" data-ingredients="чіа|мигдальне молоко|мед|фрукти" data-steps="Змішати чіа з молоком|Залишити на ніч|Прикрасити фруктами" data-difficulty="Легка">
+                <div class="recipe-image" style="background-image:url('images/breakfast/pudynh-z-chia.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Пудинг з чіа</h4>
+                    <p class="recipe-description">Корисний сніданок з насіння чіа.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">5 хв + ніч</span>
+                            <span class="recipe-category">Сніданки</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Основні страви -->
+            <article class="recipe-card" data-category="Основні" data-ingredients="куряча грудка|спеції|оливкова олія|часник" data-steps="Замаринувати курку|Розігріти духовку|Запікати до готовності" data-difficulty="Середня">
+                <div class="recipe-image" style="background-image:url('images/main/zapechena-kuriacha-hrudka.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Запечена куряча грудка</h4>
+                    <p class="recipe-description">Соковита куряча грудка з травами.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">35 хв</span>
+                            <span class="recipe-category">Основні</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Основні" data-ingredients="лосось|лимон|трави|масло" data-steps="Приготувати маринад|Замаринувати рибу|Запекти в духовці" data-difficulty="Середня">
+                <div class="recipe-image" style="background-image:url('images/main/zapechenyi-losos.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Запечений лосось</h4>
+                    <p class="recipe-description">Ніжний лосось з лимоном та травами.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">25 хв</span>
+                            <span class="recipe-category">Основні</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Основні" data-ingredients="яловичина|картопля|морква|цибуля" data-steps="Обсмажити м'ясо|Додати овочі|Тушкувати до готовності" data-difficulty="Середня">
+                <div class="recipe-image" style="background-image:url('images/main/tushkovana-yalovychyna.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Тушкована яловичина</h4>
+                    <p class="recipe-description">М'яка яловичина з овочами.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">120 хв</span>
+                            <span class="recipe-category">Основні</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Супи -->
+            <article class="recipe-card" data-category="Супи" data-ingredients="курка|морква|цибуля|локшина" data-steps="Зварити бульйон|Додати овочі|Додати локшину" data-difficulty="Легка">
+                <div class="recipe-image" style="background-image:url('images/soup1.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Курячий суп з локшиною</h4>
+                    <p class="recipe-description">Класичний курячий суп.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">60 хв</span>
+                            <span class="recipe-category">Супи</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Супи" data-ingredients="гарбуз|цибуля|вершки|спеції" data-steps="Запекти гарбуз|Приготувати основу|Збити до однорідності" data-difficulty="Середня">
+                <div class="recipe-image" style="background-image:url('images/soup2.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Гарбузовий крем-суп</h4>
+                    <p class="recipe-description">Ніжний крем-суп з гарбуза.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">45 хв</span>
+                            <span class="recipe-category">Супи</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Супи" data-ingredients="гриби|картопля|морква|цибуля" data-steps="Обсмажити овочі|Додати гриби|Варити до готовності" data-difficulty="Легка">
+                <div class="recipe-image" style="background-image:url('images/soup3.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Грибний суп</h4>
+                    <p class="recipe-description">Ароматний суп з лісових грибів.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">40 хв</span>
+                            <span class="recipe-category">Супи</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Супи" data-ingredients="томати|базилік|часник|вершки" data-steps="Запекти томати|Приготувати основу|Збити з вершками" data-difficulty="Середня">
+                <div class="recipe-image" style="background-image:url('images/soup4.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Томатний суп</h4>
+                    <p class="recipe-description">Крем-суп з запечених томатів.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">35 хв</span>
+                            <span class="recipe-category">Супи</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Вегетаріанські -->
             <article class="recipe-card" data-category="Вегетаріанські" data-ingredients="кіноа|авокадо|морква|огірок|хумус" data-steps="Промити кіноа та зварити|Нарізати овочі|Змішати інгредієнти з хумусом|Подавати охолодженим" data-difficulty="Легка">
                 <div class="recipe-image" style="background-image:url('images/salad1.jpg')"></div>
                 <div class="recipe-info">
@@ -215,8 +397,62 @@
                 </div>
             </article>
 
+            <article class="recipe-card" data-category="Веганські" data-ingredients="тофу|соєвий соус|кунжут|броколі|рис" data-steps="Маринувати тофу|Обсмажити тофу|Приготувати овочі|Подавати з рисом" data-difficulty="Середня">
+                <div class="recipe-image" style="background-image:url('images/vegan1.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Смажений тофу з овочами</h4>
+                    <p class="recipe-description">Гострий тофу з азійськими нотками.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">35 хв</span>
+                            <span class="recipe-category">Веганські</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Веганські" data-ingredients="нут|паприка|цибуля|спеції|рис" data-steps="Замочити нут|Приготувати соус|Тушкувати|Подавати з рисом" data-difficulty="Середня">
+                <div class="recipe-image" style="background-image:url('images/vegan2.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Каррі з нуту</h4>
+                    <p class="recipe-description">Ароматне каррі з нуту та овочів.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">45 хв</span>
+                            <span class="recipe-category">Веганські</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Веганські" data-ingredients="сочевиця|морква|цибуля|часник|томати" data-steps="Зварити сочевицю|Підготувати овочі|Тушкувати разом|Приправити" data-difficulty="Легка">
+                <div class="recipe-image" style="background-image:url('images/vegan3.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Сочевичне рагу</h4>
+                    <p class="recipe-description">Поживне рагу з сочевиці.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">40 хв</span>
+                            <span class="recipe-category">Веганські</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
             <article class="recipe-card" data-category="Основні" data-ingredients="баклажани|помідори|цибуля|часник|трави" data-steps="Нарізати овочі|Обсмажити|Тушкувати до м'якості|Подавайте гарячим" data-difficulty="Середня">
-                <div class="recipe-image" style="background-image:url('images/main1.jpg')"></div>
+                <div class="recipe-image" style="background-image:url('images/main/ovocheve-rahu.jpg')"></div>
                 <div class="recipe-info">
                     <h4>Овочеве рагу</h4>
                     <p class="recipe-description">Ароматне рагу з сезонних овочів.</p>
@@ -235,7 +471,7 @@
             </article>
 
             <article class="recipe-card" data-category="Сніданки" data-ingredients="вівсянка|молоко|ягоди|горіхи|мед" data-steps="Зварити вівсянку на молоці|Додати мед та ягоди|Посипати горіхами" data-difficulty="Легка">
-                <div class="recipe-image" style="background-image:url('images/breakfast1.jpg')"></div>
+                <div class="recipe-image" style="background-image:url('images/breakfast/ovsyanka-z-yahodamy.jpg')"></div>
                 <div class="recipe-info">
                     <h4>Овсянка з ягодами</h4>
                     <p class="recipe-description">Теплий сніданок з горіхами й ягодами.</p>
@@ -271,6 +507,279 @@
                     <div class="recipe-details">Легко змішати та насолоджуватись.</div>
                 </div>
             </article>
+
+            <article class="recipe-card" data-category="Напої" data-ingredients="чай|м'ята|лимон|мед" data-steps="Заварити чай|Додати м'яту|Додати мед та лимон" data-difficulty="Легка">
+                <div class="recipe-image" style="background-image:url('images/drink2.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>М'ятний чай з медом</h4>
+                    <p class="recipe-description">Заспокійливий напій з м'яти.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">5 хв</span>
+                            <span class="recipe-category">Напої</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Напої" data-ingredients="манго|йогурт|мед|льод" data-steps="Підготувати фрукти|Змішати в блендері|Додати мед" data-difficulty="Легка">
+                <div class="recipe-image" style="background-image:url('images/drink3.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Манговий ласі</h4>
+                    <p class="recipe-description">Індійський йогуртовий напій.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">10 хв</span>
+                            <span class="recipe-category">Напої</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Напої" data-ingredients="какао|молоко|корица|мед" data-steps="Нагріти молоко|Додати какао|Додати спеції" data-difficulty="Легка">
+                <div class="recipe-image" style="background-image:url('images/drink4.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Гаряче какао</h4>
+                    <p class="recipe-description">Класичне какао зі спеціями.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">10 хв</span>
+                            <span class="recipe-category">Напої</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Закуски -->
+            <article class="recipe-card" data-category="Закуски" data-ingredients="баклажани|часник|оливкова олія|лимон" data-steps="Запекти баклажани|Приготувати соус|Змішати|Охолодити" data-difficulty="Середня">
+                <div class="recipe-image" style="background-image:url('images/appetizer1.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Баба гануш</h4>
+                    <p class="recipe-description">Близькосхідна закуска з баклажанів.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">45 хв</span>
+                            <span class="recipe-category">Закуски</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Закуски" data-ingredients="нут|тахіні|лимон|часник" data-steps="Змішати інгредієнти|Збити до однорідності|Прикрасити" data-difficulty="Легка">
+                <div class="recipe-image" style="background-image:url('images/appetizer2.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Хумус</h4>
+                    <p class="recipe-description">Класичний хумус з нуту.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">15 хв</span>
+                            <span class="recipe-category">Закуски</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Закуски" data-ingredients="брускетта|помідори|базилік|часник" data-steps="Підсмажити хліб|Приготувати начинку|Зібрати|Подавати" data-difficulty="Легка">
+                <div class="recipe-image" style="background-image:url('images/appetizer3.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Брускетта</h4>
+                    <p class="recipe-description">Італійська закуска з хліба.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">20 хв</span>
+                            <span class="recipe-category">Закуски</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Закуски" data-ingredients="фета|оливки|огірок|помідори" data-steps="Нарізати інгредієнти|Змішати|Заправити олією" data-difficulty="Легка">
+                <div class="recipe-image" style="background-image:url('images/appetizer4.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Грецькі мезе</h4>
+                    <p class="recipe-description">Набір грецьких закусок.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">15 хв</span>
+                            <span class="recipe-category">Закуски</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Випічка -->
+            <article class="recipe-card" data-category="Випічка" data-ingredients="борошно|дріжджі|сіль|вода" data-steps="Замісити тісто|Дати підійти|Сформувати|Випікати" data-difficulty="Середня">
+                <div class="recipe-image" style="background-image:url('images/bakery1.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Домашній хліб</h4>
+                    <p class="recipe-description">Класичний білий хліб.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">180 хв</span>
+                            <span class="recipe-category">Випічка</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Випічка" data-ingredients="борошно|масло|яйця|цукор" data-steps="Замісити тісто|Розкачати|Сформувати|Випікати" data-difficulty="Середня">
+                <div class="recipe-image" style="background-image:url('images/bakery2.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Круасани</h4>
+                    <p class="recipe-description">Французька слойона випічка.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">240 хв</span>
+                            <span class="recipe-category">Випічка</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Випічка" data-ingredients="борошно|какао|яйця|цукор" data-steps="Змішати тісто|Спекти коржі|Зробити крем|Зібрати" data-difficulty="Складна">
+                <div class="recipe-image" style="background-image:url('images/bakery3.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Шоколадний торт</h4>
+                    <p class="recipe-description">Святковий багатошаровий торт.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">120 хв</span>
+                            <span class="recipe-category">Випічка</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Випічка" data-ingredients="борошно|яблука|кориця|цукор" data-steps="Приготувати тісто|Нарізати яблука|Зібрати пиріг|Випікати" data-difficulty="Середня">
+                <div class="recipe-image" style="background-image:url('images/bakery4.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Яблучний пиріг</h4>
+                    <p class="recipe-description">Домашній пиріг з яблуками.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">90 хв</span>
+                            <span class="recipe-category">Випічка</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Салати -->
+            <article class="recipe-card" data-category="Салати" data-ingredients="руккола|груша|горіхи|сир|мед" data-steps="Підготувати інгредієнти|Приготувати заправку|Змішати|Прикрасити" data-difficulty="Легка">
+                <div class="recipe-image" style="background-image:url('images/salad4.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Салат з грушею</h4>
+                    <p class="recipe-description">Легкий салат з фруктами.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">15 хв</span>
+                            <span class="recipe-category">Салати</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Салати" data-ingredients="капуста|морква|яблуко|майонез" data-steps="Нашаткувати капусту|Натерти моркву|Змішати|Заправити" data-difficulty="Легка">
+                <div class="recipe-image" style="background-image:url('images/salad5.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Коул слоу</h4>
+                    <p class="recipe-description">Американський капустяний салат.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">20 хв</span>
+                            <span class="recipe-category">Салати</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Салати" data-ingredients="куряче філе|салат|пармезан|соус" data-steps="Приготувати курку|Порвати салат|Зробити соус|Змішати" data-difficulty="Середня">
+                <div class="recipe-image" style="background-image:url('images/salad6.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Цезар з куркою</h4>
+                    <p class="recipe-description">Класичний салат Цезар.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">30 хв</span>
+                            <span class="recipe-category">Салати</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Салати" data-ingredients="буряк|горіхи|чорнослив|часник" data-steps="Відварити буряк|Подрібнити горіхи|Змішати|Заправити" data-difficulty="Легка">
+                <div class="recipe-image" style="background-image:url('images/salad7.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Салат з буряком</h4>
+                    <p class="recipe-description">Пікантний буряковий салат.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">40 хв</span>
+                            <span class="recipe-category">Салати</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
         </section>
 
         <!-- Пагінація -->
@@ -278,6 +787,7 @@
             <button class="page-btn" data-page="1">1</button>
             <button class="page-btn" data-page="2">2</button>
             <button class="page-btn" data-page="3">3</button>
+            <button class="page-btn" data-page="4">4</button>
             <button class="page-next" data-action="next">→</button>
         </div>
     </main>

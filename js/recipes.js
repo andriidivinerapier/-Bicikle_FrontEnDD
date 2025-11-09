@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pageButtons = Array.from(document.querySelectorAll('.page-btn'));
     const nextBtn = document.querySelector('.page-next');
 
-    const cardsPerPage = 4;
+    const cardsPerPage = 12;
     let currentPage = 1;
     let activeCategory = 'Усі';
 

@@ -2,6 +2,7 @@
 const searchInput = document.getElementById('searchInput');
 const recipeCards = document.querySelectorAll('.recipe-card');
 
+
 // Функція для фільтрації рецептів
 function filterRecipes(searchTerm) {
     searchTerm = searchTerm.toLowerCase();
