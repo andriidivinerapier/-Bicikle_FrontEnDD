@@ -1,0 +1,232 @@
+/* Стилі для модального вікна сезонних рецептів */
+.season-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(11, 17, 24, 0.8);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+.season-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.season-modal {
+    background: linear-gradient(180deg, #0f1724 0%, #0b1118 100%);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 1000px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.3s ease-out;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.season-modal-overlay.active .season-modal {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.season-modal::-webkit-scrollbar {
+    width: 8px;
+}
+
+.season-modal::-webkit-scrollbar-track {
+    background: rgba(230, 238, 248, 0.1);
+    border-radius: 4px;
+}
+
+.season-modal::-webkit-scrollbar-thumb {
+    background: rgba(255, 107, 53, 0.5);
+    border-radius: 4px;
+}
+
+.season-modal-image {
+    width: 100%;
+    height: 300px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px 16px 0 0;
+}
+
+.season-modal-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.season-modal-content {
+    padding: 2rem;
+}
+
+.season-modal h3 {
+    color: #e6eef8;
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.season-description {
+    color: #e6eef8;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.season-recipes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.season-recipe-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.season-recipe-card:hover {
+    transform: translateY(-5px);
+}
+
+.season-recipe-image {
+    width: 100%;
+    height: 140px;
+    overflow: hidden;
+}
+
+.season-recipe-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.season-recipe-info {
+    padding: 1rem;
+}
+
+.season-recipe-info h4 {
+    color: #e6eef8;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.season-recipe-info p {
+    color: #e6eef8;
+    opacity: 0.8;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.season-recipe-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.season-recipe-time {
+    color: #e6eef8;
+    opacity: 0.7;
+    font-size: 0.9rem;
+}
+
+.season-recipe-button {
+    background: transparent;
+    color: #ff6b35;
+    border: 1px solid #ff6b35;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.season-recipe-button:hover {
+    background: #ff6b35;
+    color: #e6eef8;
+}
+
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(11, 17, 24, 0.8);
+    color: #e6eef8;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.modal-close:hover {
+    background: #ff6b35;
+    transform: rotate(90deg);
+}
+
+.view-all-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 1rem;
+    background: #ff6b35;
+    color: #e6eef8;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.view-all-button:hover {
+    background: #ff8155;
+    transform: translateY(-2px);
+}
+
+/* Адаптивність */
+@media (max-width: 768px) {
+    .season-modal {
+        width: 95%;
+    }
+
+    .season-modal-image {
+        height: 200px;
+    }
+
+    .season-modal h3 {
+        font-size: 1.5rem;
+    }
+
+    .season-description {
+        font-size: 1rem;
+    }
+
+    .season-recipes-grid {
+        grid-template-columns: 1fr;
+    }
+}

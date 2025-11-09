@@ -316,19 +316,19 @@
     <section class="seasons-section">
         <h2>Категорії та сезони</h2>
         <div class="seasons-grid">
-            <div class="season-card">
+            <div class="season-card" data-season="spring">
                 <img src="images/homepage/spring.jpg" alt="Весняні рецепти">
                 <h3>Весняні страви</h3>
             </div>
-            <div class="season-card">
+            <div class="season-card" data-season="summer">
                 <img src="images/homepage/summer.jpg" alt="Літні рецепти">
                 <h3>Літні страви</h3>
             </div>
-            <div class="season-card">
+            <div class="season-card" data-season="autumn">
                 <img src="images/homepage/autumn.jpg" alt="Осінні рецепти">
                 <h3>Осінні страви</h3>
             </div>
-            <div class="season-card">
+            <div class="season-card" data-season="winter">
                 <img src="images/homepage/winter.jpg" alt="Зимові рецепти">
                 <h3>Зимові страви</h3>
             </div>
@@ -394,7 +394,32 @@
             </div>
         </div>
 
+        <!-- Seasonal Modal -->
+        <div class="season-modal-overlay" id="seasonModal" aria-hidden="true">
+            <div class="season-modal" role="dialog" aria-modal="true">
+                <button class="modal-close" id="seasonModalClose" aria-label="Закрити">×</button>
+                <div class="season-modal-image">
+                    <img src="" alt="" id="seasonModalImage">
+                </div>
+                <div class="season-modal-content">
+                    <h3 id="seasonModalTitle"></h3>
+                    <p id="seasonModalDescription" class="season-description"></p>
+                    <div class="season-recipes-grid">
+                        <!-- Recipes populated by JS -->
+                    </div>
+                    <button class="view-all-button">
+                        <i class="fas fa-arrow-right"></i>
+                        <span>Переглянути всі</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- JS Files -->
+        <link rel="stylesheet" href="css/seasonal-modal.css">
         <script src="js/main.js"></script>
+        <script src="js/recipes.js"></script>
+        <script src="js/seasonal-modal.js"></script>
         <script src="js/transition.js"></script>
 </body>
 </html>
