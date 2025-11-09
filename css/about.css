@@ -1,0 +1,142 @@
+/* About page styles */
+.about-content {
+    padding-top: 80px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #0B1220;
+}
+
+/* Hero section */
+.about-hero {
+    text-align: center;
+    padding: 3rem 2rem;
+    margin-bottom: 3rem;
+}
+
+.about-hero h1 {
+    font-size: 2.5rem;
+    color: #fff;
+    margin-bottom: 1rem;
+}
+
+.about-hero .subtitle {
+    font-size: 1.25rem;
+    color: #94a3b8;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Mission section */
+.mission-section {
+    padding: 3rem 2rem;
+    margin-bottom: 3rem;
+}
+
+.mission-content {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.mission-icon {
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: center;
+}
+
+.mission-icon svg {
+    width: 48px;
+    height: 48px;
+}
+
+.mission-content h2 {
+    color: #fff;
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+}
+
+.mission-content p {
+    color: #94a3b8;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* Values section */
+.values-section {
+    padding: 2rem;
+}
+
+.values-section h2 {
+    text-align: center;
+    color: #fff;
+    font-size: 1.75rem;
+    margin-bottom: 2.5rem;
+}
+
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.value-card {
+    background-color: #121826;
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.value-card:hover {
+    transform: translateY(-5px);
+}
+
+.value-icon {
+    margin-bottom: 1.25rem;
+    display: flex;
+    justify-content: center;
+}
+
+.value-icon svg {
+    width: 32px;
+    height: 32px;
+}
+
+.value-card h3 {
+    color: #fff;
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.value-card p {
+    color: #94a3b8;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .about-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .about-hero .subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .values-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .mission-content p {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 1024px) {
+    .values-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

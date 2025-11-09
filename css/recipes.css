@@ -1,0 +1,147 @@
+/* Темна тема для сторінки рецептів */
+:root{
+    --bg-1: #121826; /* основний фон */
+    --bg-2: #1C2230; /* блоки */
+    --accent: #FF7A00; /* акценти */
+    --muted: #9aa6b6;
+}
+
+body {
+    background-color: var(--bg-1);
+    color: #e6eef8;
+}
+
+.recipes-page h2 {
+    color: var(--accent);
+    font-size: 2rem;
+    margin: 0 0 1rem 0;
+}
+
+.recipes-header {
+    max-width: 1200px;
+    margin: 0 auto 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.catalog-button {
+    background: linear-gradient(180deg, #2a2f3b, var(--bg-2));
+    border: 1px solid rgba(255,255,255,0.06);
+    color: var(--accent);
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.recipes-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.recipe-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+    transition: transform 280ms cubic-bezier(.2,.9,.2,1), box-shadow 280ms ease, border-color 280ms ease;
+}
+
+.recipe-image {
+    height: 170px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.recipe-image::after{
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,0.28) 100%);
+    transition: opacity 260ms ease;
+    opacity: 0.9;
+}
+
+.recipe-info {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.06));
+}
+
+.recipe-info h4 { color: #fff; margin:0; font-size:1.05rem; transition: transform 220ms ease, color 220ms ease }
+.recipe-description { color: var(--muted); font-size: 0.95rem; margin:0; }
+
+.recipe-meta { display:flex; justify-content:space-between; align-items:center; margin-top:6px; }
+.cook-time { color: var(--accent); font-weight:600 }
+.recipe-category { background: rgba(255,255,255,0.03); color: var(--muted); padding: 0.25rem 0.5rem; border-radius: 999px; font-size:0.82rem }
+
+.details-btn { background: none; border: 1px solid rgba(255,255,255,0.06); color: var(--accent); padding:0.35rem 0.6rem; border-radius:8px; cursor:pointer; backdrop-filter: blur(2px) }
+.details-btn:hover { background: linear-gradient(90deg, rgba(255,122,0,0.95), rgba(255,122,0,0.85)); color: #111; transform: translateY(-3px) }
+
+.recipe-like { background: rgba(255,255,255,0.02); border-radius:8px; border:none; color: var(--muted); font-size:1.1rem; cursor: pointer; padding:6px 8px; transition: transform 180ms ease, color 180ms ease, background 180ms ease }
+.recipe-like.liked { color: var(--accent); background: rgba(255,122,0,0.12); transform: scale(1.06) }
+
+.recipe-details { display:none; margin-top:8px; color: #cfe6ff; font-size:0.9rem }
+.recipe-details.open { display:block }
+
+.recipe-card:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 18px 36px rgba(2,6,23,0.7); border-color: rgba(255,122,0,0.15) }
+.recipe-card:hover .recipe-image::after { opacity: 0.65 }
+.recipe-card:hover .recipe-info h4 { transform: translateY(-2px); color: #fff }
+
+/* Пагінація */
+.pagination { max-width:1200px; margin:1.5rem auto; display:flex; gap:8px; justify-content:center }
+.page-btn, .page-next { background: var(--bg-2); color: #fff; border: 1px solid rgba(255,255,255,0.04); padding:0.6rem 0.9rem; border-radius:8px; cursor:pointer }
+.page-btn.active { background: var(--accent); color:#111 }
+
+/* Modal */
+.modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(3,6,12,0.55); z-index:2000; backdrop-filter: blur(6px) }
+.modal[aria-hidden="false"] { display:flex }
+.modal-content { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.16)); padding:1.25rem; border-radius:12px; width: min(920px, 95%); position:relative; box-shadow: 0 12px 40px rgba(2,6,23,0.8); overflow:hidden; transform-origin: center top }
+
+/* modal open animation (content) */
+.modal-content{ opacity:0; transform: translateY(10px) scale(.98); transition: opacity 320ms cubic-bezier(.2,.9,.2,1), transform 320ms cubic-bezier(.2,.9,.2,1); }
+.modal[aria-hidden="false"] .modal-content{ opacity:1; transform: translateY(0) scale(1); }
+.modal-close { position:absolute; right:12px; top:10px; background:none; border:none; color:var(--muted); font-size:1.1rem; cursor:pointer }
+.categories-modal-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-top:1rem }
+.cat-btn { padding:0.6rem 0.5rem; border-radius:8px; border:1px solid rgba(255,255,255,0.04); background:transparent; color: #fff; cursor:pointer }
+.cat-btn:hover { background: rgba(255,255,255,0.03); color: var(--accent) }
+
+/* Детальний модал */
+.detail-content { padding:1rem; }
+.detail-grid { display:grid; grid-template-columns: 1fr 1fr; gap:1rem; align-items:start }
+.detail-body h4 { margin-top:10px; color: #fff }
+.detail-body ul, .detail-body ol { margin-left:1rem; color:#dbefff }
+.difficulty { background: var(--accent); color: #111; padding:0.25rem 0.6rem; border-radius:8px; font-weight:700; box-shadow: 0 4px 12px rgba(255,122,0,0.12) }
+.detail-image { border: 1px solid rgba(255,255,255,0.03); border-radius:8px; overflow:hidden }
+
+/* Staggered fade-up animation for list items */
+.fade-in-up{ opacity:0; transform: translateY(8px); animation: fadeUp .36s cubic-bezier(.2,.9,.2,1) forwards; }
+@keyframes fadeUp{ from { opacity:0; transform: translateY(8px) } to { opacity:1; transform: translateY(0) } }
+
+/* small polish for headings inside modal */
+.detail-body h4{ color: #f1f8ff; margin-bottom:6px }
+
+
+@media (max-width:780px){ .detail-grid{ grid-template-columns: 1fr } .detail-image{ min-height:220px } }
+
+/* Адаптивність */
+@media (max-width: 1100px){ .recipes-grid{ grid-template-columns: repeat(3,1fr) } .categories-modal-grid{ grid-template-columns: repeat(3,1fr) } }
+@media (max-width: 780px){ .recipes-grid{ grid-template-columns: repeat(2,1fr) } .categories-modal-grid{ grid-template-columns: repeat(2,1fr) } }
+@media (max-width: 480px){ .recipes-grid{ grid-template-columns: 1fr } .categories-modal-grid{ grid-template-columns: 1fr } .recipes-header{ flex-direction:column; align-items:flex-start } }
+
+/* Ensure fade container visible class still works */
+.fade-page{ min-height:100vh }
+
+/* prevent scroll when modal open */
+body.no-scroll{ overflow: hidden; height: 100vh }
