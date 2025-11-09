@@ -84,3 +84,113 @@ document.querySelectorAll('.nav-links a').forEach(link => {
         // Інакше дозволяємо звичайну навігацію (наприклад, перехід на contacts.html)
     });
 });
+
+// --- Modal: open / close / populate ---
+(function () {
+    const modalOverlay = document.getElementById('recipeModal');
+    const modalClose = document.getElementById('modalClose');
+    const modalImage = document.getElementById('modalImage');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalIngredients = document.getElementById('modalIngredients');
+    const modalPreparation = document.getElementById('modalPreparation');
+    const modalDifficulty = modalOverlay.querySelector('.tag.difficulty');
+    const modalTimeEl = modalOverlay.querySelector('.tag.time');
+
+    // Small data store for demo recipes (keyed by title)
+    const recipes = {
+        'будда-боул': {
+            difficulty: 'Легка',
+            time: '25 хв',
+            ingredients: [
+                'Кіноа - 100г', 'Морква - 1 шт', 'Соєвий соус - 2 ст.л.',
+                'Нут варений - 200г', 'Броколі - 200г', 'Кунжутна олія - 1 ст.л.',
+                'Авокадо - 1 шт', 'Шпинат - 50г'
+            ],
+            steps: [
+                'Приготуйте кіноа згідно інструкції на упаковці.',
+                'Поріжте овочі та обсмажте моркву і броколі на олії кілька хвилин.',
+                'Змішайте кіноа, овочі та нут, додайте соєвий соус і кунжутну олію.',
+                'Декоруйте скибочками авокадо та свіжим шпинатом. Подавайте теплою.'
+            ]
+        }
+    };
+
+    function extractUrlFromBg(bg) {
+        // bg like: url("images/homepage/salad1.jpg")
+        if (!bg) return '';
+        const m = bg.match(/url\((?:\"|\')?(.*?)(?:\"|\')?\)/);
+        return m ? m[1] : bg;
+    }
+
+    function openModal(data) {
+    // fill image & title
+    if (data.image) modalImage.src = data.image;
+    if (data.title) modalTitle.textContent = data.title;
+
+    // tags (difficulty/time)
+    if (modalDifficulty) modalDifficulty.textContent = data.difficulty || '';
+    if (modalTimeEl) modalTimeEl.textContent = data.time || '';
+        // populate ingredients
+        modalIngredients.innerHTML = '';
+        (data.ingredients || []).forEach(ing => {
+            const li = document.createElement('li');
+            li.textContent = ing;
+            modalIngredients.appendChild(li);
+        });
+
+        // preparation
+        modalPreparation.innerHTML = '';
+        (data.steps || []).forEach(step => {
+            const li = document.createElement('li');
+            li.textContent = step;
+            modalPreparation.appendChild(li);
+        });
+
+        modalOverlay.classList.add('open');
+        modalOverlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        modalOverlay.classList.remove('open');
+        modalOverlay.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+
+    // Attach to recipe buttons
+    document.querySelectorAll('.recipe-button').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const card = btn.closest('.recipe-card');
+            if (!card) return;
+            const title = (card.querySelector('h4')?.textContent || '').trim();
+            const rawBg = card.querySelector('.recipe-image')?.style.backgroundImage || getComputedStyle(card.querySelector('.recipe-image')).backgroundImage;
+            const imageUrl = extractUrlFromBg(rawBg) || 'images/homepage/salad1.jpg';
+
+
+            const key = title.toLowerCase();
+            const ds = card.dataset || {};
+            const ingredients = ds.ingredients ? ds.ingredients.split('|') : (recipes[key]?.ingredients || ['Інгредієнт 1', 'Інгредієнт 2']);
+            const steps = ds.steps ? ds.steps.split('|') : (recipes[key]?.steps || ['Крок 1: ...', 'Крок 2: ...']);
+            const difficulty = ds.difficulty || recipes[key]?.difficulty || 'Середня';
+            const time = ds.time || card.querySelector('.cook-time')?.textContent || recipes[key]?.time || '';
+
+            const data = {
+                title: title || recipes[key]?.title || 'Рецепт',
+                image: imageUrl,
+                difficulty,
+                time,
+                ingredients,
+                steps
+            };
+
+            openModal(data);
+        });
+    });
+
+    // Close handlers
+    modalClose.addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closeModal();
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+})();
