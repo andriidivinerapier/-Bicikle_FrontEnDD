@@ -34,25 +34,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Детальніше — відкриваємо деталізований модал з кроками/інгредієнтами/складністю
-    const detailModal = document.getElementById('detailModal');
-    const closeDetail = document.getElementById('closeDetail');
-    const detailImage = document.getElementById('detailImage');
-    const detailTitle = document.getElementById('detailTitle');
-    const detailIngredients = document.getElementById('detailIngredients');
-    const detailSteps = document.getElementById('detailSteps');
-    const detailDifficulty = document.getElementById('detailDifficulty');
-    const detailTime = document.getElementById('detailTime');
-
+    // Модальне вікно рецепту
     document.addEventListener('click', (e) => {
         if (e.target.classList.contains('details-btn')) {
             const card = e.target.closest('.recipe-card');
-            openDetail(card);
+            openRecipeModal(card);
         }
 
         if (e.target.classList.contains('recipe-like')) {
             e.target.classList.toggle('liked');
-            // Можна тут зберегти в localStorage
             const title = e.target.closest('.recipe-card').querySelector('h4').textContent;
             const liked = e.target.classList.contains('liked');
             const likes = JSON.parse(localStorage.getItem('likes') || '{}');
@@ -61,64 +51,92 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function openDetail(card){
-        // Наповнюємо модал
+    function openRecipeModal(card) {
         const title = card.querySelector('h4').textContent;
-        const time = card.querySelector('.cook-time') ? card.querySelector('.cook-time').textContent : '';
-        const img = card.querySelector('.recipe-image')?.style.backgroundImage || '';
+        const time = card.querySelector('.cook-time')?.textContent || '';
+        const imgUrl = card.querySelector('.recipe-image')?.style.backgroundImage.slice(4, -1).replace(/"/g, '') || '';
         const ingredientsRaw = card.dataset.ingredients || '';
         const stepsRaw = card.dataset.steps || '';
         const difficulty = card.dataset.difficulty || '';
 
-        detailTitle.textContent = title;
-        detailTime.textContent = time;
-        detailDifficulty.textContent = difficulty;
-        // set image background (strip url());
-        detailImage.style.backgroundImage = img;
+        // Створюємо модальне вікно
+        const modalHtml = `
+            <div class="recipe-modal-overlay">
+                <div class="recipe-modal">
+                    <button class="modal-close">×</button>
+                    <div class="modal-image-wrap">
+                        <img src="${imgUrl}" alt="${title}">
+                    </div>
+                    <div class="modal-body">
+                        <h2 id="modalTitle">${title}</h2>
+                        <div class="modal-meta">
+                            <span class="difficulty">${difficulty}</span>
+                            <span class="cook-time">${time}</span>
+                        </div>
+                        <div class="ingredients">
+                            <h4>Інгредієнти:</h4>
+                            <ul>
+                                ${ingredientsRaw.split('|')
+                                    .filter(Boolean)
+                                    .map(i => `<li>${i.trim()}</li>`)
+                                    .join('')}
+                            </ul>
+                        </div>
+                        <div class="preparation">
+                            <h4>Приготування:</h4>
+                            <ol>
+                                ${stepsRaw.split('|')
+                                    .filter(Boolean)
+                                    .map(s => `<li>${s.trim()}</li>`)
+                                    .join('')}
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
 
-        // Заповнюємо інгредієнти з анімацією (stagger)
-        detailIngredients.innerHTML = '';
-        const ingList = ingredientsRaw.split('|').filter(Boolean);
-        ingList.forEach((i, idx) => {
-            const li = document.createElement('li');
-            li.textContent = i.trim();
-            li.classList.add('fade-in-up');
-            li.style.animationDelay = `${idx * 70}ms`;
-            detailIngredients.appendChild(li);
-        });
-
-        // Кроки з анімацією
-        detailSteps.innerHTML = '';
-        const stepsList = stepsRaw.split('|').filter(Boolean);
-        stepsList.forEach((s, idx) => {
-            const li = document.createElement('li');
-            li.textContent = s.trim();
-            li.classList.add('fade-in-up');
-            // додатковий відступ, щоб кроки з'являлися трохи після інгредієнтів
-            li.style.animationDelay = `${(ingList.length * 70) + idx * 80}ms`;
-            detailSteps.appendChild(li);
-        });
-
-        // Забороняємо скрол на бекграунді
-        document.body.classList.add('no-scroll');
+        // Додаємо модал до body
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        
+        // Отримуємо посилання на новостворені елементи
+        const modal = document.querySelector('.recipe-modal-overlay');
+        const closeBtn = modal.querySelector('.modal-close');
 
         // Відкриваємо модал
-        detailModal.setAttribute('aria-hidden','false');
-        // легко переконатися, що анімації застосуються — браузер починає анімацію після відмалювання
         requestAnimationFrame(() => {
-            // нічого додаткового потрібно — анімації вже прив'язані через клас і delay
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        });
+
+        // Обробники закриття
+        const closeModal = () => {
+            modal.classList.remove('open');
+            document.body.style.overflow = '';
+            setTimeout(() => modal.remove(), 300);
+        };
+
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
         });
     }
 
-    function closeAllModals(){
-        detailModal.setAttribute('aria-hidden','true');
-        catalogModal.setAttribute('aria-hidden','true');
-        document.body.classList.remove('no-scroll');
+    function closeAllModals() {
+        const modal = document.querySelector('.recipe-modal-overlay');
+        if (modal) {
+            modal.classList.remove('open');
+            document.body.style.overflow = '';
+            setTimeout(() => modal.remove(), 300);
+        }
+        catalogModal.setAttribute('aria-hidden', 'true');
     }
 
-    closeDetail.addEventListener('click', closeAllModals);
-    detailModal.addEventListener('click', (e) => { if (e.target === detailModal) closeAllModals(); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAllModals(); });
+    document.addEventListener('keydown', (e) => { 
+        if (e.key === 'Escape') closeAllModals(); 
+    });
 
     // Пагінація
     pageButtons.forEach(btn => btn.addEventListener('click', (e) => {

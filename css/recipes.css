@@ -105,35 +105,88 @@ body {
 .page-btn.active { background: var(--accent); color:#111 }
 
 /* Modal */
-.modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(3,6,12,0.55); z-index:2000; backdrop-filter: blur(6px) }
-.modal[aria-hidden="false"] { display:flex }
-.modal-content { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.16)); padding:1.25rem; border-radius:12px; width: min(920px, 95%); position:relative; box-shadow: 0 12px 40px rgba(2,6,23,0.8); overflow:hidden; transform-origin: center top }
+.modal {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(3,6,12,0.95);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 280ms cubic-bezier(0.4, 0, 0.2, 1),
+                visibility 280ms cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2000;
+    padding: 1rem;
+    pointer-events: none;
+}
 
-/* modal open animation (content) */
-.modal-content{ opacity:0; transform: translateY(10px) scale(.98); transition: opacity 320ms cubic-bezier(.2,.9,.2,1), transform 320ms cubic-bezier(.2,.9,.2,1); }
-.modal[aria-hidden="false"] .modal-content{ opacity:1; transform: translateY(0) scale(1); }
-.modal-close { position:absolute; right:12px; top:10px; background:none; border:none; color:var(--muted); font-size:1.1rem; cursor:pointer }
-.categories-modal-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-top:1rem }
-.cat-btn { padding:0.6rem 0.5rem; border-radius:8px; border:1px solid rgba(255,255,255,0.04); background:transparent; color: #fff; cursor:pointer }
-.cat-btn:hover { background: rgba(255,255,255,0.03); color: var(--accent) }
+.modal[aria-hidden="false"] {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
 
-/* Детальний модал */
-.detail-content { padding:1rem; }
-.detail-grid { display:grid; grid-template-columns: 1fr 1fr; gap:1rem; align-items:start }
-.detail-body h4 { margin-top:10px; color: #fff }
-.detail-body ul, .detail-body ol { margin-left:1rem; color:#dbefff }
-.difficulty { background: var(--accent); color: #111; padding:0.25rem 0.6rem; border-radius:8px; font-weight:700; box-shadow: 0 4px 12px rgba(255,122,0,0.12) }
-.detail-image { border: 1px solid rgba(255,255,255,0.03); border-radius:8px; overflow:hidden }
+.modal-content {
+    background: var(--bg-1);
+    border-radius: 12px;
+    width: min(920px, 95%);
+    position: relative;
+    padding: 2rem;
+    color: var(--text-primary);
+    box-shadow: 0 12px 40px rgba(2,6,23,0.8);
+    transform: translateY(24px) scale(0.98);
+    transition: transform 320ms cubic-bezier(.2,.9,.2,1);
+}
 
-/* Staggered fade-up animation for list items */
-.fade-in-up{ opacity:0; transform: translateY(8px); animation: fadeUp .36s cubic-bezier(.2,.9,.2,1) forwards; }
-@keyframes fadeUp{ from { opacity:0; transform: translateY(8px) } to { opacity:1; transform: translateY(0) } }
+.modal[aria-hidden="false"] .modal-content {
+    transform: translateY(0) scale(1);
+}
 
-/* small polish for headings inside modal */
-.detail-body h4{ color: #f1f8ff; margin-bottom:6px }
+.modal-close {
+    position: absolute;
+    right: 1.5rem;
+    top: 1.5rem;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    z-index: 10;
+    transition: color 180ms ease;
+}
+
+.modal-close:hover {
+    color: var(--accent);
+}
+
+.categories-modal-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.cat-btn {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));
+    border: 1px solid rgba(255,255,255,0.04);
+    color: #fff;
+    padding: 0.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 200ms ease;
+}
+
+.cat-btn:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #111;
+    transform: translateY(-2px);
+}
 
 
-@media (max-width:780px){ .detail-grid{ grid-template-columns: 1fr } .detail-image{ min-height:220px } }
 
 /* Адаптивність */
 @media (max-width: 1100px){ .recipes-grid{ grid-template-columns: repeat(3,1fr) } .categories-modal-grid{ grid-template-columns: repeat(3,1fr) } }

@@ -677,13 +677,13 @@ body.modal-open {
     position: fixed;
     inset: 0;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    background: linear-gradient(rgba(5,8,12,0.75), rgba(5,8,12,0.75));
-    backdrop-filter: blur(8px) saturate(140%);
+    background: rgba(3,6,12,0.95);
+    backdrop-filter: blur(6px);
     opacity: 0;
     visibility: hidden;
-    transition: opacity 280ms cubic-bezier(0.4, 0, 0.2, 1), 
+    transition: opacity 280ms cubic-bezier(0.4, 0, 0.2, 1),
                 visibility 280ms cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 2000;
     overflow-y: auto;
@@ -698,17 +698,14 @@ body.modal-open {
 .recipe-modal {
     width: min(920px, 95%);
     margin: auto;
-    background: linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 100%);
-    border: 1px solid rgba(255,255,255,0.04);
-    border-radius: 14px;
-    box-shadow: 0 24px 60px rgba(2,6,23,0.8);
+    background: var(--bg-1);
+    border-radius: 12px;
     color: var(--text-primary);
-    transform: translateY(24px) scale(0.98);
-    transition: transform 320ms cubic-bezier(.2,.9,.2,1), 
-                opacity 280ms cubic-bezier(0.4, 0, 0.2, 1),
-                box-shadow 280ms ease;
     position: relative;
-    isolation: isolate;
+    transform: translateY(24px) scale(0.98);
+    transition: transform 320ms cubic-bezier(.2,.9,.2,1);
+    padding: 0;
+    overflow: hidden;
 }
 
 .recipe-modal-overlay.open .recipe-modal {
@@ -717,26 +714,42 @@ body.modal-open {
 
 .modal-close {
     position: absolute;
-    right: 12px;
-    top: 8px;
-    background: transparent;
+    right: 1.5rem;
+    top: 1.5rem;
+    background: none;
     border: none;
-    color: var(--muted);
-    font-size: 26px;
-    line-height: 1;
+    color: #fff;
+    font-size: 1.5rem;
     cursor: pointer;
-    padding: 8px 12px;
-    border-radius: 8px;
-    transition: background 180ms cubic-bezier(0.4, 0, 0.2, 1), 
-                color 180ms ease,
-                transform 180ms ease;
+    padding: 0.5rem;
     z-index: 10;
+    transition: color 180ms ease;
 }
 
-.modal-close:hover { 
-    background: rgba(255,255,255,0.03); 
+.modal-close:hover {
     color: var(--accent);
-    transform: scale(1.1);
+}
+
+.modal-image-wrap {
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    position: relative;
+}
+
+.modal-image-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgba(0,0,0,0.3), transparent);
+    pointer-events: none;
+}
+
+.modal-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .modal-image-wrap {
@@ -770,38 +783,83 @@ body.modal-open {
 }
 
 .modal-body {
-    padding: 1.6rem 2rem 2.4rem;
-    display: grid;
-    gap: 1.2rem;
+    padding: 2rem;
     position: relative;
     z-index: 1;
 }
 
 #modalTitle {
-    font-size: 1.6rem;
-    margin: 0;
     color: #fff;
-    font-weight: 700;
+    font-size: 2rem;
+    margin: 0 0 1.5rem 0;
+    font-weight: 600;
 }
 
-.modal-tags {
+.modal-meta {
     display: flex;
-    gap: 0.6rem;
-    margin-top: 0.6rem;
-}
-.tag {
-    display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    background: rgba(255,107,53,0.08);
-    color: #ffb79a;
-    padding: 0.35rem 0.65rem;
-    border-radius: 999px;
-    font-weight: 600;
-    font-size: 0.9rem;
+    gap: 1rem;
+    margin-bottom: 2rem;
 }
-.tag.difficulty { background: rgba(255,107,53,0.08); color: #ffb79a; }
-.tag.time { background: rgba(255,107,53,0.06); color: #ffc9b3; }
+
+.difficulty {
+    background: var(--accent);
+    color: #111;
+    padding: 0.25rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.cook-time {
+    color: var(--accent);
+}
+
+.ingredients {
+    margin-bottom: 2rem;
+}
+
+.ingredients h4,
+.preparation h4 {
+    color: var(--accent);
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.modal-body ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem 2rem;
+    margin: 0;
+}
+
+.modal-body ul li {
+    color: #fff;
+    position: relative;
+    padding-left: 1rem;
+}
+
+.modal-body ul li::before {
+    content: "•";
+    color: var(--accent);
+    position: absolute;
+    left: 0;
+}
+
+.modal-body ol {
+    color: #fff;
+    padding-left: 1.2rem;
+    margin: 0;
+}
+
+.modal-body ol li {
+    margin-bottom: 0.5rem;
+}
+
+.modal-body ol li:last-child {
+    margin-bottom: 0;
+}
 
 .modal-section h4 {
     margin: 0.6rem 0 0.6rem 0;
