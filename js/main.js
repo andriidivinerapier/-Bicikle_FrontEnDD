@@ -123,13 +123,14 @@ document.querySelectorAll('.nav-links a').forEach(link => {
     }
 
     function openModal(data) {
-    // fill image & title
-    if (data.image) modalImage.src = data.image;
-    if (data.title) modalTitle.textContent = data.title;
+        // fill image & title
+        if (data.image) modalImage.src = data.image;
+        if (data.title) modalTitle.textContent = data.title;
 
-    // tags (difficulty/time)
-    if (modalDifficulty) modalDifficulty.textContent = data.difficulty || '';
-    if (modalTimeEl) modalTimeEl.textContent = data.time || '';
+        // tags (difficulty/time)
+        if (modalDifficulty) modalDifficulty.textContent = data.difficulty || '';
+        if (modalTimeEl) modalTimeEl.textContent = data.time || '';
+        
         // populate ingredients
         modalIngredients.innerHTML = '';
         (data.ingredients || []).forEach(ing => {
@@ -146,15 +147,21 @@ document.querySelectorAll('.nav-links a').forEach(link => {
             modalPreparation.appendChild(li);
         });
 
+        // Add class to body to prevent background scroll
+        document.body.classList.add('modal-open');
+        
+        // Show modal
         modalOverlay.classList.add('open');
         modalOverlay.setAttribute('aria-hidden', 'false');
-        document.body.style.overflow = 'hidden';
+        
+        // Reset scroll position of modal
+        modalOverlay.scrollTop = 0;
     }
 
     function closeModal() {
         modalOverlay.classList.remove('open');
         modalOverlay.setAttribute('aria-hidden', 'true');
-        document.body.style.overflow = '';
+        document.body.classList.remove('modal-open');
     }
 
     // Attach to recipe buttons
