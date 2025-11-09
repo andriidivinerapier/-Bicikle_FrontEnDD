@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/recipe-cards.css">
+    <link rel="stylesheet" href="css/auth-modal.css">
 </head>
 <body>
     <div class="fade-page">
@@ -25,9 +26,12 @@
                  <li><a href="about.html">Про нас</a></li>
                 <li><a href="contacts.html">Контакти</a></li>
             </ul>
-            <div class="search-container">
-                <input type="text" id="searchInput" placeholder="Пошук рецептів...">
-                <button class="search-btn">🔍</button>
+            <div class="nav-actions">
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Пошук рецептів...">
+                    <button class="search-btn">🔍</button>
+                </div>
+                <button class="login-btn" id="loginBtn">Увійти</button>
             </div>
         </nav>
     </header>
@@ -363,6 +367,68 @@
                 </footer>
 
 </div>
+        <!-- Auth Modal -->
+        <div class="auth-modal-overlay" id="authModal" aria-hidden="true">
+            <div class="auth-modal" role="dialog" aria-modal="true">
+                <button class="modal-close" id="authModalClose" aria-label="Закрити">×</button>
+                
+                <!-- Logo -->
+                <div class="auth-logo">
+                    <div class="auth-logo-icon">👨‍🍳</div>
+                    <span class="auth-logo-text">Смачно :)</span>
+                </div>
+
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login">ВХІД</button>
+                    <button class="auth-tab" data-tab="register">РЕЄСТРАЦІЯ</button>
+                </div>
+                
+                <div class="auth-content">
+                    <!-- Login Form -->
+                    <form id="loginForm" class="auth-form active">
+                        <div class="form-group">
+                            <label for="loginName">Ім'я</label>
+                            <input type="text" id="loginName" placeholder="Ваше ім'я" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginEmail">E-mail</label>
+                            <input type="email" id="loginEmail" placeholder="your@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Пароль</label>
+                            <input type="password" id="loginPassword" placeholder="********" required>
+                        </div>
+                        <div class="form-checkbox">
+                            <input type="checkbox" id="loginRemember">
+                            <label for="loginRemember">Запам'ятати мене</label>
+                        </div>
+                        <button type="submit" class="auth-submit">УВІЙТИ</button>
+                    </form>
+                    
+                    <!-- Register Form -->
+                    <form id="registerForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="registerName">Ім'я</label>
+                            <input type="text" id="registerName" placeholder="Ваше ім'я" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerEmail">E-mail</label>
+                            <input type="email" id="registerEmail" placeholder="your@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerPassword">Пароль</label>
+                            <input type="password" id="registerPassword" placeholder="********" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerConfirmPassword">Підтвердження паролю</label>
+                            <input type="password" id="registerConfirmPassword" placeholder="********" required>
+                        </div>
+                        <button type="submit" class="auth-submit">ЗАРЕЄСТРУВАТИСЯ</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- Recipe modal -->
         <div class="recipe-modal-overlay" id="recipeModal" aria-hidden="true">
             <div class="recipe-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -421,5 +487,6 @@
         <script src="js/recipes.js"></script>
         <script src="js/seasonal-modal.js"></script>
         <script src="js/transition.js"></script>
+        <script src="js/auth-modal.js"></script>
 </body>
 </html>

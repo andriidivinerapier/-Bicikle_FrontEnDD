@@ -101,9 +101,35 @@ body.modal-open {
     transform-origin: left;
 }
 
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
 .search-container {
     display: flex;
     align-items: center;
+}
+
+.login-btn {
+    background: linear-gradient(90deg, var(--accent), rgba(255,122,0,0.95));
+    color: var(--text-primary);
+    padding: 0.6rem 1.5rem;
+    border: none;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 200ms ease,
+                background 200ms ease;
+    box-shadow: 0 4px 12px rgba(255,122,0,0.15);
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(255,122,0,0.25);
 }
 
 #searchInput {
