@@ -187,6 +187,45 @@ document.querySelectorAll('.nav-links a').forEach(link => {
         });
     });
 
+    // Attach to hero CTA button ("Переглянути рецепт") — opens modal with hero recipe
+    const cta = document.querySelector('.cta-button');
+    if (cta) {
+        cta.addEventListener('click', () => {
+            const heroTitle = document.querySelector('.hero-content h2')?.textContent.trim();
+            const heroImg = document.querySelector('.hero-image img')?.src || '';
+
+            // Try to find a matching recipe card by title on the page
+            let matchedCard = Array.from(document.querySelectorAll('.recipe-card')).find(c => {
+                const t = (c.querySelector('h4')?.textContent || '').trim();
+                return t && heroTitle && t.toLowerCase() === heroTitle.toLowerCase();
+            });
+
+            if (matchedCard) {
+                // reuse same extraction logic as above
+                const title = (matchedCard.querySelector('h4')?.textContent || '').trim();
+                const rawBg = matchedCard.querySelector('.recipe-image')?.style.backgroundImage || getComputedStyle(matchedCard.querySelector('.recipe-image')).backgroundImage;
+                const imageUrl = extractUrlFromBg(rawBg) || heroImg || 'images/homepage/salad1.jpg';
+                const ds = matchedCard.dataset || {};
+                const ingredients = ds.ingredients ? ds.ingredients.split('|') : ['Інгредієнт 1', 'Інгредієнт 2'];
+                const steps = ds.steps ? ds.steps.split('|') : ['Крок 1: ...', 'Крок 2: ...'];
+                const difficulty = ds.difficulty || 'Середня';
+                const time = ds.time || matchedCard.querySelector('.cook-time')?.textContent || '';
+
+                openModal({ title, image: imageUrl, difficulty, time, ingredients, steps });
+                return;
+            }
+
+            // Fallback: use data-* on the CTA button if provided, otherwise simple placeholders
+            const ds = cta.dataset || {};
+            const ingredients = ds.ingredients ? ds.ingredients.split('|') : ['Інгредієнт 1', 'Інгредієнт 2', 'Інгредієнт 3'];
+            const steps = ds.steps ? ds.steps.split('|') : ['Крок 1: ...', 'Крок 2: ...', 'Крок 3: ...'];
+            const difficulty = ds.difficulty || document.querySelector('.recipe-card')?.dataset?.difficulty || 'Середня';
+            const time = ds.time || document.querySelector('.cook-time')?.textContent || '';
+
+            openModal({ title: heroTitle || 'Рецепт', image: heroImg || 'images/homepage/salad1.jpg', difficulty, time, ingredients, steps });
+        });
+    }
+
     // Close handlers
     modalClose.addEventListener('click', closeModal);
     modalOverlay.addEventListener('click', (e) => {

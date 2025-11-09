@@ -1,4 +1,14 @@
-/* Загальні стилі */
+/* Загальні стилі та тема */
+:root{
+    --bg-1: #121826; /* основний фон */
+    --bg-2: #1C2230; /* блоки */
+    --accent: #FF7A00; /* акценти */
+    --muted: #9aa6b6;
+    --text-primary: #e6eef8;
+    --bg-secondary: rgba(255,255,255,0.02);
+    --header-bg: var(--bg-2);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -7,8 +17,8 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #0a1929;
-    color: #ffffff;
+    background-color: var(--bg-1);
+    color: var(--text-primary);
     line-height: 1.6;
 }
 
@@ -17,11 +27,13 @@ body {
     position: fixed;
     top: 0;
     width: 100%;
-    background-color: var(--header-bg);
+    background: linear-gradient(180deg, var(--bg-2), rgba(28,34,48,0.98));
     padding: 1rem 0;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 20px rgba(2,6,23,0.2);
+    backdrop-filter: blur(10px);
     z-index: 1000;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.3s ease;
 }
 
 .nav-container {
@@ -34,9 +46,14 @@ body {
 }
 
 .logo h1 {
-    color: var(--accent-color);
+    color: var(--accent);
     font-size: 1.8rem;
     font-weight: 700;
+    transition: color 200ms ease;
+}
+
+.logo h1:hover {
+    color: var(--accent-hover);
 }
 
 .nav-links {
@@ -49,12 +66,34 @@ body {
     color: var(--text-primary);
     text-decoration: none;
     font-weight: 500;
-    transition: color 0.3s ease;
+    transition: color 200ms ease,
+                transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-block;
+    position: relative;
+}
+
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: right;
 }
 
 .nav-links a:hover,
 .nav-links a.active {
-    color: #ff6b35;
+    color: var(--accent);
+}
+
+.nav-links a:hover::after,
+.nav-links a.active::after {
+    transform: scaleX(1);
+    transform-origin: left;
 }
 
 .search-container {
@@ -63,22 +102,36 @@ body {
 }
 
 #searchInput {
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 20px;
-    background-color: var(--bg-secondary);
+    padding: 0.5rem 0.9rem;
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));
     color: var(--text-primary);
-    width: 200px;
+    width: 220px;
     margin-right: 0.5rem;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 200ms ease;
+}
+
+#searchInput:focus {
+    outline: none;
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.08));
+    border-color: rgba(255,255,255,0.08);
+    color: var(--text-primary);
+    transform: scale(1.02);
 }
 
 .search-btn {
     background: none;
     border: none;
-    color: var(--accent-color);
+    color: var(--accent);
     cursor: pointer;
     font-size: 1.2rem;
+    transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1), color 200ms ease;
+}
+
+.search-btn:hover {
+    color: var(--accent-hover);
+    transform: scale(1.1);
 }
 
 
@@ -87,8 +140,8 @@ body {
 .hero {
     margin-top: 70px;
     padding: 2rem;
-    background-color: #1a2d3d;
-    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), var(--bg-2));
+    border-radius: 14px;
     max-width: 1400px;
     margin-left: auto;
     margin-right: auto;
@@ -96,6 +149,7 @@ body {
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
     align-items: center;
+    box-shadow: 0 8px 28px rgba(2,6,23,0.65);
 }
 
 .hero-image {
@@ -141,20 +195,20 @@ body {
 }
 
 .cta-button {
-    padding: 0.8rem 1.5rem;
-    background-color: #ff6b35;
-    color: #ffffff;
+    padding: 0.8rem 1.25rem;
+    background: linear-gradient(90deg, var(--accent), rgba(255,122,0,0.95));
+    color: #fff;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
     font-size: 1rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: transform 220ms cubic-bezier(.2,.9,.2,1), box-shadow 220ms ease;
     align-self: flex-start;
+    box-shadow: 0 6px 16px rgba(255,122,0,0.12);
 }
 
 .cta-button:hover {
-    background-color: #ff8255;
-    transform: translateY(-2px);
+    transform: translateY(-3px);
 }
 
 /* Секція рецептів */
@@ -191,23 +245,57 @@ body {
 }
 
 .recipe-card {
-    background-color: #1e293b;
-    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 14px;
     overflow: hidden;
-    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+    transition: transform 280ms cubic-bezier(.2,.9,.2,1), 
+                box-shadow 280ms ease, 
+                border-color 280ms ease,
+                background 280ms ease;
     position: relative;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    isolation: isolate;
+}
+
+.recipe-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent, rgba(255,122,0,0.03));
+    opacity: 0;
+    transition: opacity 280ms ease;
+    z-index: -1;
+    pointer-events: none;
 }
 
 .recipe-card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: 0 18px 36px rgba(2,6,23,0.7);
+    border-color: rgba(255,122,0,0.15);
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.14));
+}
+
+.recipe-card:hover::after {
+    opacity: 1;
 }
 
 .recipe-image {
-    height: 200px;
+    height: 170px;
     background-size: cover;
     background-position: center;
+    position: relative;
+}
+
+.recipe-image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,0.28) 100%);
+    transition: opacity 260ms ease;
+    opacity: 0.9;
 }
 
 .recipe-info {
@@ -265,20 +353,38 @@ body {
 }
 
 .recipe-button {
-    background-color: #fff;
-    color: #1e293b;
+    background: linear-gradient(90deg, var(--accent), rgba(255,122,0,0.95));
+    color: #fff;
     border: none;
-    padding: 0.5rem 1rem;
+    padding: 0.45rem 1.1rem;
     border-radius: 999px;
     font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: transform 180ms cubic-bezier(0.4, 0, 0.2, 1), 
+                box-shadow 180ms ease,
+                background 180ms ease;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.recipe-button::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: translateX(-100%);
+    transition: transform 400ms ease;
 }
 
 .recipe-button:hover {
-    background-color: #f8fafc;
-    transform: translateY(-1px);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 22px rgba(255,122,0,0.18);
+}
+
+.recipe-button:hover::after {
+    transform: translateX(100%);
 }
 
 .recipe-like {
@@ -321,39 +427,57 @@ body {
 /* Сезонна секція */
 .seasons-section {
     padding: 4rem 2rem;
-    background-color: #0d1f2d;
+    background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
+    border-top: 1px solid rgba(255,255,255,0.03);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    box-shadow: 0 20px 40px rgba(2,6,23,0.4);
 }
 
 .seasons-section h2 {
     text-align: center;
     margin-bottom: 3rem;
-    color: #ff6b35;
+    color: var(--accent);
+    font-size: 2rem;
+    font-weight: 600;
 }
 
 .seasons-grid {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    padding: 0.5rem;
 }
 
 .season-card {
     position: relative;
-    border-radius: 10px;
+    border-radius: 14px;
     overflow: hidden;
-    height: 200px;
+    height: 240px;
+    border: 1px solid rgba(255,255,255,0.04);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));
+    box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+    transition: transform 280ms cubic-bezier(.2,.9,.2,1), 
+                box-shadow 280ms ease, 
+                border-color 280ms ease;
 }
 
 .season-card img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
+    transition: transform 400ms cubic-bezier(.2,.9,.2,1);
+}
+
+.season-card:hover {
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: 0 18px 36px rgba(2,6,23,0.7);
+    border-color: rgba(255,122,0,0.15);
 }
 
 .season-card:hover img {
-    transform: scale(1.1);
+    transform: scale(1.08);
 }
 
 .season-card h3 {
@@ -361,15 +485,25 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 1rem;
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-    color: #ffffff;
+    padding: 2rem 1.5rem 1.2rem;
+    background: linear-gradient(transparent, rgba(0,0,0,0.85));
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 1.4rem;
+    transform: translateY(0);
+    transition: transform 280ms cubic-bezier(.2,.9,.2,1);
+}
+
+.season-card:hover h3 {
+    transform: translateY(-8px);
 }
 
 /* Футер */
 .footer {
-    background-color: #0d1f2d;
+    background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
     padding: 4rem 2rem 2rem;
+    border-top: 1px solid rgba(255,255,255,0.03);
+    box-shadow: 0 -10px 40px rgba(2,6,23,0.4);
 }
 
 .footer-content {
@@ -382,37 +516,98 @@ body {
 }
 
 .footer-info h3 {
-    color: #ff6b35;
-    margin-bottom: 1rem;
+    color: var(--accent);
+    margin-bottom: 1.2rem;
+    font-size: 1.4rem;
+    font-weight: 600;
 }
 
 .social-links {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 1.2rem;
 }
 
 .social-link {
-    color: #ffffff;
+    color: var(--muted);
     text-decoration: none;
-    padding: 0.5rem 1rem;
-    background-color: #1a2d3d;
-    border-radius: 20px;
-    transition: background-color 0.3s ease;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.1));
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 16px;
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.social-link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, var(--accent), rgba(255,122,0,0.8));
+    opacity: 0;
+    transition: opacity 250ms ease;
+    z-index: -1;
+}
+
+.social-link i {
+    font-size: 1.5rem;
+    transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .social-link:hover {
-    background-color: #ff6b35;
+    color: #fff;
+    border-color: rgba(255,122,0,0.3);
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 12px 28px rgba(255,122,0,0.2);
+}
+
+.social-link:hover::before {
+    opacity: 1;
+}
+
+.social-link:hover i {
+    transform: scale(1.15);
+}
+
+/* Специфічні кольори для соціальних мереж при наведенні */
+.social-link.facebook:hover::before {
+    background: linear-gradient(45deg, #1877f2, #0a3d80);
+}
+
+.social-link.instagram:hover::before {
+    background: linear-gradient(45deg, #833AB4, #FD1D1D, #F77737);
+}
+
+.social-link.twitter:hover::before {
+    background: linear-gradient(45deg, #1DA1F2, #0c85d0);
+}
+
+.social-link.pinterest:hover::before {
+    background: linear-gradient(45deg, #E60023, #ab001b);
 }
 
 .footer-bottom {
     text-align: center;
     padding-top: 2rem;
-    border-top: 1px solid #1a2d3d;
-    color: #a0aec0;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    color: var(--muted);
+    font-size: 0.95rem;
 }
 
 /* Адаптивний дизайн */
+@media (max-width: 1200px) {
+    .seasons-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+}
+
 @media (max-width: 768px) {
     .nav-container {
         flex-direction: column;
@@ -437,6 +632,11 @@ body {
 
     .social-links {
         justify-content: center;
+    }
+
+    .seasons-grid {
+        grid-template-columns: 1fr;
+        max-width: 600px;
     }
 }
 
@@ -474,11 +674,12 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(rgba(5,8,12,0.6), rgba(5,8,12,0.6));
-    backdrop-filter: blur(6px) saturate(120%);
+    background: linear-gradient(rgba(5,8,12,0.75), rgba(5,8,12,0.75));
+    backdrop-filter: blur(8px) saturate(140%);
     opacity: 0;
     visibility: hidden;
-    transition: opacity 240ms ease, visibility 240ms ease;
+    transition: opacity 280ms cubic-bezier(0.4, 0, 0.2, 1), 
+                visibility 280ms cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 2000;
 }
 
@@ -491,14 +692,18 @@ body {
     width: min(920px, 95%);
     max-height: 85vh;
     overflow: auto;
-    background: linear-gradient(180deg, #0f1724 0%, #0b1118 100%);
+    background: linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 100%);
+    border: 1px solid rgba(255,255,255,0.04);
     border-radius: 14px;
-    box-shadow: 0 20px 50px rgba(2,6,23,0.7);
-    color: #e6eef8;
+    box-shadow: 0 24px 60px rgba(2,6,23,0.8);
+    color: var(--text-primary);
     transform: translateY(24px) scale(0.98);
-    transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 240ms ease;
+    transition: transform 320ms cubic-bezier(.2,.9,.2,1), 
+                opacity 280ms cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 280ms ease;
     position: relative;
     overflow: hidden;
+    isolation: isolate;
 }
 
 .recipe-modal-overlay.open .recipe-modal {
@@ -511,15 +716,23 @@ body {
     top: 8px;
     background: transparent;
     border: none;
-    color: #cbd5e1;
+    color: var(--muted);
     font-size: 26px;
     line-height: 1;
     cursor: pointer;
-    padding: 6px 10px;
+    padding: 8px 12px;
     border-radius: 8px;
-    transition: background 180ms ease, color 180ms ease;
+    transition: background 180ms cubic-bezier(0.4, 0, 0.2, 1), 
+                color 180ms ease,
+                transform 180ms ease;
+    z-index: 10;
 }
-.modal-close:hover { background: rgba(255,255,255,0.03); color: #ff6b35; }
+
+.modal-close:hover { 
+    background: rgba(255,255,255,0.03); 
+    color: var(--accent);
+    transform: scale(1.1);
+}
 
 .modal-image-wrap {
     width: 100%;
@@ -527,18 +740,36 @@ body {
     overflow: hidden;
     border-bottom-left-radius: 12px;
     border-bottom-right-radius: 12px;
+    position: relative;
 }
+
+.modal-image-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, var(--bg-2) 0%, transparent 100%);
+    opacity: 0.8;
+    pointer-events: none;
+}
+
 .modal-image-wrap img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
+    transition: transform 400ms ease;
+}
+
+.recipe-modal:hover .modal-image-wrap img {
+    transform: scale(1.04);
 }
 
 .modal-body {
     padding: 1.6rem 2rem 2.4rem;
     display: grid;
-    gap: 1rem;
+    gap: 1.2rem;
+    position: relative;
+    z-index: 1;
 }
 
 #modalTitle {
