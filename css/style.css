@@ -192,10 +192,12 @@ body {
     overflow: hidden;
     transition: all 0.3s ease;
     position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .recipe-card:hover {
-    transform: scale(1.03);
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
 .recipe-image {
@@ -445,4 +447,18 @@ body {
 
 .dessert-img {
     background-image: url('../images/dessert.jpg');
+}
+
+/* Page transition container */
+.fade-page {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    will-change: opacity;
+}
+.fade-page.visible {
+    opacity: 1;
+}
+.fade-page.fade-out {
+    opacity: 0;
+    pointer-events: none;
 }

@@ -67,16 +67,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Плавний скрол для навігаційних посилань
+// Плавний скрол для навігаційних посилань (тільки для внутрішніх хеш-посилань)
 document.querySelectorAll('.nav-links a').forEach(link => {
     link.addEventListener('click', (e) => {
-        e.preventDefault();
         const href = link.getAttribute('href');
-        const offsetTop = document.querySelector(href).offsetTop;
-
-        scroll({
-            top: offsetTop - 70,
-            behavior: 'smooth'
-        });
+        // Якщо href починається з '#' і елемент існує на сторінці — робимо плавний скрол
+        if (href && href.startsWith('#') && document.querySelector(href)) {
+            e.preventDefault();
+            const offsetTop = document.querySelector(href).offsetTop;
+            scroll({
+                top: offsetTop - 70,
+                behavior: 'smooth'
+            });
+        }
+        // Інакше дозволяємо звичайну навігацію (наприклад, перехід на contacts.html)
     });
 });
