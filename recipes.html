@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рецепти — Смачно :)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/recipes.css">
+</head>
+<body>
+    <div class="fade-page">
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo">
+                <h1>Смачно <span aria-hidden="true">:)</span></h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Головна</a></li>
+                <li><a href="recipes.html" class="active">Рецепти</a></li>
+                <li><a href="about.html">Про нас</a></li>
+                <li><a href="contacts.html">Контакти</a></li>
+            </ul>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Пошук рецептів...">
+                <button class="search-btn">🔍</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="recipes-page" style="margin-top:70px; padding:2rem;">
+        <div class="recipes-header">
+            <h2>Рецепти</h2>
+            <div class="header-actions">
+                <button id="catalogBtn" class="catalog-button">Каталог</button>
+            </div>
+        </div>
+
+    <!-- Modal каталогу -->
+        <div id="catalogModal" class="modal" aria-hidden="true">
+            <div class="modal-content">
+                <button id="closeCatalog" class="modal-close">✕</button>
+                <h3>Категорії</h3>
+                <div class="categories-modal-grid">
+                    <button class="cat-btn" data-category="Усі">Усі</button>
+                    <button class="cat-btn" data-category="Сніданки">Сніданки</button>
+                    <button class="cat-btn" data-category="Основні">Основні страви</button>
+                    <button class="cat-btn" data-category="Десерти">Десерти</button>
+                    <button class="cat-btn" data-category="Вегетаріанські">Вегетаріанські</button>
+                    <button class="cat-btn" data-category="Веганські">Веганські</button>
+                    <button class="cat-btn" data-category="Пасти">Пасти</button>
+                    <button class="cat-btn" data-category="Салати">Салати</button>
+                    <button class="cat-btn" data-category="Напої">Напої</button>
+                    <button class="cat-btn" data-category="Супи">Супи</button>
+                    <button class="cat-btn" data-category="Закуски">Закуски</button>
+                    <button class="cat-btn" data-category="Випічка">Випічка</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Детальний перегляд рецепту -->
+        <div id="detailModal" class="modal detail-modal" aria-hidden="true">
+            <div class="modal-content detail-content">
+                <button id="closeDetail" class="modal-close">✕</button>
+                <div class="detail-grid">
+                    <div class="detail-image" id="detailImage" style="background-size:cover; background-position:center; border-radius:8px; min-height:180px"></div>
+                    <div class="detail-body">
+                        <h3 id="detailTitle">Назва страви</h3>
+                        <div class="detail-meta"><span id="detailDifficulty" class="difficulty"></span> <span id="detailTime" style="margin-left:8px;color:var(--muted)"></span></div>
+                        <h4>Інгредієнти</h4>
+                        <ul id="detailIngredients"></ul>
+                        <h4>Кроки приготування</h4>
+                        <ol id="detailSteps"></ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Сітка карток -->
+        <section class="recipes-grid" id="recipesGrid">
+            <!-- Статично додаю 12 карток (показ 4 карток на сторінку -> пагінація 3 сторінки) -->
+            <!-- Картка з даними: data-category використовується для фільтрації -->
+            <article class="recipe-card" data-category="Вегетаріанські" data-ingredients="кіноа|авокадо|морква|огірок|хумус" data-steps="Промити кіноа та зварити|Нарізати овочі|Змішати інгредієнти з хумусом|Подавати охолодженим" data-difficulty="Легка">
+                <div class="recipe-image" style="background-image:url('images/salad1.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Будда-боул</h4>
+                    <p class="recipe-description">Холодний боул із овочами, кіноа й хумусом.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">25 хв</span>
+                            <span class="recipe-category">Вегетаріанські</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                    <div class="recipe-details">Інгредієнти: кіноа, овочі, хумус. Приготування: змішати та подати.</div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Вегетаріанські" data-ingredients="помідори|огірки|оливки|фета|оливкова олія" data-steps="Нарізати овочі|Додати фету та оливки|Приправити олією та сіллю|Злегка перемішати" data-difficulty="Легка">
+                <div class="recipe-image" style="background-image:url('images/salad2.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Грецький салат</h4>
+                    <p class="recipe-description">Класичний середземноморський салат з фетою.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">15 хв</span>
+                            <span class="recipe-category">Вегетаріанські</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                    <div class="recipe-details">Соковиті помідори, огірки, оливки, фета, оливкова олія.</div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Пасти" data-ingredients="спагетті|яйця|пармезан|панчетта|чорний перець" data-steps="Зварити пасту|Обсмажити панчетту|Змішати яйця та сир|З'єднати пасту з соусом" data-difficulty="Середня">
+                <div class="recipe-image" style="background-image:url('images/pasta1.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Паста Карбонара</h4>
+                    <p class="recipe-description">Класична італійська паста з беконом та сиром.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">30 хв</span>
+                            <span class="recipe-category">Пасти</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                    <div class="recipe-details">Яйця, пармезан, бекон — швидко та смачно.</div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Пасти" data-ingredients="спагетті|м'ясний фарш|помідори|цибуля|часник" data-steps="Обсмажити овочі|Додати фарш і обсмажити|Додати томати і тушкувати|Потім подати з пастою" data-difficulty="Середня">
+                <div class="recipe-image" style="background-image:url('images/pasta2.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Спагетті Болоньєзе</h4>
+                    <p class="recipe-description">Спагетті з ароматним м'ясним соусом.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">40 хв</span>
+                            <span class="recipe-category">Пасти</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                    <div class="recipe-details">М'ясний соус, помідори, часник — класика.</div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Десерти" data-ingredients="маскарпоне|кавовий лікер|савоярді|кава|цукор" data-steps="Збити маскарпоне з цукром|Змочити савоярді у каві|Викласти шари|Охолодити перед подачею" data-difficulty="Середня">
+                <div class="recipe-image" style="background-image:url('images/dessert1.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Тірамісу</h4>
+                    <p class="recipe-description">Класичний італійський десерт з кавою.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">20 хв</span>
+                            <span class="recipe-category">Десерти</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                    <div class="recipe-details">Кава, маскарпоне, савоярді — ніжно.</div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Десерти" data-ingredients="крем-сир|печиво|цукор|яйця|ягоди" data-steps="Приготувати основу з печива|Збити крем-сир із цукром|Випікати або охолодити залежно від рецепту|Декорувати ягодами" data-difficulty="Середня">
+                <div class="recipe-image" style="background-image:url('images/dessert2.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Чізкейк</h4>
+                    <p class="recipe-description">Ніжний десерт з крем-сиром та ягодами.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">60 хв</span>
+                            <span class="recipe-category">Десерти</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                    <div class="recipe-details">Крем-сир, печиво, ягоди — святково.</div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Веганські" data-ingredients="кіноа|помідори|огірок|лимон|оливкова олія" data-steps="Зварити кіноа|Нарізати овочі|Змішати з олією та лимонним соком|Подача" data-difficulty="Легка">
+                <div class="recipe-image" style="background-image:url('images/salad3.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Кіноа з овочами</h4>
+                    <p class="recipe-description">Поживний салат з кіноа та свіжими овочами.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">30 хв</span>
+                            <span class="recipe-category">Веганські</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                    <div class="recipe-details">Кіноа, свіжі овочі, цитрусова заправка.</div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Основні" data-ingredients="баклажани|помідори|цибуля|часник|трави" data-steps="Нарізати овочі|Обсмажити|Тушкувати до м'якості|Подавайте гарячим" data-difficulty="Середня">
+                <div class="recipe-image" style="background-image:url('images/main1.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Овочеве рагу</h4>
+                    <p class="recipe-description">Ароматне рагу з сезонних овочів.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">45 хв</span>
+                            <span class="recipe-category">Основні</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                    <div class="recipe-details">Тушкувати овочі з травами до м'якості.</div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Сніданки" data-ingredients="вівсянка|молоко|ягоди|горіхи|мед" data-steps="Зварити вівсянку на молоці|Додати мед та ягоди|Посипати горіхами" data-difficulty="Легка">
+                <div class="recipe-image" style="background-image:url('images/breakfast1.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Овсянка з ягодами</h4>
+                    <p class="recipe-description">Теплий сніданок з горіхами й ягодами.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">10 хв</span>
+                            <span class="recipe-category">Сніданки</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                    <div class="recipe-details">Швидко, поживно, смачно.</div>
+                </div>
+            </article>
+
+            <article class="recipe-card" data-category="Напої" data-ingredients="банан|шпинат|яблуко|вода|льод" data-steps="Завантажити інгредієнти у блендер|Збити до однорідності|Подавати охолодженим" data-difficulty="Легка">
+                <div class="recipe-image" style="background-image:url('images/drink1.jpg')"></div>
+                <div class="recipe-info">
+                    <h4>Освіжаючий смузі</h4>
+                    <p class="recipe-description">Напій з бананом, шпинатом і яблуком.</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">5 хв</span>
+                            <span class="recipe-category">Напої</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn">Детальніше</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤</button>
+                        </div>
+                    </div>
+                    <div class="recipe-details">Легко змішати та насолоджуватись.</div>
+                </div>
+            </article>
+        </section>
+
+        <!-- Пагінація -->
+        <div class="pagination" id="pagination">
+            <button class="page-btn" data-page="1">1</button>
+            <button class="page-btn" data-page="2">2</button>
+            <button class="page-btn" data-page="3">3</button>
+            <button class="page-next" data-action="next">→</button>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-info">
+                <h3>Про CookBook</h3>
+                <p>Ваш надійний помічник у світі кулінарії. Знаходьте найкращі рецепти та діліться своїми кулінарними шедеврами.</p>
+            </div>
+            <div class="social-links">
+                <a href="#" class="social-link">Facebook</a>
+                <a href="#" class="social-link">Instagram</a>
+                <a href="#" class="social-link">Twitter</a>
+                <a href="#" class="social-link">Pinterest</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 CookBook. Всі права захищено.</p>
+        </div>
+    </footer>
+
+    </div>
+    <script src="js/main.js"></script>
+    <script src="js/transition.js"></script>
+    <script src="js/recipes.js"></script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Про нас - Смачно :)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/about.css">
+</head>
+<body>
+    <div class="fade-page">
+    <!-- Фіксоване меню -->
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo">
+                <h1>Смачно <span aria-hidden="true">:)</span></h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Головна</a></li>
+                <li><a href="recipes.html">Рецепти</a></li>
+                <li><a href="about.html" class="active">Про нас</a></li>
+                <li><a href="contacts.html">Контакти</a></li>
+            </ul>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Пошук рецептів...">
+                <button class="search-btn">🔍</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Основний контент -->
+    <main class="about-content">
+        <section class="about-hero">
+            <h1>Про нас</h1>
+            <p class="subtitle">Зробити здорове харчування доступним і простим для кожного</p>
+        </section>
+
+        <section class="mission-section">
+            <div class="mission-content">
+                <div class="mission-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="#FF7A00">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                </div>
+                <h2>Наша місія</h2>
+                <p>Ми створили Смачно :), щоб надихнути людей готувати вдома смачну та здорову їжу. Наша мета — зробити кулінарію доступною для всіх, незалежно від рівня майстерності.</p>
+            </div>
+        </section>
+
+        <section class="values-section">
+            <h2>Наші цінності</h2>
+            <div class="values-grid">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="#FF7A00">
+                            <path d="M4 4h16v16H4V4zm1 1v14h14V5H5zm11 4l-5 5-3-3-2 2 5 5 7-7-2-2z"/>
+                        </svg>
+                    </div>
+                    <h3>Глибина рецептів</h3>
+                    <p>Детальні інструкції з фото</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="#FF7A00">
+                            <path d="M17 1H7c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2zm0 18H7V5h10v14z"/>
+                        </svg>
+                    </div>
+                    <h3>Зручність</h3>
+                    <p>Доступ з будь-якого пристрою у будь-який час</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="#FF7A00">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9h10v2H7z"/>
+                        </svg>
+                    </div>
+                    <h3>Персоналізація</h3>
+                    <p>Рекомендації на основі ваших уподобань</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Футер -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-info">
+                <h3>Про CookBook</h3>
+                <p>Ваш надійний помічник у світі кулінарії. Знаходьте найкращі рецепти та діліться своїми кулінарними шедеврами.</p>
+            </div>
+            <div class="social-links">
+                <a href="#" class="social-link">Facebook</a>
+                <a href="#" class="social-link">Instagram</a>
+                <a href="#" class="social-link">Twitter</a>
+                <a href="#" class="social-link">Pinterest</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 CookBook. Всі права захищено.</p>
+        </div>
+    </footer>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/transition.js"></script>
+</body>
+</html>
