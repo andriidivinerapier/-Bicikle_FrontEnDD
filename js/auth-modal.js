@@ -1,4 +1,28 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Toast-сповіщення
+    function showAuthToast(message, type = 'success') {
+        let toast = document.querySelector('.auth-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.className = 'auth-toast';
+            toast.innerHTML = `
+                <span class="auth-toast__icon"></span>
+                <span class="auth-toast__msg"></span>
+                <button class="auth-toast__close" aria-label="Закрити">×</button>
+            `;
+            document.body.appendChild(toast);
+        }
+        toast.classList.remove('auth-toast--success', 'auth-toast--error');
+        toast.classList.add('auth-toast--' + type);
+        toast.querySelector('.auth-toast__msg').textContent = message;
+        toast.querySelector('.auth-toast__icon').innerHTML = type === 'success' ? '✔️' : '⚠️';
+        toast.classList.add('show');
+        // Закрити вручну
+        toast.querySelector('.auth-toast__close').onclick = () => toast.classList.remove('show');
+        // Автоматично сховати через 3.5 сек
+        clearTimeout(toast._timeout);
+        toast._timeout = setTimeout(() => toast.classList.remove('show'), 3500);
+    }
     // Elements
     const authModal = document.getElementById('authModal');
     const authModalClose = document.getElementById('authModalClose');
@@ -58,15 +82,15 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(res => res.json())
         .then(data => {
             if (data.status === 'success') {
-                alert('Вхід успішний! Вітаємо, ' + data.username);
+                showAuthToast('Вхід успішний! Вітаємо, ' + data.username, 'success');
                 authModal.classList.remove('open');
                 document.body.style.overflow = '';
                 // Можна додати логіку для оновлення UI після входу
             } else {
-                alert(data.message || 'Помилка входу');
+                showAuthToast(data.message || 'Помилка входу', 'error');
             }
         })
-        .catch(() => alert('Помилка зʼєднання з сервером'));
+        .catch(() => showAuthToast('Помилка зʼєднання з сервером', 'error'));
     });
 
     registerForm.addEventListener('submit', (e) => {
@@ -84,13 +108,13 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(res => res.json())
         .then(data => {
             if (data.status === 'success') {
-                alert('Реєстрація успішна! Тепер увійдіть.');
+                showAuthToast('Аккаунт успішно зареєстровано! Тепер увійдіть.', 'success');
                 // Переключити на вкладку входу
                 document.querySelector('.auth-tab[data-tab="login"]').click();
             } else {
-                alert(data.message || 'Помилка реєстрації');
+                showAuthToast(data.message || 'Помилка реєстрації', 'error');
             }
         })
-        .catch(() => alert('Помилка зʼєднання з сервером'));
+        .catch(() => showAuthToast('Помилка зʼєднання з сервером', 'error'));
     });
 });
