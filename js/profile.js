@@ -199,14 +199,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3500);
     }
 
-    // Update profile info with user data (can be populated from backend)
+    // Update profile info with user data from backend
     function loadProfileData() {
-        // This will be populated from backend/session.php
-        fetch('backend/session.php')
+        fetch('backend/get-user-profile.php')
             .then(res => res.json())
             .then(data => {
-                if (data.status === 'logged') {
-                    document.getElementById('profileUsername').textContent = data.username || 'Користувач';
+                if (data.status === 'success' && data.user) {
+                    const user = data.user;
+                    
+                    // Update profile header
+                    document.getElementById('profileUsername').textContent = user.username || 'Користувач';
+                    document.getElementById('profileEmail').textContent = user.email || '';
+                    
+                    // Update stats
+                    const statsElements = document.querySelectorAll('.profile-stats span strong');
+                    if (statsElements.length >= 3) {
+                        statsElements[0].textContent = user.recipes_count || '0';
+                        statsElements[1].textContent = user.comments_count || '0';
+                        statsElements[2].textContent = user.favorites_count || '0';
+                    }
+                    
+                    // Update header profile name
+                    const headerProfileName = document.getElementById('profileName');
+                    if (headerProfileName) {
+                        headerProfileName.textContent = user.username || 'ANDREW';
+                    }
+                    
+                    // Update settings form fields
+                    const settingsNameInput = document.querySelector('#tab-settings .form-group input[type="text"]');
+                    const settingsEmailInput = document.querySelector('#tab-settings .form-group input[type="email"]');
+                    
+                    if (settingsNameInput) {
+                        settingsNameInput.value = user.username || '';
+                    }
+                    if (settingsEmailInput) {
+                        settingsEmailInput.value = user.email || '';
+                    }
                 }
             })
             .catch(err => console.error('Error loading profile:', err));

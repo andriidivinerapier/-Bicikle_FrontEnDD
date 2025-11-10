@@ -170,7 +170,22 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(res => res.json())
             .then(data => {
                 if (data.status === 'logged') {
-                    updateAuthUI({ username: data.username });
+                    // Завантажимо повні дані користувача
+                    fetch('backend/get-user-profile.php')
+                        .then(res => res.json())
+                        .then(profileData => {
+                            if (profileData.status === 'success' && profileData.user) {
+                                updateAuthUI({ 
+                                    username: profileData.user.username || data.username,
+                                    email: profileData.user.email 
+                                });
+                            } else {
+                                updateAuthUI({ username: data.username });
+                            }
+                        })
+                        .catch(() => {
+                            updateAuthUI({ username: data.username });
+                        });
                 } else {
                     updateAuthUI(null);
                 }
