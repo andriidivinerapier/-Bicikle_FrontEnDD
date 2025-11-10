@@ -27,12 +27,23 @@
                  <li><a href="about.html">Про нас</a></li>
                 <li><a href="contacts.html">Контакти</a></li>
             </ul>
-            <div class="nav-actions">
+                <div class="nav-actions">
                 <div class="search-container">
                     <input type="text" id="searchInput" placeholder="Пошук рецептів...">
                     <button class="search-btn">🔍</button>
                 </div>
                 <button class="login-btn" id="loginBtn">Увійти</button>
+
+                <!-- Profile dropdown shown when user is logged in (hidden by default) -->
+                <div class="profile-container" id="profileContainer" style="display: none;">
+                    <button class="profile-btn" id="profileBtn" aria-haspopup="true" aria-expanded="false">
+                        <span class="profile-avatar">👤</span>
+                        <span class="profile-name" id="profileName">Профіль</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="profile-menu" id="profileMenu" role="menu" aria-hidden="true">
+                    </div>
+                </div>
             </div>
         </nav>
     </header>

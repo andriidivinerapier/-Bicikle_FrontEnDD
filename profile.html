@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мій профіль — CookBook</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth-modal.css">
+    <link rel="stylesheet" href="css/auth-toast.css">
+    <link rel="stylesheet" href="css/profile.css">
+</head>
+<body>
+    <div class="fade-page visible">
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo"><h1>Смачно <span aria-hidden="true">:)</span></h1></div>
+            <ul class="nav-links">
+                <li><a href="index.html">Головна</a></li>
+                <li><a href="recipes.html">Рецепти</a></li>
+                <li><a href="about.html">Про нас</a></li>
+                <li><a href="contacts.html">Контакти</a></li>
+            </ul>
+            <div class="nav-actions">
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Пошук рецептів...">
+                    <button class="search-btn">🔍</button>
+                </div>
+                <button class="login-btn" id="loginBtn">Увійти</button>
+                <div class="profile-container" id="profileContainer" style="display: none;">
+                    <button class="profile-btn" id="profileBtn" aria-haspopup="true" aria-expanded="false">
+                        <span class="profile-avatar">👤</span>
+                        <span class="profile-name" id="profileName">Профіль</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="profile-menu" id="profileMenu" role="menu" aria-hidden="true">
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Profile Header Section -->
+    <section class="profile-header">
+        <div class="profile-header-content">
+            <div class="profile-avatar-large">
+                <div class="avatar-placeholder">👤</div>
+            </div>
+            <div class="profile-info">
+                <h1 id="profileUsername">Іван Петренко</h1>
+                <p id="profileEmail">ivan@example.com</p>
+                <p class="profile-stats">
+                    <span><strong>12</strong> рецептів</span>
+                    <span><strong>34</strong> коментарів</span>
+                    <span><strong>89</strong> улюблених</span>
+                </p>
+            </div>
+            <div class="profile-actions">
+                <button class="btn btn-primary" id="editProfileBtn">
+                    <i class="fas fa-edit"></i> Редагувати профіль
+                </button>
+                <button class="btn btn-danger" id="profileLogoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Вийти
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="profile-main">
+        <!-- Tab Navigation -->
+        <div class="profile-tabs-nav">
+            <button class="profile-tab-btn active" data-tab="favorites">
+                <i class="fas fa-heart"></i> Улюблені рецепти
+            </button>
+            <button class="profile-tab-btn" data-tab="comments">
+                <i class="fas fa-comments"></i> Мої коментарі
+            </button>
+            <button class="profile-tab-btn" data-tab="recipes">
+                <i class="fas fa-plus-circle"></i> Мої рецепти
+            </button>
+            <button class="profile-tab-btn" data-tab="settings">
+                <i class="fas fa-cog"></i> Налаштування
+            </button>
+        </div>
+
+        <!-- Tab Contents -->
+        <div class="profile-tabs-content">
+            <!-- Tab: Favorites -->
+            <div class="profile-tab-panel active" id="tab-favorites">
+                <h2>Улюблені рецепти</h2>
+                <div class="recipes-grid">
+                    <div class="recipe-card">
+                        <div class="recipe-image" style="background-image: url('images/homepage/salad1.jpg');"></div>
+                        <div class="recipe-info">
+                            <h4>Будда-боул</h4>
+                            <p class="recipe-description">Збалансована страва з зернових, овочів і білка</p>
+                            <div class="recipe-meta">
+                                <div class="meta-left">
+                                    <span class="cook-time">25 хв</span>
+                                    <span class="recipe-category">Вегетаріанський</span>
+                                </div>
+                                <div class="meta-right">
+                                    <button class="recipe-button">Переглянути</button>
+                                    <button class="recipe-like" aria-label="Видалити з улюблених">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="recipe-card">
+                        <div class="recipe-image" style="background-image: url('images/homepage/pasta1.jpg');"></div>
+                        <div class="recipe-info">
+                            <h4>Паста Карбонара</h4>
+                            <p class="recipe-description">Класична італійська паста з беконом та сиром</p>
+                            <div class="recipe-meta">
+                                <div class="meta-left">
+                                    <span class="cook-time">30 хв</span>
+                                    <span class="recipe-category">Паста</span>
+                                </div>
+                                <div class="meta-right">
+                                    <button class="recipe-button">Переглянути</button>
+                                    <button class="recipe-like" aria-label="Видалити з улюблених">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="recipe-card">
+                        <div class="recipe-image" style="background-image: url('images/homepage/dessert1.jpg');"></div>
+                        <div class="recipe-info">
+                            <h4>Тірамісу</h4>
+                            <p class="recipe-description">Класичний італійський десерт з кавою</p>
+                            <div class="recipe-meta">
+                                <div class="meta-left">
+                                    <span class="cook-time">20 хв</span>
+                                    <span class="recipe-category">Десерт</span>
+                                </div>
+                                <div class="meta-right">
+                                    <button class="recipe-button">Переглянути</button>
+                                    <button class="recipe-like" aria-label="Видалити з улюблених">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Comments -->
+            <div class="profile-tab-panel" id="tab-comments">
+                <h2>Мої коментарі</h2>
+                <div class="comments-list">
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div>
+                                <h4>На рецепту: Паста Карбонара</h4>
+                                <span class="comment-date">10 листопада 2025</span>
+                            </div>
+                            <button class="btn-icon" title="Видалити"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                        <p class="comment-text">Чудовий рецепт! Дуже смачна паста. Подравляю! Спробував робити вдома — всім сподобалось.</p>
+                        <div class="comment-stats">
+                            <span>👍 5 лайків</span>
+                            <span>💬 2 відповіді</span>
+                        </div>
+                    </div>
+
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div>
+                                <h4>На рецепту: Будда-боул</h4>
+                                <span class="comment-date">8 листопада 2025</span>
+                            </div>
+                            <button class="btn-icon" title="Видалити"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                        <p class="comment-text">Дуже корисно і смачно. Часто готую цей рецепт. Можна додавати різні топпінги за бажанням.</p>
+                        <div class="comment-stats">
+                            <span>👍 12 лайків</span>
+                            <span>💬 8 відповідей</span>
+                        </div>
+                    </div>
+
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div>
+                                <h4>На рецепту: Грецький салат</h4>
+                                <span class="comment-date">5 листопада 2025</span>
+                            </div>
+                            <button class="btn-icon" title="Видалити"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                        <p class="comment-text">Класичний рецепт, ніколи не розчаровує. Головне — вибрати якісну фету.</p>
+                        <div class="comment-stats">
+                            <span>👍 8 лайків</span>
+                            <span>💬 3 відповіді</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: My Recipes -->
+            <div class="profile-tab-panel" id="tab-recipes">
+                <div class="recipes-header">
+                    <h2>Мої рецепти</h2>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Додати новий рецепт
+                    </button>
+                </div>
+
+                <div class="recipes-grid">
+                    <div class="recipe-card recipe-card-editable">
+                        <div class="recipe-image" style="background-image: url('images/homepage/salad1.jpg');"></div>
+                        <div class="recipe-info">
+                            <h4>Мій улюблений салат</h4>
+                            <p class="recipe-description">Свіжий салат з органічних овочів та зелені</p>
+                            <div class="recipe-meta">
+                                <div class="meta-left">
+                                    <span class="cook-time">15 хв</span>
+                                    <span style="color: #9aa6b6; font-size: 0.85rem;">👁 145 переглядів</span>
+                                </div>
+                                <div class="meta-right">
+                                    <button class="btn-icon" title="Редагувати"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon btn-danger" title="Видалити"><i class="fas fa-trash-alt"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="recipe-card recipe-card-editable">
+                        <div class="recipe-image" style="background-image: url('images/homepage/pasta1.jpg');"></div>
+                        <div class="recipe-info">
+                            <h4>Веган-паста</h4>
+                            <p class="recipe-description">Смачна паста без тваринних продуктів</p>
+                            <div class="recipe-meta">
+                                <div class="meta-left">
+                                    <span class="cook-time">25 хв</span>
+                                    <span style="color: #9aa6b6; font-size: 0.85rem;">👁 89 переглядів</span>
+                                </div>
+                                <div class="meta-right">
+                                    <button class="btn-icon" title="Редагувати"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon btn-danger" title="Видалити"><i class="fas fa-trash-alt"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Settings -->
+            <div class="profile-tab-panel" id="tab-settings">
+                <h2>Налаштування</h2>
+
+                <div class="settings-sections">
+                    <!-- Account Settings -->
+                    <section class="settings-section">
+                        <h3><i class="fas fa-user-circle"></i> Профіль аккаунту</h3>
+                        <div class="form-group">
+                            <label>Ім'я користувача</label>
+                            <input type="text" value="Іван Петренко" placeholder="Ваше ім'я">
+                        </div>
+                        <div class="form-group">
+                            <label>E-mail</label>
+                            <input type="email" value="ivan@example.com" placeholder="your@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Коротка біографія</label>
+                            <textarea placeholder="Розкажіть про себе...">Люблю готувати смачні страви та ділитися рецептами.</textarea>
+                        </div>
+                        <button class="btn btn-primary">Зберегти</button>
+                    </section>
+
+                    <!-- Security Settings -->
+                    <section class="settings-section">
+                        <h3><i class="fas fa-lock"></i> Безпека</h3>
+                        <button class="btn btn-secondary">Змінити пароль</button>
+                        <button class="btn btn-secondary" style="margin-top: 0.5rem;">Активні сесії</button>
+                    </section>
+
+                    <!-- Preferences -->
+                    <section class="settings-section">
+                        <h3><i class="fas fa-sliders-h"></i> Уподобання</h3>
+                        <label class="checkbox-label">
+                            <input type="checkbox" checked>
+                            <span>Отримувати повідомлення про нові рецепти</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" checked>
+                            <span>Отримувати рекомендації на основі моїх рецептів</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox">
+                            <span>Відповіді на коментарі</span>
+                        </label>
+                    </section>
+
+                    <!-- Danger Zone -->
+                    <section class="settings-section danger-zone">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Небезпечна зона</h3>
+                        <p>Ці дії не можна скасувати. Будьте уважні!</p>
+                        <button class="btn btn-danger">Видалити мій аккаунт</button>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Auth Modal -->
+    <div class="auth-modal-overlay" id="authModal" aria-hidden="true">
+        <div class="auth-modal" role="dialog" aria-modal="true">
+            <button class="modal-close" id="authModalClose" aria-label="Закрити">×</button>
+            
+            <div class="auth-logo">
+                <div class="auth-logo-icon">👨‍🍳</div>
+                <span class="auth-logo-text">Смачно :)</span>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">ВХІД</button>
+                <button class="auth-tab" data-tab="register">РЕЄСТРАЦІЯ</button>
+            </div>
+            
+            <div class="auth-content">
+                <form id="loginForm" class="auth-form active">
+                    <div class="form-group">
+                        <label for="loginName">Ім'я</label>
+                        <input type="text" id="loginName" placeholder="Ваше ім'я" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginEmail">E-mail</label>
+                        <input type="email" id="loginEmail" placeholder="your@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Пароль</label>
+                        <input type="password" id="loginPassword" placeholder="********" required>
+                    </div>
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="loginRemember">
+                        <label for="loginRemember">Запам'ятати мене</label>
+                    </div>
+                    <button type="submit" class="auth-submit">УВІЙТИ</button>
+                </form>
+                
+                <form id="registerForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="registerName">Ім'я</label>
+                        <input type="text" id="registerName" placeholder="Ваше ім'я" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">E-mail</label>
+                        <input type="email" id="registerEmail" placeholder="your@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Пароль</label>
+                        <input type="password" id="registerPassword" placeholder="********" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerConfirmPassword">Підтвердження паролю</label>
+                        <input type="password" id="registerConfirmPassword" placeholder="********" required>
+                    </div>
+                    <button type="submit" class="auth-submit">ЗАРЕЄСТРУВАТИСЯ</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/auth-modal.js"></script>
+    <script src="js/profile.js"></script>
+    </div>
+</body>
+</html>

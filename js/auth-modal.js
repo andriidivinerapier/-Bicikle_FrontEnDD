@@ -27,6 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const authModal = document.getElementById('authModal');
     const authModalClose = document.getElementById('authModalClose');
     const loginButton = document.getElementById('loginBtn');
+    // Profile elements (shown when logged in)
+    const profileContainer = document.getElementById('profileContainer');
+    const profileBtn = document.getElementById('profileBtn');
+    const profileMenu = document.getElementById('profileMenu');
+    const profileNameEl = document.getElementById('profileName');
+    const logoutBtn = document.getElementById('logoutBtn');
     const authTabs = document.querySelectorAll('.auth-tab');
     const authForms = document.querySelectorAll('.auth-form');
     const loginForm = document.getElementById('loginForm');
@@ -38,6 +44,39 @@ document.addEventListener('DOMContentLoaded', () => {
         authModal.classList.add('open');
         document.body.style.overflow = 'hidden';
     });
+
+    // Profile button click - go to profile page
+    if (profileBtn) {
+        profileBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // Check if on profile page - if yes, toggle menu; if no, go to profile
+            if (window.location.pathname.includes('profile.html')) {
+                // Toggle menu on profile page
+                const isOpen = profileMenu.classList.contains('open');
+                if (isOpen) {
+                    profileMenu.classList.remove('open');
+                    profileMenu.setAttribute('aria-hidden', 'true');
+                    profileBtn.setAttribute('aria-expanded', 'false');
+                } else {
+                    profileMenu.classList.add('open');
+                    profileMenu.setAttribute('aria-hidden', 'false');
+                    profileBtn.setAttribute('aria-expanded', 'true');
+                }
+            } else {
+                // Navigate to profile page
+                window.location.href = 'profile.html';
+            }
+        });
+
+        // Close profile menu on outside click
+        document.addEventListener('click', (ev) => {
+            if (!profileContainer.contains(ev.target)) {
+                profileMenu.classList.remove('open');
+                profileMenu.setAttribute('aria-hidden', 'true');
+                profileBtn.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
 
     // Close modal
     authModalClose.addEventListener('click', () => {
@@ -85,13 +124,65 @@ document.addEventListener('DOMContentLoaded', () => {
                 showAuthToast('Вхід успішний! Вітаємо, ' + data.username, 'success');
                 authModal.classList.remove('open');
                 document.body.style.overflow = '';
-                // Можна додати логіку для оновлення UI після входу
+                // Оновлюємо UI після входу
+                updateAuthUI({ username: data.username });
             } else {
                 showAuthToast(data.message || 'Помилка входу', 'error');
             }
         })
         .catch(() => showAuthToast('Помилка зʼєднання з сервером', 'error'));
     });
+
+    // Logout handler
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            fetch('backend/logout.php', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showAuthToast('Ви вийшли з аккаунту', 'success');
+                        updateAuthUI(null);
+                    } else {
+                        showAuthToast(data.message || 'Помилка при виході', 'error');
+                    }
+                })
+                .catch(() => showAuthToast('Помилка зʼєднання з сервером', 'error'));
+        });
+    }
+
+    // Update UI according to user object (null = logged out)
+    function updateAuthUI(user) {
+        if (user && user.username) {
+            // hide login button, show profile
+            if (loginButton) loginButton.style.display = 'none';
+            if (profileContainer) profileContainer.style.display = 'flex';
+            if (profileNameEl) profileNameEl.textContent = user.username;
+        } else {
+            if (loginButton) loginButton.style.display = '';
+            if (profileContainer) profileContainer.style.display = 'none';
+            if (profileNameEl) profileNameEl.textContent = 'Профіль';
+        }
+    }
+
+    // On load check session (if backend has active session)
+    function checkSession() {
+        fetch('backend/session.php')
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'logged') {
+                    updateAuthUI({ username: data.username });
+                } else {
+                    updateAuthUI(null);
+                }
+            })
+            .catch(() => {
+                // If session check fails, keep default (logged out)
+                updateAuthUI(null);
+            });
+    }
+
+    // Run session check on DOMContentLoaded
+    checkSession();
 
     registerForm.addEventListener('submit', (e) => {
         e.preventDefault();
