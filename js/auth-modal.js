@@ -46,20 +46,51 @@ document.addEventListener('DOMContentLoaded', () => {
     // Form submission
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        // Add your login logic here
-        console.log('Login submit', {
-            email: loginForm.loginEmail.value,
-            password: loginForm.loginPassword.value
-        });
+        // Відправка даних на login.php через fetch
+        const formData = new FormData();
+        formData.append('email', loginForm.loginEmail.value);
+        formData.append('password', loginForm.loginPassword.value);
+
+        fetch('backend/login.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Вхід успішний! Вітаємо, ' + data.username);
+                authModal.classList.remove('open');
+                document.body.style.overflow = '';
+                // Можна додати логіку для оновлення UI після входу
+            } else {
+                alert(data.message || 'Помилка входу');
+            }
+        })
+        .catch(() => alert('Помилка зʼєднання з сервером'));
     });
 
     registerForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        // Add your registration logic here
-        console.log('Register submit', {
-            name: registerForm.registerName.value,
-            email: registerForm.registerEmail.value,
-            password: registerForm.registerPassword.value
-        });
+        // Відправка даних на register.php через fetch
+        const formData = new FormData();
+        formData.append('username', registerForm.registerName.value);
+        formData.append('email', registerForm.registerEmail.value);
+        formData.append('password', registerForm.registerPassword.value);
+
+        fetch('backend/register.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Реєстрація успішна! Тепер увійдіть.');
+                // Переключити на вкладку входу
+                document.querySelector('.auth-tab[data-tab="login"]').click();
+            } else {
+                alert(data.message || 'Помилка реєстрації');
+            }
+        })
+        .catch(() => alert('Помилка зʼєднання з сервером'));
     });
 });
