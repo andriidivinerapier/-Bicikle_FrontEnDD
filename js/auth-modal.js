@@ -39,11 +39,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const registerForm = document.getElementById('registerForm');
 
     // Show modal when clicking login button
-    loginButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        authModal.classList.add('open');
-        document.body.style.overflow = 'hidden';
-    });
+    if (loginButton) {
+        loginButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            authModal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        });
+    }
 
     // Profile button click - go to profile page
     if (profileBtn) {
@@ -79,18 +81,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Close modal
-    authModalClose.addEventListener('click', () => {
-        authModal.classList.remove('open');
-        document.body.style.overflow = '';
-    });
-
-    // Close modal when clicking outside
-    authModal.addEventListener('click', (e) => {
-        if (e.target === authModal) {
+    if (authModalClose) {
+        authModalClose.addEventListener('click', () => {
             authModal.classList.remove('open');
             document.body.style.overflow = '';
-        }
-    });
+        });
+    }
+
+    // Close modal when clicking outside
+    if (authModal) {
+        authModal.addEventListener('click', (e) => {
+            if (e.target === authModal) {
+                authModal.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        });
+    }
 
     // Tab switching
     authTabs.forEach(tab => {
@@ -102,36 +108,39 @@ document.addEventListener('DOMContentLoaded', () => {
             // Add active class to clicked tab and corresponding form
             tab.classList.add('active');
             const formId = tab.dataset.tab + 'Form';
-            document.getElementById(formId).classList.add('active');
+            const form = document.getElementById(formId);
+            if (form) form.classList.add('active');
         });
     });
 
     // Form submission
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        // Відправка даних на login.php через fetch
-        const formData = new FormData();
-        formData.append('email', loginForm.loginEmail.value);
-        formData.append('password', loginForm.loginPassword.value);
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Відправка даних на login.php через fetch
+            const formData = new FormData();
+            formData.append('email', loginForm.loginEmail.value);
+            formData.append('password', loginForm.loginPassword.value);
 
-        fetch('backend/login.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'success') {
-                showAuthToast('Вхід успішний! Вітаємо, ' + data.username, 'success');
-                authModal.classList.remove('open');
-                document.body.style.overflow = '';
-                // Оновлюємо UI після входу
-                updateAuthUI({ username: data.username });
-            } else {
-                showAuthToast(data.message || 'Помилка входу', 'error');
-            }
-        })
-        .catch(() => showAuthToast('Помилка зʼєднання з сервером', 'error'));
-    });
+            fetch('backend/login.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showAuthToast('Вхід успішний! Вітаємо, ' + data.username, 'success');
+                    authModal.classList.remove('open');
+                    document.body.style.overflow = '';
+                    // Оновлюємо UI після входу
+                    updateAuthUI({ username: data.username });
+                } else {
+                    showAuthToast(data.message || 'Помилка входу', 'error');
+                }
+            })
+            .catch(() => showAuthToast('Помилка зʼєднання з сервером', 'error'));
+        });
+    }
 
     // Logout handler
     if (logoutBtn) {
@@ -216,7 +225,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.status === 'success') {
                 showAuthToast('Аккаунт успішно зареєстровано! Тепер увійдіть.', 'success');
                 // Переключити на вкладку входу
-                document.querySelector('.auth-tab[data-tab="login"]').click();
+                const loginTab = document.querySelector('.auth-tab[data-tab="login"]');
+                if (loginTab) loginTab.click();
             } else {
                 showAuthToast(data.message || 'Помилка реєстрації', 'error');
             }

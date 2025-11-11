@@ -19,6 +19,11 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.classList.add('active');
             document.getElementById(`tab-${tabName}`).classList.add('active');
             
+            // Load recipes when switching to recipes tab
+            if (tabName === 'recipes') {
+                loadUserRecipes();
+            }
+            
             // Update URL without page reload
             window.history.replaceState(null, '', `profile.html?tab=${tabName}`);
         });
@@ -144,8 +149,61 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add Recipe Button
     const addRecipeBtn = document.querySelector('#tab-recipes .btn-primary');
     if (addRecipeBtn) {
-        addRecipeBtn.addEventListener('click', () => {
-            alert('Додавання нового рецепту (функцію ще не реалізовано)');
+        addRecipeBtn.addEventListener('click', openCreateModal);
+    }
+
+    // Modal elements for create recipe (profile)
+    const profileAddBtn = document.getElementById('profileAddRecipeBtn');
+    const createOverlay = document.getElementById('createRecipeOverlay');
+    const createClose = document.getElementById('createRecipeClose');
+    const createForm = document.getElementById('profileCreateRecipeForm');
+
+    function openCreateModal() {
+        if (createOverlay) {
+            createOverlay.style.display = 'flex';
+            document.body.classList.add('modal-open');
+        }
+    }
+
+    if (profileAddBtn) profileAddBtn.addEventListener('click', openCreateModal);
+    if (createClose) createClose.addEventListener('click', () => {
+        if (createOverlay) {
+            createOverlay.style.display = 'none';
+            document.body.classList.remove('modal-open');
+        }
+    });
+
+    // Submit create recipe form
+    if (createForm) {
+        createForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const fd = new FormData(createForm);
+            fetch('backend/create-recipe.php', { method: 'POST', body: fd })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.status === 'success') {
+                        showToast('Рецепт створено', 'success');
+                        // append new recipe card to DOM (simple representation)
+                        const grid = document.querySelector('#tab-recipes .recipes-grid');
+                        if (grid) {
+                            const article = document.createElement('div');
+                            article.className = 'recipe-card recipe-card-editable';
+                            const img = fd.get('image') ? URL.createObjectURL(fd.get('image')) : 'images/homepage/salad1.jpg';
+                            article.innerHTML = `\n                                <div class="recipe-image" style="background-image: url('${img}')"></div>\n                                <div class="recipe-info">\n                                    <h4>${fd.get('title')}</h4>\n                                    <p class="recipe-description">${(fd.get('ingredients') || '').split('|')[0] || ''}</p>\n                                    <div class="recipe-meta">\n                                        <div class="meta-left">\n                                            <span class="cook-time">--</span>\n                                        </div>\n                                        <div class="meta-right">\n                                            <button class="btn-icon" title="Редагувати"><i class="fas fa-edit"></i></button>\n                                            <button class="btn-icon btn-danger" title="Видалити"><i class="fas fa-trash-alt"></i></button>\n                                        </div>\n                                    </div>\n                                </div>`;
+                            grid.insertBefore(article, grid.firstChild);
+                        }
+                        // close modal
+                        if (createOverlay) {
+                            createOverlay.style.display = 'none';
+                            document.body.classList.remove('modal-open');
+                        }
+                        // clear form
+                        createForm.reset();
+                    } else {
+                        showToast(res.message || 'Помилка при створенні', 'error');
+                    }
+                })
+                .catch(() => showToast('Помилка мережі', 'error'));
         });
     }
 
@@ -242,7 +300,101 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadProfileData();
 
-    // Search functionality
+    // Load user recipes on tab switch
+    function loadUserRecipes() {
+        const grid = document.querySelector('#tab-recipes .recipes-grid');
+        if (!grid) return;
+
+        console.log('📥 Завантажуємо рецепти користувача...');
+        
+        fetch('backend/get-user-recipes.php')
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                console.log('✅ Відповідь сервера:', data);
+                
+                // Clear existing demo recipes
+                const demoCards = grid.querySelectorAll('.recipe-card-editable');
+                demoCards.forEach(card => card.remove());
+                
+                if (data.status === 'success' && Array.isArray(data.recipes) && data.recipes.length > 0) {
+                    data.recipes.forEach(recipe => {
+                        const article = document.createElement('div');
+                        article.className = 'recipe-card recipe-card-editable';
+                        
+                        const image = (recipe.image_path && recipe.image_path.trim()) ? recipe.image_path : 'images/homepage/salad1.jpg';
+                        const ingredients = recipe.ingredients || '';
+                        const firstIngredient = ingredients.split('|')[0] || 'Рецепт';
+                        
+                        article.innerHTML = `
+                            <div class="recipe-image" style="background-image: url('${image}')"></div>
+                            <div class="recipe-info">
+                                <h4>${escapeHtml(recipe.title || 'Без назви')}</h4>
+                                <p class="recipe-description">${escapeHtml(firstIngredient)}</p>
+                                <div class="recipe-meta">
+                                    <div class="meta-left">
+                                        <span class="cook-time">${recipe.created_at ? recipe.created_at.split(' ')[0] : 'Недавно'}</span>
+                                    </div>
+                                    <div class="meta-right">
+                                        <button class="btn-icon" title="Редагувати"><i class="fas fa-edit"></i></button>
+                                        <button class="btn-icon btn-danger" title="Видалити"><i class="fas fa-trash-alt"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        grid.appendChild(article);
+                    });
+                    console.log(`✅ Завантажено ${data.recipes.length} рецептів`);
+                    
+                    // Re-attach delete handlers to new cards
+                    attachRecipeCardHandlers();
+                } else {
+                    console.log('ℹ️ Рецептів не знайдено');
+                    grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #9aa6b6;">Ви ще не створили рецептів. Натисніть "Додати новий рецепт", щоб почати!</p>';
+                }
+            })
+            .catch(error => {
+                console.error('❌ Помилка завантаження:', error);
+                grid.innerHTML = `<p style="grid-column: 1/-1; color:#ff6b6b; text-align: center;">⚠️ Помилка завантаження рецептів</p>`;
+            });
+    }
+
+    // Escape HTML
+    function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    // Attach handlers to recipe cards
+    function attachRecipeCardHandlers() {
+        document.querySelectorAll('.recipe-card-editable .btn-icon').forEach(btn => {
+            btn.removeEventListener('click', handleRecipeCardClick);
+            btn.addEventListener('click', handleRecipeCardClick);
+        });
+    }
+
+    function handleRecipeCardClick(e) {
+        e.stopPropagation();
+        if (this.classList.contains('btn-danger')) {
+            // Delete recipe
+            if (confirm('Видалити цей рецепт?')) {
+                const card = this.closest('.recipe-card');
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    card.remove();
+                }, 300);
+            }
+        } else {
+            // Edit recipe
+            alert('Редагування рецепту (функцію ще не реалізовано)');
+        }
+    }
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {

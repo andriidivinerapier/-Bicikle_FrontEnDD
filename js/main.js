@@ -29,9 +29,11 @@ function filterRecipes(searchTerm) {
 }
 
 // Слухач події для поля пошуку
-searchInput.addEventListener('input', (e) => {
-    filterRecipes(e.target.value);
-});
+if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+        filterRecipes(e.target.value);
+    });
+}
 
 // Фіксоване меню при прокрутці
 const header = document.querySelector('.header');

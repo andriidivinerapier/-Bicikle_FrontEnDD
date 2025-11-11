@@ -22,6 +22,7 @@
             <ul class="nav-links">
                 <li><a href="index.html">Головна</a></li>
                 <li><a href="recipes.html">Рецепти</a></li>
+                <li><a href="community-recipes.html">Рецепти користувачів</a></li>
                 <li><a href="about.html">Про нас</a></li>
                 <li><a href="contacts.html">Контакти</a></li>
             </ul>
@@ -211,9 +212,9 @@
             <div class="profile-tab-panel" id="tab-recipes">
                 <div class="recipes-header">
                     <h2>Мої рецепти</h2>
-                    <button class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Додати новий рецепт
-                    </button>
+                        <button class="btn btn-primary" id="profileAddRecipeBtn">
+                            <i class="fas fa-plus"></i> Додати новий рецепт
+                        </button>
                 </div>
 
                 <div class="recipes-grid">
@@ -369,6 +370,27 @@
                     <button type="submit" class="auth-submit">ЗАРЕЄСТРУВАТИСЯ</button>
                 </form>
             </div>
+        </div>
+    </div>
+
+    <!-- Create Recipe Modal (inserted in profile) -->
+    <div class="create-recipe-overlay" id="createRecipeOverlay" style="display:none;">
+        <div class="create-recipe-modal">
+            <button class="modal-close" id="createRecipeClose">×</button>
+            <h3>Створення рецепта</h3>
+            <form id="profileCreateRecipeForm" enctype="multipart/form-data">
+                <label>Додати фото</label>
+                <input type="file" name="image" id="profileRecipeImage" accept="image/*">
+                <label>Назва рецепта</label>
+                <input type="text" name="title" id="profileRecipeTitle" placeholder="Введіть назву рецепту" required>
+                <label>Інгредієнти (через | )</label>
+                <textarea name="ingredients" id="profileRecipeIngredients" placeholder="Введіть інгредієнти рецепта" required></textarea>
+                <label>Інструкції до рецепта (через | )</label>
+                <textarea name="instructions" id="profileRecipeInstructions" placeholder="Введіть інструкцію до рецепта" required></textarea>
+                <label>Категорія</label>
+                <input type="text" name="category" id="profileRecipeCategory" placeholder="Введіть категорію рецепта">
+                <button type="submit" class="btn btn-primary">Опублікувати</button>
+            </form>
         </div>
     </div>
 

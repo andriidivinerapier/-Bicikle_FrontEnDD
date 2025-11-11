@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рецепти користувачів — CookBook</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/recipes.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <link rel="stylesheet" href="css/auth-modal.css">
+    <link rel="stylesheet" href="css/auth-toast.css">
+</head>
+<body>
+    <div class="fade-page visible">
+        <!-- Header Navigation -->
+        <header class="header">
+            <nav class="nav-container">
+                <div class="logo">
+                    <h1>Смачно <span aria-hidden="true">:)</span></h1>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="index.html">Головна</a></li>
+                    <li><a href="recipes.html">Рецепти</a></li>
+                    <li><a href="community-recipes.html" class="active">Рецепти користувачів</a></li>
+                    <li><a href="about.html">Про нас</a></li>
+                    <li><a href="contacts.html">Контакти</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="Пошук рецептів...">
+                        <button class="search-btn">🔍</button>
+                    </div>
+                    <button class="login-btn" id="loginBtn">Увійти</button>
+
+                    <!-- Profile dropdown shown when user is logged in -->
+                    <div class="profile-container" id="profileContainer" style="display: none;">
+                        <button class="profile-btn" id="profileBtn" aria-haspopup="true" aria-expanded="false">
+                            <span class="profile-avatar">👤</span>
+                            <span class="profile-name" id="profileName">Профіль</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="profile-menu" id="profileMenu" role="menu" aria-hidden="true">
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="recipes-page" style="padding:2rem; margin-top:70px;">
+            <div class="recipes-header">
+                <div>
+                    <h2>👥 Рецепти від спільноти</h2>
+                    <p style="color: #9aa6b6; margin-top: 0.5rem;">Відкривайте нові смачні рецепти, створені іншими кулінарами</p>
+                </div>
+                <div class="header-actions">
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <input type="text" id="filterInput" placeholder="Пошук за назвою, категорією або автором..." style="padding: 0.75rem 1rem; border: 1px solid #9aa6b6; border-radius: 8px; background: var(--bg-2); color: var(--text-primary); min-width: 300px;">
+                        <button class="catalog-button" id="filterBtn">🔍 Пошук</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recipes Grid -->
+            <section class="recipes-grid" id="recipesGrid" aria-live="polite">
+                <!-- recipes will be injected here -->
+            </section>
+
+            <!-- No Recipes Message -->
+            <div id="noRecipesMessage" style="max-width:1200px;margin:2rem auto;display:none;text-align:center;color:#9aa6b6;">
+                <p style="font-size:1.2rem;">😔 Рецептів не знайдено.</p>
+                <p>Спробуйте змінити критерії пошуку або створіть свій рецепт!</p>
+            </div>
+
+            <!-- Loading indicator -->
+            <div id="loadingSpinner" style="max-width:1200px;margin:2rem auto;text-align:center;display:none;">
+                <p style="color: #9aa6b6;">⏳ Завантаження рецептів...</p>
+            </div>
+        </main>
+
+        <!-- Recipe Modal -->
+        <div id="recipeModal" class="modal" style="display:none;" aria-hidden="true">
+            <div class="modal-content">
+                <button id="modalClose" class="modal-close">✕</button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <img id="modalImage" src="" alt="" style="width: 100%; border-radius: 8px; object-fit: cover; max-height: 400px;">
+                    <div>
+                        <h2 id="modalTitle"></h2>
+                        <p style="color: #9aa6b6; margin-bottom: 1rem;">
+                            <span id="modalAuthor"></span> • <span id="modalDate"></span>
+                        </p>
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                            <span class="tag difficulty" id="modalCategory" style="padding: 0.5rem 1rem; border-radius: 20px; background: var(--bg-secondary);">Категорія</span>
+                        </div>
+                        <h3>🥘 Інгредієнти:</h3>
+                        <ul id="modalIngredients" style="margin: 1rem 0; list-style-position: inside;">
+                        </ul>
+                        <h3 style="margin-top: 1.5rem;">📖 Інструкції:</h3>
+                        <ol id="modalInstructions" style="margin: 1rem 0; list-style-position: inside;">
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Auth Modal -->
+        <div id="authModal" class="auth-modal" aria-hidden="true" style="display: none;">
+            <div class="auth-modal__wrapper">
+                <button id="authModalClose" class="auth-modal__close">✕</button>
+                <div class="auth-modal__content">
+                    <div class="auth-tabs">
+                        <button class="auth-tab active" data-tab="login">Вхід</button>
+                        <button class="auth-tab" data-tab="register">Реєстрація</button>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form id="loginForm" class="auth-form active">
+                        <div class="form-group">
+                            <label for="loginEmail">Email</label>
+                            <input type="email" id="loginEmail" name="loginEmail" placeholder="Введіть email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Пароль</label>
+                            <input type="password" id="loginPassword" name="loginPassword" placeholder="Введіть пароль" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Увійти</button>
+                    </form>
+
+                    <!-- Register Form -->
+                    <form id="registerForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="registerName">Ім'я користувача</label>
+                            <input type="text" id="registerName" name="registerName" placeholder="Введіть ім'я" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerEmail">Email</label>
+                            <input type="email" id="registerEmail" name="registerEmail" placeholder="Введіть email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerPassword">Пароль</label>
+                            <input type="password" id="registerPassword" name="registerPassword" placeholder="Введіть пароль" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Зареєструватися</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/transition.js"></script>
+    <script src="js/auth-modal.js"></script>
+    <script>
+    // Community Recipes Page
+    document.addEventListener('DOMContentLoaded', () => {
+        const grid = document.getElementById('recipesGrid');
+        const noRecipesMsg = document.getElementById('noRecipesMessage');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const filterInput = document.getElementById('filterInput');
+        const filterBtn = document.getElementById('filterBtn');
+        const modal = document.getElementById('recipeModal');
+        const modalClose = document.getElementById('modalClose');
+
+        // Escape HTML
+        function escapeHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // Render a single recipe card
+        function renderRecipe(recipe) {
+            const article = document.createElement('article');
+            article.className = 'recipe-card';
+
+            const image = (recipe.image_path && recipe.image_path.trim()) ? recipe.image_path : 'images/homepage/salad1.jpg';
+            const ingredients = recipe.ingredients || '';
+            const firstIngredient = ingredients.split('|')[0] || 'Рецепт';
+            const created = recipe.created_at ? recipe.created_at.split(' ')[0] : 'Недавно';
+
+            article.innerHTML = `
+                <div class="recipe-image" style="background-image: url('${escapeHtml(image)}')"></div>
+                <div class="recipe-info">
+                    <h4>${escapeHtml(recipe.title || 'Без назви')}</h4>
+                    <p class="recipe-description" style="font-size: 0.9rem; color: #9aa6b6;">👨‍🍳 ${escapeHtml(recipe.username || 'Автор')}</p>
+                    <p class="recipe-description">${escapeHtml(firstIngredient)}</p>
+                    <div class="recipe-meta">
+                        <div class="meta-left">
+                            <span class="cook-time">${escapeHtml(created)}</span>
+                            <span class="recipe-category">${escapeHtml(recipe.category || 'Загальне')}</span>
+                        </div>
+                        <div class="meta-right">
+                            <button class="details-btn recipe-view-btn" data-recipe='${JSON.stringify(recipe).replace(/'/g, "&apos;")}'>Переглянути</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені">❤️</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            grid.appendChild(article);
+        }
+
+        // Load all recipes
+        function loadRecipes(searchTerm = '') {
+            console.log('📥 Завантажуємо рецепти від спільноти...');
+            
+            loadingSpinner.style.display = 'block';
+            grid.innerHTML = '';
+            noRecipesMsg.style.display = 'none';
+            
+            const url = searchTerm 
+                ? `backend/get-all-recipes.php?search=${encodeURIComponent(searchTerm)}`
+                : 'backend/get-all-recipes.php';
+            
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('✅ Відповідь сервера:', data);
+                    loadingSpinner.style.display = 'none';
+                    
+                    if (data.status === 'success' && Array.isArray(data.recipes) && data.recipes.length > 0) {
+                        data.recipes.forEach(recipe => renderRecipe(recipe));
+                        noRecipesMsg.style.display = 'none';
+                        console.log(`✅ Завантажено ${data.recipes.length} рецептів`);
+                    } else {
+                        noRecipesMsg.style.display = 'block';
+                        console.log('ℹ️ Рецептів не знайдено');
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Помилка завантаження:', error);
+                    loadingSpinner.style.display = 'none';
+                    grid.innerHTML = `<p style="color:#ff6b6b; grid-column: 1/-1; text-align: center;">⚠️ Помилка завантаження рецептів</p>`;
+                });
+        }
+
+        // Open recipe modal
+        function openRecipeModal(recipe) {
+            document.getElementById('modalImage').src = (recipe.image_path && recipe.image_path.trim()) ? recipe.image_path : 'images/homepage/salad1.jpg';
+            document.getElementById('modalTitle').textContent = recipe.title || 'Без назви';
+            document.getElementById('modalAuthor').textContent = `👨‍🍳 ${recipe.username || 'Автор'}`;
+            document.getElementById('modalDate').textContent = recipe.created_at ? recipe.created_at.split(' ')[0] : 'Недавно';
+            document.getElementById('modalCategory').textContent = recipe.category || 'Загальне';
+            
+            const ingredientsList = document.getElementById('modalIngredients');
+            ingredientsList.innerHTML = '';
+            (recipe.ingredients || '').split('|').forEach(ing => {
+                if (ing.trim()) {
+                    const li = document.createElement('li');
+                    li.textContent = ing.trim();
+                    ingredientsList.appendChild(li);
+                }
+            });
+            
+            const instructionsList = document.getElementById('modalInstructions');
+            instructionsList.innerHTML = '';
+            (recipe.instructions || '').split('|').forEach(step => {
+                if (step.trim()) {
+                    const li = document.createElement('li');
+                    li.textContent = step.trim();
+                    instructionsList.appendChild(li);
+                }
+            });
+            
+            modal.style.display = 'flex';
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('modal-open');
+        }
+
+        // Close modal
+        function closeModal() {
+            modal.style.display = 'none';
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('modal-open');
+        }
+
+        // Event listeners
+        filterBtn.addEventListener('click', () => {
+            const searchTerm = filterInput.value.trim();
+            loadRecipes(searchTerm);
+        });
+
+        filterInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const searchTerm = filterInput.value.trim();
+                loadRecipes(searchTerm);
+            }
+        });
+
+        modalClose.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // Delegate click for recipe view buttons
+        grid.addEventListener('click', (e) => {
+            if (e.target.classList.contains('recipe-view-btn')) {
+                try {
+                    const recipeData = JSON.parse(e.target.dataset.recipe);
+                    openRecipeModal(recipeData);
+                } catch (err) {
+                    console.error('Error parsing recipe:', err);
+                }
+            }
+        });
+
+        // Initial load
+        loadRecipes();
+    });
+    </script>
+</body>
+</html>
