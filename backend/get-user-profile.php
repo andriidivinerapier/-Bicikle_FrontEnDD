@@ -10,31 +10,71 @@ if (!isset($_SESSION['user']) || !is_array($_SESSION['user'])) {
     exit;
 }
 
-$user_id = $_SESSION['user']['id'] ?? null;
+$user_id = intval($_SESSION['user']['id'] ?? 0);
 $username = $_SESSION['user']['username'] ?? '';
 $email = $_SESSION['user']['email'] ?? '';
 
 // Якщо ID є, завантажимо додаткові дані з бази
 if ($user_id) {
-    $stmt = $conn->prepare('SELECT id, username, email FROM users WHERE id = ?');
-    $stmt->bind_param('i', $user_id);
-    $stmt->execute();
-    $stmt->store_result();
-    
-    if ($stmt->num_rows === 1) {
-        $stmt->bind_result($db_id, $db_username, $db_email);
-        $stmt->fetch();
-        
-        $username = $db_username;
-        $email = $db_email;
+    // refresh username/email from users table if present
+    $stmt = $conn->prepare('SELECT username, email FROM users WHERE id = ? LIMIT 1');
+    if ($stmt) {
+        $stmt->bind_param('i', $user_id);
+        $stmt->execute();
+        $stmt->bind_result($db_username, $db_email);
+        if ($stmt->fetch()) {
+            $username = $db_username ?: $username;
+            $email = $db_email ?: $email;
+        }
+        $stmt->close();
     }
-    $stmt->close();
-}
 
-// Статистика (поки що статична, можна доповнити логікою з таблиці)
-$recipes_count = 12; // Кількість рецептів користувача
-$comments_count = 34; // Кількість коментарів
-$favorites_count = 89; // Кількість улюблених
+    // Count recipes
+    $recipes_count = 0;
+    $stmt = $conn->prepare('SELECT COUNT(*) FROM recipes WHERE user_id = ?');
+    if ($stmt) {
+        $stmt->bind_param('i', $user_id);
+        $stmt->execute();
+        $stmt->bind_result($recipes_count);
+        $stmt->fetch();
+        $stmt->close();
+    }
+
+    // Count favorites
+    $favorites_count = 0;
+    $stmt = $conn->prepare('SELECT COUNT(*) FROM favorites WHERE user_id = ?');
+    if ($stmt) {
+        $stmt->bind_param('i', $user_id);
+        $stmt->execute();
+        $stmt->bind_result($favorites_count);
+        $stmt->fetch();
+        $stmt->close();
+    }
+
+    // Count comments if table exists
+    $comments_count = 0;
+    $check = $conn->prepare("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'comments'");
+    if ($check) {
+        $check->execute();
+        $check->bind_result($tbl_exists);
+        $check->fetch();
+        $check->close();
+        if ($tbl_exists) {
+            $stmt = $conn->prepare('SELECT COUNT(*) FROM comments WHERE user_id = ?');
+            if ($stmt) {
+                $stmt->bind_param('i', $user_id);
+                $stmt->execute();
+                $stmt->bind_result($comments_count);
+                $stmt->fetch();
+                $stmt->close();
+            }
+        }
+    }
+} else {
+    $recipes_count = 0;
+    $comments_count = 0;
+    $favorites_count = 0;
+}
 
 echo json_encode([
     'status' => 'success',
