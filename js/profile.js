@@ -316,6 +316,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         const card = document.createElement('div');
                         card.className = 'recipe-card';
                         if (recipe.id) card.dataset.recipeId = recipe.id;
+                        card.dataset.ingredients = recipe.ingredients || '';
+                        card.dataset.steps = recipe.instructions || '';
+                        card.dataset.difficulty = 'Середня';
 
                         const image = (recipe.image_path && recipe.image_path.trim()) ? recipe.image_path : 'images/homepage/salad1.jpg';
                         const firstIngredient = (recipe.ingredients || '').split('|')[0] || '';
@@ -331,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         <span class="recipe-category">${escapeHtml(recipe.category || '')}</span>
                                     </div>
                                     <div class="meta-right">
-                                        <button class="recipe-button">Переглянути</button>
+                                        <button class="recipe-button details-btn">Переглянути</button>
                                         <button class="recipe-like" aria-label="Видалити з улюблених" data-recipe-id="${recipe.id}"><i class="fas fa-trash-alt"></i></button>
                                     </div>
                                 </div>
@@ -512,4 +515,86 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    // Open Recipe Modal
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('details-btn')) {
+            const card = e.target.closest('.recipe-card');
+            if (card) openRecipeModal(card);
+        }
+    });
+
+    function openRecipeModal(card) {
+        const title = card.querySelector('h4')?.textContent || 'Рецепт';
+        const time = card.querySelector('.cook-time')?.textContent || '';
+        const category = card.querySelector('.recipe-category')?.textContent || '';
+        const imgUrl = card.querySelector('.recipe-image')?.style.backgroundImage.slice(4, -1).replace(/"/g, '') || 'images/homepage/salad1.jpg';
+        const ingredientsRaw = card.dataset.ingredients || '';
+        const stepsRaw = card.dataset.steps || '';
+        const difficulty = card.dataset.difficulty || 'Легка';
+
+        // Create modal HTML
+        const modalHtml = `
+            <div class="recipe-modal-overlay">
+                <div class="recipe-modal">
+                    <button class="modal-close">×</button>
+                    <div class="modal-image-wrap">
+                        <img src="${imgUrl}" alt="${title}" onerror="this.src='images/homepage/salad1.jpg'">
+                    </div>
+                    <div class="modal-body">
+                        <h2 id="modalTitle">${title}</h2>
+                        <div class="modal-meta">
+                            <span class="difficulty">${difficulty}</span>
+                            <span class="cook-time">⏱️ ${time}</span>
+                        </div>
+                        <div class="ingredients">
+                            <h4>🥘 Інгредієнти:</h4>
+                            <ul>
+                                ${ingredientsRaw.split('|')
+                                    .filter(Boolean)
+                                    .map(i => `<li>${i.trim()}</li>`)
+                                    .join('')}
+                            </ul>
+                        </div>
+                        <div class="preparation">
+                            <h4>📋 Приготування:</h4>
+                            <ol>
+                                ${stepsRaw.split('|')
+                                    .filter(Boolean)
+                                    .map(s => `<li>${s.trim()}</li>`)
+                                    .join('')}
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+        // Add modal to page
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        
+        // Get references to new elements
+        const modal = document.querySelector('.recipe-modal-overlay');
+        const closeBtn = modal.querySelector('.modal-close');
+
+        // Open modal with animation
+        requestAnimationFrame(() => {
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        });
+
+        // Close handlers
+        const closeModal = () => {
+            modal.classList.remove('open');
+            document.body.style.overflow = '';
+            setTimeout(() => modal.remove(), 300);
+        };
+
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+    }
 });
