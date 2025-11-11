@@ -177,6 +177,8 @@
         function renderRecipe(recipe) {
             const article = document.createElement('article');
             article.className = 'recipe-card';
+            // set recipe id on article for easier access
+            if (recipe.id) article.dataset.recipeId = recipe.id;
 
             const image = (recipe.image_path && recipe.image_path.trim()) ? recipe.image_path : 'images/homepage/salad1.jpg';
             const ingredients = recipe.ingredients || '';
@@ -196,7 +198,7 @@
                         </div>
                         <div class="meta-right">
                             <button class="details-btn recipe-view-btn" data-recipe='${JSON.stringify(recipe).replace(/'/g, "&apos;")}'>Переглянути</button>
-                            <button class="recipe-like" aria-label="Додати в улюблені">❤️</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені" data-recipe-id="${recipe.id || ''}">❤️</button>
                         </div>
                     </div>
                 </div>
@@ -228,6 +230,19 @@
                     
                     if (data.status === 'success' && Array.isArray(data.recipes) && data.recipes.length > 0) {
                         data.recipes.forEach(recipe => renderRecipe(recipe));
+                        // after rendering recipes, mark liked ones for this user
+                        fetch('backend/get-favorites.php')
+                            .then(r => r.json())
+                            .then(favData => {
+                                if (favData && Array.isArray(favData.favorites)) {
+                                    const favSet = new Set(favData.favorites.map(String));
+                                    document.querySelectorAll('.recipe-like').forEach(btn => {
+                                        const id = btn.dataset.recipeId;
+                                        if (id && favSet.has(id)) btn.classList.add('liked');
+                                    });
+                                }
+                            })
+                            .catch(err => console.log('Could not load favorites:', err));
                         noRecipesMsg.style.display = 'none';
                         console.log(`✅ Завантажено ${data.recipes.length} рецептів`);
                     } else {
@@ -309,6 +324,46 @@
                 } catch (err) {
                     console.error('Error parsing recipe:', err);
                 }
+            }
+            // handle like/unlike on community cards
+            if (e.target.classList.contains('recipe-like')) {
+                const btn = e.target;
+                const article = btn.closest('.recipe-card');
+                const recipeId = btn.dataset.recipeId || article?.dataset.recipeId;
+                if (!recipeId) return;
+
+                const liked = btn.classList.contains('liked');
+                // choose endpoint
+                const endpoint = liked ? 'remove-favorite.php' : 'add-favorite.php';
+
+                fetch('backend/' + endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `recipe_id=${encodeURIComponent(recipeId)}`
+                })
+                .then(res => res.json())
+                .then(resp => {
+                    if (resp && (resp.success || resp.status === 'success')) {
+                        btn.classList.toggle('liked');
+                        // optional visual feedback
+                        if (!liked) {
+                            // recipe added to favorites
+                            // increment favorites count in profile (if visible)
+                            const favCountElem = document.querySelector('.profile-stats span:nth-child(3) strong');
+                            if (favCountElem) favCountElem.textContent = parseInt(favCountElem.textContent || '0') + 1;
+                        } else {
+                            const favCountElem = document.querySelector('.profile-stats span:nth-child(3) strong');
+                            if (favCountElem) favCountElem.textContent = Math.max(0, parseInt(favCountElem.textContent || '0') - 1);
+                        }
+                    } else {
+                        // not authenticated — open auth modal if present
+                        if (typeof openAuthModal === 'function') openAuthModal();
+                        else alert('Будь ласка, увійдіть, щоб додавати улюблені.');
+                    }
+                })
+                .catch(err => {
+                    console.error('Favorite error:', err);
+                });
             }
         });
 

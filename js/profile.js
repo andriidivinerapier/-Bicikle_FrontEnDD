@@ -300,6 +300,91 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadProfileData();
 
+    // Load favorites into Favorites tab
+    function loadFavorites() {
+        const grid = document.querySelector('#tab-favorites .recipes-grid');
+        if (!grid) return;
+
+        // clear demo cards
+        grid.innerHTML = '';
+
+        fetch('backend/get-favorite-recipes.php')
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success' && Array.isArray(data.recipes)) {
+                    data.recipes.forEach(recipe => {
+                        const card = document.createElement('div');
+                        card.className = 'recipe-card';
+                        if (recipe.id) card.dataset.recipeId = recipe.id;
+
+                        const image = (recipe.image_path && recipe.image_path.trim()) ? recipe.image_path : 'images/homepage/salad1.jpg';
+                        const firstIngredient = (recipe.ingredients || '').split('|')[0] || '';
+
+                        card.innerHTML = `
+                            <div class="recipe-image" style="background-image: url('${escapeHtml(image)}')"></div>
+                            <div class="recipe-info">
+                                <h4>${escapeHtml(recipe.title || 'Без назви')}</h4>
+                                <p class="recipe-description">${escapeHtml(firstIngredient)}</p>
+                                <div class="recipe-meta">
+                                    <div class="meta-left">
+                                        <span class="cook-time">${recipe.created_at ? recipe.created_at.split(' ')[0] : 'Недавно'}</span>
+                                        <span class="recipe-category">${escapeHtml(recipe.category || '')}</span>
+                                    </div>
+                                    <div class="meta-right">
+                                        <button class="recipe-button">Переглянути</button>
+                                        <button class="recipe-like" aria-label="Видалити з улюблених" data-recipe-id="${recipe.id}"><i class="fas fa-trash-alt"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                        grid.appendChild(card);
+                    });
+
+                    // attach remove handlers
+                    grid.querySelectorAll('.recipe-like').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            if (!confirm('Видалити з улюблених?')) return;
+                            const recipeId = btn.dataset.recipeId;
+                            fetch('backend/remove-favorite.php', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                body: `recipe_id=${encodeURIComponent(recipeId)}`
+                            })
+                            .then(r => r.json())
+                            .then(resp => {
+                                // remove card from DOM
+                                const card = btn.closest('.recipe-card');
+                                if (card) card.remove();
+                                // update favorites count
+                                const favCountElem = document.querySelector('.profile-stats span:nth-child(3) strong');
+                                if (favCountElem) favCountElem.textContent = Math.max(0, parseInt(favCountElem.textContent || '0') - 1);
+                            })
+                            .catch(err => console.error('Remove favorite error:', err));
+                        });
+                    });
+                } else {
+                    grid.innerHTML = '<p style="color:#9aa6b6;">У вас ще немає улюблених рецептів.</p>';
+                }
+            })
+            .catch(err => {
+                console.error('Error loading favorites:', err);
+                grid.innerHTML = '<p style="color:#ff6b6b;">Помилка завантаження улюблених рецептів</p>';
+            });
+    }
+
+    // Load favorites on initial profile load and when switching to favorites tab
+    loadFavorites();
+
+    document.querySelectorAll('.profile-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (btn.dataset.tab === 'favorites') {
+                loadFavorites();
+            }
+        });
+    });
+
     // Load user recipes on tab switch
     function loadUserRecipes() {
         const grid = document.querySelector('#tab-recipes .recipes-grid');
