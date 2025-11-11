@@ -3,6 +3,7 @@
     --bg-1: #121826; /* основний фон */
     --bg-2: #1C2230; /* блоки */
     --accent: #FF7A00; /* акценти */
+    --header-height: 72px; /* fixed header height used to offset page content */
     --muted: #9aa6b6;
     --text-primary: #e6eef8;
     --bg-secondary: rgba(255,255,255,0.02);
@@ -20,6 +21,8 @@ body {
     background-color: var(--bg-1);
     color: var(--text-primary);
     line-height: 1.6;
+    /* keep content visible below fixed header */
+    padding-top: var(--header-height);
 }
 
 body.modal-open {
@@ -48,7 +51,7 @@ body.modal-open {
     justify-content: space-between;
     align-items: center;
     /* keep left padding but reserve extra right space for absolute profile button */
-    padding-left: 2rem;
+        padding-left: 0; /* moved logo closer to screen edge */
     padding-right: 280px;
 }
 
@@ -121,6 +124,7 @@ body.modal-open {
 /* Keep logo and actions fixed size so nav stays centered */
 .logo {
     flex: 0 0 auto;
+    margin-left: -48px; /* push logo far to the left */
 }
 
 .nav-actions {
@@ -184,8 +188,8 @@ body.modal-open {
     position: relative;
     overflow: hidden;
     letter-spacing: 0.3px;
-    margin-left: auto;
-    margin-right: 32px;
+    margin-left: 20px;
+    margin-right: 1px;
 }
 
 .profile-btn::before {
@@ -306,7 +310,7 @@ body.modal-open {
 
 /* Hero секція */
 .hero {
-    margin-top: 70px;
+    margin-top: 0;
     padding: 2rem;
     background: linear-gradient(180deg, rgba(255,255,255,0.02), var(--bg-2));
     border-radius: 14px;
@@ -777,6 +781,8 @@ body.modal-open {
 }
 
 @media (max-width: 768px) {
+    .logo { margin-left: 0; } /* reset negative margin on mobile */
+
     .nav-container {
         flex-direction: column;
         gap: 1rem;
@@ -784,6 +790,9 @@ body.modal-open {
         /* restore normal padding on small screens */
         padding-right: 1rem;
     }
+
+    /* reduce header height on small screens so padding-top isn't excessive */
+    :root { --header-height: 64px; }
 
     .nav-links {
         flex-direction: column;
