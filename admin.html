@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Адмін Панель - Рецепти</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin-panel.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Боковое меню -->
+        <aside class="admin-sidebar">
+            <div class="admin-logo">
+                <h1>Адмін Панель</h1>
+            </div>
+            <nav class="admin-nav">
+                <ul>
+                    <li><a href="#" class="nav-link active" data-section="recipes">Рецепти</a></li>
+                    <li><a href="#" class="nav-link" data-section="add-recipe">Додати рецепт</a></li>
+                    <li><a href="#" class="nav-link" data-section="settings">Налаштування</a></li>
+                </ul>
+            </nav>
+            <div class="admin-user-info">
+                <p id="admin-username">Адмін</p>
+                <button id="logout-btn" class="logout-btn">Вийти</button>
+            </div>
+        </aside>
+
+        <!-- Основний контент -->
+        <main class="admin-main">
+            <!-- Заголовок -->
+            <header class="admin-header">
+                <h2 id="section-title">Рецепти</h2>
+            </header>
+
+            <!-- Секція Рецепти -->
+            <section id="recipes-section" class="admin-section active">
+                <div class="recipes-toolbar">
+                    <input type="text" id="search-recipes" placeholder="Пошук рецептів..." class="search-input">
+                    <button id="refresh-recipes-btn" class="btn btn-primary">Оновити</button>
+                </div>
+                <div id="recipes-list" class="recipes-table-container">
+                    <table class="recipes-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Назва</th>
+                                <th>Категорія</th>
+                                <th>Дата створення</th>
+                                <th>Дії</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recipes-tbody">
+                            <tr>
+                                <td colspan="5" class="loading-text">Завантаження...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Секція Додати рецепт -->
+            <section id="add-recipe-section" class="admin-section">
+                <h3>Додати новий рецепт</h3>
+                <form id="add-recipe-form" class="recipe-form" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="recipe-title">Назва рецепту *</label>
+                        <input type="text" id="recipe-title" name="title" required placeholder="Введіть назву рецепту">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="recipe-category">Категорія</label>
+                        <select id="recipe-category" name="category">
+                            <option value="">Оберіть категорію</option>
+                            <option value="breakfast">Сніданок</option>
+                            <option value="lunch">Обід</option>
+                            <option value="dinner">Вечеря</option>
+                            <option value="desserts">Десерти</option>
+                            <option value="salads">Салати</option>
+                            <option value="soups">Супи</option>
+                            <option value="snacks">Закуски</option>
+                            <option value="drinks">Напої</option>
+                            <option value="vegan">Веганські</option>
+                            <option value="pastries">Булочки</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="recipe-ingredients">Інгредієнти *</label>
+                        <textarea id="recipe-ingredients" name="ingredients" required placeholder="Перелічіть інгредієнти, розділяючи їх на нові рядки"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="recipe-instructions">Інструкції *</label>
+                        <textarea id="recipe-instructions" name="instructions" required placeholder="Опишіть крок за кроком як готувати блюдо"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="recipe-image">Зображення рецепту</label>
+                        <input type="file" id="recipe-image" name="image" accept="image/*">
+                        <small>Приймаються формати: JPG, PNG, GIF, WebP (макс. 5MB)</small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success">Додати рецепт</button>
+                        <button type="reset" class="btn btn-secondary">Скинути</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Секція Налаштування -->
+            <section id="settings-section" class="admin-section">
+                <h3>Налаштування</h3>
+                <div class="settings-card">
+                    <h4>Інформація адміна</h4>
+                    <p><strong>Ім'я користувача:</strong> <span id="settings-username">-</span></p>
+                    <p><strong>Email:</strong> <span id="settings-email">-</span></p>
+                </div>
+                <div class="settings-card">
+                    <h4>Безпека</h4>
+                    <button class="btn btn-warning">Змінити пароль</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal для редагування рецепту -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>Редагувати рецепт</h3>
+            <form id="edit-recipe-form" class="recipe-form" enctype="multipart/form-data">
+                <input type="hidden" id="edit-recipe-id" name="recipe_id">
+
+                <div class="form-group">
+                    <label for="edit-recipe-title">Назва рецепту *</label>
+                    <input type="text" id="edit-recipe-title" name="title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-recipe-category">Категорія</label>
+                    <select id="edit-recipe-category" name="category">
+                        <option value="">Оберіть категорію</option>
+                        <option value="breakfast">Сніданок</option>
+                        <option value="lunch">Обід</option>
+                        <option value="dinner">Вечеря</option>
+                        <option value="desserts">Десерти</option>
+                        <option value="salads">Салати</option>
+                        <option value="soups">Супи</option>
+                        <option value="snacks">Закуски</option>
+                        <option value="drinks">Напої</option>
+                        <option value="vegan">Веганські</option>
+                        <option value="pastries">Булочки</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-recipe-ingredients">Інгредієнти *</label>
+                    <textarea id="edit-recipe-ingredients" name="ingredients" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-recipe-instructions">Інструкції *</label>
+                    <textarea id="edit-recipe-instructions" name="instructions" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-recipe-image">Зображення рецепту</label>
+                    <input type="file" id="edit-recipe-image" name="image" accept="image/*">
+                    <div id="edit-current-image" class="current-image"></div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success">Зберегти</button>
+                    <button type="button" class="btn btn-secondary close-modal">Скасувати</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="js/admin-panel.js"></script>
+</body>
+</html>

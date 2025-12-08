@@ -5,7 +5,11 @@ session_start();
 
 if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
     $user = $_SESSION['user'];
-    echo json_encode(['status' => 'logged', 'username' => $user['username'] ?? '']);
+    echo json_encode([
+        'status' => 'logged',
+        'username' => $user['username'] ?? '',
+        'role' => $user['role'] ?? 'user'
+    ]);
 } else {
     echo json_encode(['status' => 'logged_out']);
 }

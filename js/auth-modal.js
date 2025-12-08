@@ -132,8 +132,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     showAuthToast('Вхід успішний! Вітаємо, ' + data.username, 'success');
                     authModal.classList.remove('open');
                     document.body.style.overflow = '';
-                    // Оновлюємо UI після входу
-                    updateAuthUI({ username: data.username });
+                    
+                    // Якщо адмін - перенаправити на адмін панель
+                    if (data.role === 'admin') {
+                        setTimeout(() => {
+                            window.location.href = 'admin.html';
+                        }, 1000);
+                    } else {
+                        // Оновлюємо UI після входу для звичайних користувачів
+                        updateAuthUI({ username: data.username, role: data.role });
+                    }
                 } else {
                     showAuthToast(data.message || 'Помилка входу', 'error');
                 }
@@ -166,10 +174,27 @@ document.addEventListener('DOMContentLoaded', () => {
             if (loginButton) loginButton.style.display = 'none';
             if (profileContainer) profileContainer.style.display = 'flex';
             if (profileNameEl) profileNameEl.textContent = user.username;
+            
+            // Показати адмін меню якщо користувач адмін
+            const adminMenuLink = document.getElementById('adminMenuLink');
+            const adminMenuSeparator = document.getElementById('adminMenuSeparator');
+            if (user.role === 'admin') {
+                if (adminMenuLink) adminMenuLink.style.display = 'block';
+                if (adminMenuSeparator) adminMenuSeparator.style.display = 'block';
+            } else {
+                if (adminMenuLink) adminMenuLink.style.display = 'none';
+                if (adminMenuSeparator) adminMenuSeparator.style.display = 'none';
+            }
         } else {
             if (loginButton) loginButton.style.display = '';
             if (profileContainer) profileContainer.style.display = 'none';
             if (profileNameEl) profileNameEl.textContent = 'Профіль';
+            
+            // Сховати адмін меню
+            const adminMenuLink = document.getElementById('adminMenuLink');
+            const adminMenuSeparator = document.getElementById('adminMenuSeparator');
+            if (adminMenuLink) adminMenuLink.style.display = 'none';
+            if (adminMenuSeparator) adminMenuSeparator.style.display = 'none';
         }
     }
 
@@ -186,14 +211,21 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (profileData.status === 'success' && profileData.user) {
                                 updateAuthUI({ 
                                     username: profileData.user.username || data.username,
-                                    email: profileData.user.email 
+                                    email: profileData.user.email,
+                                    role: data.role
                                 });
                             } else {
-                                updateAuthUI({ username: data.username });
+                                updateAuthUI({ 
+                                    username: data.username,
+                                    role: data.role
+                                });
                             }
                         })
                         .catch(() => {
-                            updateAuthUI({ username: data.username });
+                            updateAuthUI({ 
+                                username: data.username,
+                                role: data.role
+                            });
                         });
                 } else {
                     updateAuthUI(null);
