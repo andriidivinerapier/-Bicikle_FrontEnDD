@@ -31,11 +31,12 @@ $search = isset($_GET['search']) ? '%' . $_GET['search'] . '%' : '%';
 
 // Get all recipes with user info, sorted by newest first
 $stmt = $conn->prepare('
-    SELECT r.id, r.title, r.ingredients, r.instructions, r.category, r.image_path, r.created_at, u.username, u.id as user_id
-    FROM recipes r
-    JOIN users u ON r.user_id = u.id
-    WHERE r.title LIKE ? OR r.category LIKE ? OR u.username LIKE ?
-    ORDER BY r.created_at DESC
+        SELECT r.id, r.title, r.ingredients, r.instructions, r.category, r.image_path, r.created_at, u.username, u.id as user_id
+        FROM recipes r
+        JOIN users u ON r.user_id = u.id
+        WHERE (r.title LIKE ? OR r.category LIKE ? OR u.username LIKE ?)
+            AND (r.status = 'approved' OR r.status IS NULL)
+        ORDER BY r.created_at DESC
 ');
 
 if ($stmt) {

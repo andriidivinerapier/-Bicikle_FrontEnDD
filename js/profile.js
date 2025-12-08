@@ -181,27 +181,19 @@ document.addEventListener('DOMContentLoaded', () => {
             fetch('backend/create-recipe.php', { method: 'POST', body: fd })
                 .then(r => r.json())
                 .then(res => {
-                    if (res.status === 'success') {
-                        showToast('Рецепт створено', 'success');
-                        // append new recipe card to DOM (simple representation)
-                        const grid = document.querySelector('#tab-recipes .recipes-grid');
-                        if (grid) {
-                            const article = document.createElement('div');
-                            article.className = 'recipe-card recipe-card-editable';
-                            const img = fd.get('image') ? URL.createObjectURL(fd.get('image')) : 'images/homepage/salad1.jpg';
-                            article.innerHTML = `\n                                <div class="recipe-image" style="background-image: url('${img}')"></div>\n                                <div class="recipe-info">\n                                    <h4>${fd.get('title')}</h4>\n                                    <p class="recipe-description">${(fd.get('ingredients') || '').split('|')[0] || ''}</p>\n                                    <div class="recipe-meta">\n                                        <div class="meta-left">\n                                            <span class="cook-time">--</span>\n                                        </div>\n                                        <div class="meta-right">\n                                            <button class="btn-icon" title="Редагувати"><i class="fas fa-edit"></i></button>\n                                            <button class="btn-icon btn-danger" title="Видалити"><i class="fas fa-trash-alt"></i></button>\n                                        </div>\n                                    </div>\n                                </div>`;
-                            grid.insertBefore(article, grid.firstChild);
+                        if (res.status === 'success') {
+                            // Notify user that recipe was sent for moderation
+                            showToast('Рецепт відправлено на модерацію', 'success');
+                            // close modal
+                            if (createOverlay) {
+                                createOverlay.style.display = 'none';
+                                document.body.classList.remove('modal-open');
+                            }
+                            // clear form
+                            createForm.reset();
+                        } else {
+                            showToast(res.message || 'Помилка при створенні', 'error');
                         }
-                        // close modal
-                        if (createOverlay) {
-                            createOverlay.style.display = 'none';
-                            document.body.classList.remove('modal-open');
-                        }
-                        // clear form
-                        createForm.reset();
-                    } else {
-                        showToast(res.message || 'Помилка при створенні', 'error');
-                    }
                 })
                 .catch(() => showToast('Помилка мережі', 'error'));
         });
@@ -223,6 +215,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (confirm('Остаточно видалити аккаунт?')) {
                     alert('Видалення аккаунту (функцію ще не реалізовано)');
                 }
+
+                // ---------------- Notifications ----------------
+                // Poll for user notifications and show toasts for unread
+                function pollNotifications() {
+                    fetch('backend/get-user-notifications.php')
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.status === 'success' && Array.isArray(data.notifications)) {
+                                data.notifications.forEach(n => {
+                                    if (n.is_read == 0) {
+                                        showToast(n.message, 'info');
+                                        // mark as read
+                                        const fd = new FormData(); fd.append('id', n.id);
+                                        fetch('backend/mark-notification-read.php', { method: 'POST', body: fd })
+                                            .catch(err => console.error('mark read err', err));
+                                    }
+                                });
+                            }
+                        })
+                        .catch(err => console.error('notifications err', err));
+                }
+
+                // Start polling every 20 seconds
+                setInterval(pollNotifications, 20000);
+                // Also poll once on load
+                pollNotifications();
             }
         });
     }

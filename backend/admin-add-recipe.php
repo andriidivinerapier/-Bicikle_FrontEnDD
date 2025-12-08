@@ -49,8 +49,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Додавання рецепту
     $admin_id = $_SESSION['user']['id'];
-    $stmt = $conn->prepare('INSERT INTO recipes (user_id, title, ingredients, instructions, category, image_path, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())');
-    $stmt->bind_param('isssss', $admin_id, $title, $ingredients, $instructions, $category, $image_path);
+    // Ensure status column exists
+    $check = $conn->query("SHOW COLUMNS FROM recipes LIKE 'status'");
+    if ($check && $check->num_rows == 0) {
+        $conn->query("ALTER TABLE recipes ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'approved'");
+    }
+
+    $status = 'approved';
+    $stmt = $conn->prepare('INSERT INTO recipes (user_id, title, ingredients, instructions, category, image_path, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())');
+    $stmt->bind_param('issssss', $admin_id, $title, $ingredients, $instructions, $category, $image_path, $status);
 
     if ($stmt->execute()) {
         echo json_encode(['status' => 'success', 'message' => 'Рецепт успішно додано']);

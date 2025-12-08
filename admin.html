@@ -17,6 +17,7 @@
             <nav class="admin-nav">
                 <ul>
                     <li><a href="#" class="nav-link active" data-section="recipes">Рецепти</a></li>
+                    <li><a href="#" class="nav-link" data-section="user-recipes">Рецепти користувачів</a></li>
                     <li><a href="#" class="nav-link" data-section="add-recipe">Додати рецепт</a></li>
                     <li><a href="#" class="nav-link" data-section="settings">Налаштування</a></li>
                 </ul>
@@ -55,6 +56,32 @@
                             <tr>
                                 <td colspan="5" class="loading-text">Завантаження...</td>
                             </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Секція Рецепти користувачів (на модерації) -->
+            <section id="user-recipes-section" class="admin-section">
+                <h3>Рецепти користувачів (на модерації)</h3>
+                <div class="recipes-toolbar">
+                    <input type="text" id="search-user-recipes" placeholder="Пошук..." class="search-input">
+                    <button id="refresh-user-recipes-btn" class="btn btn-primary">Оновити</button>
+                </div>
+                <div id="user-recipes-list" class="recipes-table-container">
+                    <table class="recipes-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Назва</th>
+                                <th>Користувач</th>
+                                <th>Категорія</th>
+                                <th>Дата</th>
+                                <th>Дії</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-recipes-tbody">
+                            <tr><td colspan="6" class="loading-text">Завантаження...</td></tr>
                         </tbody>
                     </table>
                 </div>

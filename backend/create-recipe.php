@@ -38,6 +38,24 @@ $create_sql = "CREATE TABLE IF NOT EXISTS recipes (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
 $conn->query($create_sql);
 
+// Ensure status and review columns exist (add if missing)
+$check = $conn->query("SHOW COLUMNS FROM recipes LIKE 'status'");
+if ($check && $check->num_rows == 0) {
+    $conn->query("ALTER TABLE recipes ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'approved'");
+}
+$check2 = $conn->query("SHOW COLUMNS FROM recipes LIKE 'review_reason'");
+if ($check2 && $check2->num_rows == 0) {
+    $conn->query("ALTER TABLE recipes ADD COLUMN review_reason TEXT DEFAULT NULL");
+}
+$check3 = $conn->query("SHOW COLUMNS FROM recipes LIKE 'reviewed_by'");
+if ($check3 && $check3->num_rows == 0) {
+    $conn->query("ALTER TABLE recipes ADD COLUMN reviewed_by INT DEFAULT NULL");
+}
+$check4 = $conn->query("SHOW COLUMNS FROM recipes LIKE 'reviewed_at'");
+if ($check4 && $check4->num_rows == 0) {
+    $conn->query("ALTER TABLE recipes ADD COLUMN reviewed_at DATETIME DEFAULT NULL");
+}
+
 $image_path = '';
 if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
     $tmp = $_FILES['image']['tmp_name'];
@@ -63,11 +81,12 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
     }
 }
 
-$stmt = $conn->prepare('INSERT INTO recipes (user_id, title, ingredients, instructions, category, image_path) VALUES (?, ?, ?, ?, ?, ?)');
-$stmt->bind_param('isssss', $user_id, $title, $ingredients, $instructions, $category, $image_path);
+$status = 'pending'; // user-submitted recipes go to moderation
+$stmt = $conn->prepare('INSERT INTO recipes (user_id, title, ingredients, instructions, category, image_path, status) VALUES (?, ?, ?, ?, ?, ?, ?)');
+$stmt->bind_param('issssss', $user_id, $title, $ingredients, $instructions, $category, $image_path, $status);
 if ($stmt->execute()) {
     $inserted_id = $stmt->insert_id;
-    echo json_encode(['status' => 'success', 'id' => $inserted_id, 'message' => 'Рецепт успішно створено']);
+    echo json_encode(['status' => 'success', 'id' => $inserted_id, 'message' => 'Рецепт відправлено на модерацію']);
 } else {
     echo json_encode(['status' => 'error', 'message' => 'Помилка при збереженні рецепту']);
 }
