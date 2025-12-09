@@ -322,6 +322,13 @@ body.modal-open {
     transform: scale(1.1);
 }
 
+/* Inline SVG inside search button sizing */
+.search-btn svg {
+    width: 1.2rem;
+    height: 1.2rem;
+    display: block;
+}
+
 
 
 /* Hero секція */
