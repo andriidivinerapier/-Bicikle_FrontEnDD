@@ -480,7 +480,7 @@ function viewUserRecipe(id) {
 function approveUserRecipe(id) {
     if (!confirm('Підтвердити публікацію рецепту?')) return;
     const fd = new FormData(); fd.append('recipe_id', id); fd.append('action', 'approve');
-    fetch('backend/admin-review-recipe.php', { method: 'POST', body: fd })
+    fetch('backend/admin-review-user-recipe.php', { method: 'POST', body: fd })
         .then(r => r.json())
         .then(res => {
             if (res.status === 'success') {
@@ -496,7 +496,7 @@ function rejectUserRecipe(id) {
     const reason = prompt('Вкажіть причину відхилення (буде надіслано користувачу):', '');
     if (reason === null) return; // cancelled
     const fd = new FormData(); fd.append('recipe_id', id); fd.append('action', 'reject'); fd.append('reason', reason);
-    fetch('backend/admin-review-recipe.php', { method: 'POST', body: fd })
+    fetch('backend/admin-review-user-recipe.php', { method: 'POST', body: fd })
         .then(r => r.json())
         .then(res => {
             if (res.status === 'success') {

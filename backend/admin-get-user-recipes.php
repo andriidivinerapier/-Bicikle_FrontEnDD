@@ -10,13 +10,15 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     exit;
 }
 
-// Ensure status column exists
-$check = $conn->query("SHOW COLUMNS FROM recipes LIKE 'status'");
+// Ensure user_recipes table exists
+$check = $conn->query("SHOW TABLES LIKE 'user_recipes'");
 if ($check && $check->num_rows == 0) {
-    $conn->query("ALTER TABLE recipes ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'approved'");
+    echo json_encode(['status' => 'error', 'message' => 'Таблиця user_recipes не знайдена']);
+    exit;
 }
 
-$stmt = $conn->prepare("SELECT r.id, r.user_id, r.title, r.category, r.created_at, r.image_path, r.ingredients, r.instructions, r.status, r.review_reason, u.username, u.email FROM recipes r LEFT JOIN users u ON r.user_id = u.id WHERE r.status = 'pending' ORDER BY r.created_at DESC");
+// Get pending user-submitted recipes from user_recipes table
+$stmt = $conn->prepare("SELECT ur.id, ur.user_id, ur.title, ur.category, ur.created_at, ur.image_path, ur.ingredients, ur.instructions, ur.status, ur.review_reason, u.username, u.email FROM user_recipes ur LEFT JOIN users u ON ur.user_id = u.id WHERE ur.status = 'pending' ORDER BY ur.created_at DESC");
 $stmt->execute();
 $result = $stmt->get_result();
 $recipes = [];

@@ -6,6 +6,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const editProfileBtn = document.getElementById('editProfileBtn');
     const profileLogoutBtn = document.getElementById('profileLogoutBtn');
 
+    // Load user profile statistics
+    function loadUserProfileStats() {
+        fetch('backend/get-user-profile.php')
+            .then(res => res.json())
+            .then(data => {
+                console.log('📊 Profile stats response:', data);
+                if (data.status === 'success' && data.user) {
+                    const user = data.user;
+                    console.log('📊 Updating stats:', { recipes: user.recipes_count, comments: user.comments_count, favorites: user.favorites_count });
+                    // Update profile header stats
+                    const statsElement = document.querySelector('.profile-stats');
+                    if (statsElement) {
+                        statsElement.innerHTML = `
+                            <span><strong>${user.recipes_count}</strong> рецептів </span>
+                            <span><strong>${user.comments_count}</strong> коментарів </span>
+                            <span><strong>${user.favorites_count}</strong> улюблених </span>
+                        `;
+                        console.log('✅ Stats updated in DOM');
+                    } else {
+                        console.warn('⚠️ .profile-stats element not found');
+                    }
+                    // Update profile username and email
+                    const usernameEl = document.getElementById('profileUsername');
+                    const emailEl = document.getElementById('profileEmail');
+                    if (usernameEl) usernameEl.textContent = user.username || 'Користувач';
+                    if (emailEl) emailEl.textContent = user.email || 'email@example.com';
+                } else {
+                    console.warn('⚠️ Profile stats response invalid:', data);
+                }
+            })
+            .catch(err => console.error('❌ Error loading profile stats:', err));
+    }
+    loadUserProfileStats();
+
     // Tab Switching
     tabButtons.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -334,9 +368,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         const card = document.createElement('div');
                         card.className = 'recipe-card';
                         if (recipe.id) card.dataset.recipeId = recipe.id;
+                        card.dataset.source = recipe.source || 'user';
                         card.dataset.ingredients = recipe.ingredients || '';
                         card.dataset.steps = recipe.instructions || '';
                         card.dataset.difficulty = 'Середня';
+                        card.dataset.source = recipe.source || 'admin';
 
                         const image = (recipe.image_path && recipe.image_path.trim()) ? recipe.image_path : 'images/homepage/salad1.jpg';
                         const firstIngredient = (recipe.ingredients || '').split('|')[0] || '';
@@ -353,25 +389,38 @@ document.addEventListener('DOMContentLoaded', () => {
                                     </div>
                                     <div class="meta-right">
                                         <button class="recipe-button details-btn">Переглянути</button>
-                                        <button class="recipe-like" aria-label="Видалити з улюблених" data-recipe-id="${recipe.id}"><i class="fas fa-trash-alt"></i></button>
+                                        <button class="recipe-like liked" aria-label="Видалити з улюблених" data-recipe-id="${recipe.id}">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                            </svg>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                         `;
 
+                        // ensure like button carries source info
+                        const likeBtn = card.querySelector('.recipe-like');
+                        if (likeBtn) likeBtn.dataset.source = card.dataset.source || 'user';
                         grid.appendChild(card);
                     });
 
-                    // attach remove handlers
+                    // attach remove handlers (unified behavior with other pages)
                     grid.querySelectorAll('.recipe-like').forEach(btn => {
                         btn.addEventListener('click', (e) => {
                             e.stopPropagation();
-                            if (!confirm('Видалити з улюблених?')) return;
                             const recipeId = btn.dataset.recipeId;
+                            const source = btn.dataset.source || 'user';
+                            if (!recipeId) return;
+
+                            // Optimistic UI: show unliked state and toast, then call backend
+                            // Ask for confirmation to avoid accidental removals
+                            if (!confirm('Видалити з улюблених?')) return;
+
                             fetch('backend/remove-favorite.php', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                                body: `recipe_id=${encodeURIComponent(recipeId)}`
+                                body: `recipe_id=${encodeURIComponent(recipeId)}&source=${encodeURIComponent(source)}`
                             })
                             .then(r => r.json())
                             .then(resp => {
@@ -381,8 +430,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                 // update favorites count
                                 const favCountElem = document.querySelector('.profile-stats span:nth-child(3) strong');
                                 if (favCountElem) favCountElem.textContent = Math.max(0, parseInt(favCountElem.textContent || '0') - 1);
+                                showToast('Видалено з улюблених', 'info');
                             })
-                            .catch(err => console.error('Remove favorite error:', err));
+                            .catch(err => {
+                                console.error('Remove favorite error:', err);
+                                showToast('Помилка при видаленні з улюблених', 'error');
+                            });
                         });
                     });
                 } else {
@@ -397,6 +450,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load favorites on initial profile load and when switching to favorites tab
     loadFavorites();
+
+    // Simple toast helper (creates container if needed)
+    function showToast(message, type = 'info') {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.style.position = 'fixed';
+            container.style.right = '20px';
+            container.style.bottom = '20px';
+            container.style.zIndex = 9999;
+            document.body.appendChild(container);
+        }
+
+        const toast = document.createElement('div');
+        toast.className = 'toast-item';
+        toast.style.marginTop = '8px';
+        toast.style.padding = '10px 14px';
+        toast.style.borderRadius = '8px';
+        toast.style.color = '#fff';
+        toast.style.boxShadow = '0 6px 18px rgba(0,0,0,0.12)';
+        toast.style.fontSize = '0.95rem';
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 200ms ease, transform 200ms ease';
+
+        if (type === 'error') {
+            toast.style.background = '#e74c3c';
+        } else if (type === 'success') {
+            toast.style.background = '#28a745';
+        } else {
+            toast.style.background = '#333';
+        }
+
+        toast.textContent = message;
+        container.appendChild(toast);
+
+        // animate in
+        requestAnimationFrame(() => {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(-6px)';
+        });
+
+        setTimeout(() => {
+            // animate out then remove
+            toast.style.opacity = '0';
+            toast.style.transform = '';
+            setTimeout(() => toast.remove(), 400);
+        }, 2600);
+    }
 
     document.querySelectorAll('.profile-tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -434,6 +536,21 @@ document.addEventListener('DOMContentLoaded', () => {
                         const ingredients = recipe.ingredients || '';
                         const firstIngredient = ingredients.split('|')[0] || 'Рецепт';
                         
+                        // Status badge colors
+                        const statusColors = {
+                            'pending': '#ffc107',
+                            'approved': '#28a745',
+                            'rejected': '#dc3545'
+                        };
+                        const statusTexts = {
+                            'pending': '⏳ На модерації',
+                            'approved': '✅ Схвалено',
+                            'rejected': '❌ Відхилено'
+                        };
+                        const status = recipe.status || 'pending';
+                        const statusColor = statusColors[status] || '#9aa6b6';
+                        const statusText = statusTexts[status] || 'Невідомо';
+                        
                         article.innerHTML = `
                             <div class="recipe-image" style="background-image: url('${image}')"></div>
                             <div class="recipe-info">
@@ -442,6 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <div class="recipe-meta">
                                     <div class="meta-left">
                                         <span class="cook-time">${recipe.created_at ? recipe.created_at.split(' ')[0] : 'Недавно'}</span>
+                                        <span style="color: ${statusColor}; font-weight: 600; font-size: 0.85rem;">${statusText}</span>
                                     </div>
                                     <div class="meta-right">
                                         <button class="btn-icon" title="Редагувати"><i class="fas fa-edit"></i></button>

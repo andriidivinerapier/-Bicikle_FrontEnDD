@@ -90,6 +90,10 @@ document.querySelectorAll('.nav-links a').forEach(link => {
 // --- Modal: open / close / populate ---
 (function () {
     const modalOverlay = document.getElementById('recipeModal');
+    if (!modalOverlay) {
+        console.log('Note: recipeModal not found on this page');
+        return;
+    }
     const modalClose = document.getElementById('modalClose');
     const modalImage = document.getElementById('modalImage');
     const modalTitle = document.getElementById('modalTitle');

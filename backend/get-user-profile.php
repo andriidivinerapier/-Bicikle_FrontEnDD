@@ -14,6 +14,8 @@ $user_id = intval($_SESSION['user']['id'] ?? 0);
 $username = $_SESSION['user']['username'] ?? '';
 $email = $_SESSION['user']['email'] ?? '';
 
+error_log("DEBUG: get-user-profile.php called for user_id=$user_id");
+
 // Якщо ID є, завантажимо додаткові дані з бази
 if ($user_id) {
     // refresh username/email from users table if present
@@ -29,9 +31,9 @@ if ($user_id) {
         $stmt->close();
     }
 
-    // Count recipes
+    // Count user_recipes
     $recipes_count = 0;
-    $stmt = $conn->prepare('SELECT COUNT(*) FROM recipes WHERE user_id = ?');
+    $stmt = $conn->prepare('SELECT COUNT(*) as cnt FROM user_recipes WHERE user_id = ?');
     if ($stmt) {
         $stmt->bind_param('i', $user_id);
         $stmt->execute();
@@ -39,10 +41,11 @@ if ($user_id) {
         $stmt->fetch();
         $stmt->close();
     }
+    error_log("DEBUG: user_recipes count=$recipes_count");
 
     // Count favorites
     $favorites_count = 0;
-    $stmt = $conn->prepare('SELECT COUNT(*) FROM favorites WHERE user_id = ?');
+    $stmt = $conn->prepare('SELECT COUNT(*) as cnt FROM favorites WHERE user_id = ?');
     if ($stmt) {
         $stmt->bind_param('i', $user_id);
         $stmt->execute();
@@ -50,17 +53,18 @@ if ($user_id) {
         $stmt->fetch();
         $stmt->close();
     }
+    error_log("DEBUG: favorites count=$favorites_count");
 
     // Count comments if table exists
     $comments_count = 0;
-    $check = $conn->prepare("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'comments'");
+    $check = $conn->prepare("SELECT COUNT(*) as cnt FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'comments'");
     if ($check) {
         $check->execute();
         $check->bind_result($tbl_exists);
         $check->fetch();
         $check->close();
         if ($tbl_exists) {
-            $stmt = $conn->prepare('SELECT COUNT(*) FROM comments WHERE user_id = ?');
+            $stmt = $conn->prepare('SELECT COUNT(*) as cnt FROM comments WHERE user_id = ?');
             if ($stmt) {
                 $stmt->bind_param('i', $user_id);
                 $stmt->execute();
@@ -70,6 +74,7 @@ if ($user_id) {
             }
         }
     }
+    error_log("DEBUG: comments count=$comments_count");
 } else {
     $recipes_count = 0;
     $comments_count = 0;
@@ -81,9 +86,9 @@ echo json_encode([
     'user' => [
         'username' => $username,
         'email' => $email,
-        'recipes_count' => $recipes_count,
-        'comments_count' => $comments_count,
-        'favorites_count' => $favorites_count
+        'recipes_count' => intval($recipes_count),
+        'comments_count' => intval($comments_count),
+        'favorites_count' => intval($favorites_count)
     ]
 ]);
 

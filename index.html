@@ -28,7 +28,7 @@
                 <li><a href="about.html">Про нас</a></li>
                 <li><a href="contacts.html">Контакти</a></li>
             </ul>
-                <div class="nav-actions">
+            <div class="nav-actions">
                 <div class="search-container">
                     <input type="text" id="searchInput" placeholder="Пошук рецептів...">
                     <button class="search-btn" aria-label="Пошук">
@@ -48,12 +48,10 @@
                         <i class="fas fa-chevron-down"></i>
                     </button>
                     <div class="profile-menu" id="profileMenu" role="menu" aria-hidden="true">
-                        <a href="profile.html" class="profile-menu-item">Мій профіль</a>
-                        <a href="profile.html?tab=recipes" class="profile-menu-item">Мої рецепти</a>
-                        <a href="profile.html?tab=favorites" class="profile-menu-item">Улюблені</a>
-                        <div id="adminMenuSeparator" style="display: none; border-top: 1px solid #ddd; margin: 8px 0;"></div>
-                        <a href="admin.html" class="profile-menu-item" id="adminMenuLink" style="display: none; color: #e74c3c; font-weight: 600;">📊 Адмін панель</a>
-                        <button id="logoutBtn" class="profile-menu-item" style="width: 100%; text-align: left; background: none; border: none; color: inherit; cursor: pointer;">Вийти</button>
+                        <a href="profile.html" role="menuitem">Мій профіль</a>
+                        <a href="profile.html?tab=my-recipes" role="menuitem">Мої рецепти</a>
+                        <a href="#" id="adminLink" role="menuitem" style="display:none;">Адмін панель</a>
+                        <button id="logoutBtn" role="menuitem">Вихід</button>
                     </div>
                 </div>
             </div>
@@ -76,267 +74,18 @@
     <!-- Категорії рецептів -->
     <section class="recipes-section">
         <h2>Вегетаріанські страви</h2>
-        <div class="categories-grid">
-            <div class="recipe-card" data-recipe-id="1" data-difficulty="Легка" data-ingredients="Кіноа - 100г|Морква - 1 шт|Соєвий соус - 2 ст.л.|Нут варений - 200г|Броколі - 200г|Кунжутна олія - 1 ст.л.|Авокадо - 1 шт|Шпинат - 50г" data-steps="Приготуйте кіноа згідно інструкції на упаковці.|Поріжте овочі та обсмажте моркву і броколі на олії кілька хвилин.|Змішайте кіноа, овочі та нут, додайте соєвий соус і кунжутну олію.|Декоруйте скибочками авокадо та свіжим шпинатом. Подавайте теплою.">
-                <div class="recipe-image" style="background-image: url('images/homepage/salad1.jpg');"></div>
-                <div class="recipe-info">
-                    <h4>Будда-боул</h4>
-                    <p class="recipe-description">Збалансована страва з зернових, овочів і білка</p>
-                    <div class="recipe-meta">
-                        <div class="meta-left">
-                            <span class="cook-time">25 хв</span>
-                            <span class="recipe-category">Вегетаріанський</span>
-                        </div>
-                        <div class="meta-right">
-                            <button class="recipe-button">Рецепт</button>
-                            <button class="recipe-like" aria-label="Додати в улюблені">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="recipe-card" data-difficulty="Легка" data-ingredients="Помідори чері - 150г|Огірок - 1 шт|Фета - 100г|Чорні оливки - 50г|Цибуля - 1/2 шт|Оливкова олія - 1 ст.л." data-steps="Поріжте помідори, огірок і цибулю.|Покришите фету і додайте оливки.|Заправте оливковою олією, посоліть, поперчіть і перемішайте.|Подавайте відразу.">
-                <div class="recipe-image" style="background-image: url('images/homepage/salad2.jpg');"></div>
-                <div class="recipe-info">
-                    <h4>Грецький салат</h4>
-                    <p class="recipe-description">Класичний середземноморський салат з фетою</p>
-                    <div class="recipe-meta">
-                        <div class="meta-left">
-                            <span class="cook-time">15 хв</span>
-                            <span class="recipe-category">Вегетаріанський</span>
-                        </div>
-                        <div class="meta-right">
-                            <button class="recipe-button">Рецепт</button>
-                            <button class="recipe-like" aria-label="Додати в улюблені" data-recipe-id="1">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="recipe-card" data-difficulty="Середня" data-ingredients="Кіноа - 120г|Помідори - 2 шт|Огірок - 1 шт|Перець - 1 шт|Зелень - за смаком|Лимонний сік - 1 ст.л." data-steps="Відваріть кіноа до готовності.|Поріжте овочі та змішайте з кіноа.|Полийте лимонним соком і додайте сіль, перець.|Подавайте кімнатної температури або охолодженим.">
-                <div class="recipe-image" style="background-image: url('images/homepage/salad3.jpg');"></div>
-                <div class="recipe-info">
-                    <h4>Кіноа з овочами</h4>
-                    <p class="recipe-description">Поживний салат з кіноа та свіжими овочами</p>
-                    <div class="recipe-meta">
-                        <div class="meta-left">
-                            <span class="cook-time">30 хв</span>
-                            <span class="recipe-category">Вегетаріанський</span>
-                        </div>
-                        <div class="meta-right">
-                            <button class="recipe-button">Рецепт</button>
-                            <button class="recipe-like" aria-label="Додати в улюблені">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="recipe-card" data-difficulty="Середня" data-ingredients="Баклажан - 1 шт|Кабачок - 1 шт|Перець - 1 шт|Помідори - 3 шт|Часник - 2 зубчики|Оливкова олія - 2 ст.л." data-steps="Наріжте овочі великими шматками.|Обсмажте часник на олії, додайте овочі і тушкуйте до м'якості.|Посоліть, поперчіть і подавайте з улюбленими травами.">
-                <div class="recipe-image" style="background-image: url('images/homepage/salad4.jpg');"></div>
-                <div class="recipe-info">
-                    <h4>Овочеве рагу</h4>
-                    <p class="recipe-description">Ароматне рагу з сезонних овочів</p>
-                    <div class="recipe-meta">
-                        <div class="meta-left">
-                            <span class="cook-time">45 хв</span>
-                            <span class="recipe-category">Вегетаріанський</span>
-                        </div>
-                        <div class="meta-right">
-                            <button class="recipe-button">Рецепт</button>
-                            <button class="recipe-like" aria-label="Додати в улюблені">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="categories-grid" id="veganCategory">
+            <!-- Рецепти завантажуються динамічно -->
         </div>
 
         <h2>Пасти</h2>
-        <div class="categories-grid">
-            <div class="recipe-card" data-difficulty="Середня" data-ingredients="Спагетті - 200г|Яйця - 2 шт|Пармезан - 50г|Бекон - 100г|Чорний перець - за смаком" data-steps="Відваріть спагетті аль денте.|Обсмажте бекон до хрусткості.|Змішайте яйця з тертим пармезаном, додайте до пасти поза вогнем.|Додайте бекон і щедро поперчіть.">
-                <div class="recipe-image" style="background-image: url('images/homepage/pasta1.jpg');"></div>
-                <div class="recipe-info">
-                    <h4>Паста Карбонара</h4>
-                    <p class="recipe-description">Класична італійська паста з беконом та сиром</p>
-                    <div class="recipe-meta">
-                        <div class="meta-left">
-                            <span class="cook-time">30 хв</span>
-                            <span class="recipe-category">Паста</span>
-                        </div>
-                        <div class="meta-right">
-                            <button class="recipe-button">Рецепт</button>
-                            <button class="recipe-like" aria-label="Додати в улюблені">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="recipe-card" data-difficulty="Середня" data-ingredients="Спагетті - 200г|Фарш - 300г|Томатний соус - 300мл|Цибуля - 1 шт|Часник - 2 зубчики|Олія - 1 ст.л." data-steps="Обсмажте цибулю та часник, додайте фарш і обсмажте.|Додайте томатний соус і тушкуйте 20-30 хв.|Подавайте з відвареними спагетті та тертим пармезаном.">
-                <div class="recipe-image" style="background-image: url('images/homepage/pasta2.jpg');"></div>
-                <div class="recipe-info">
-                    <h4>Спагетті Болоньєзе</h4>
-                    <p class="recipe-description">Спагетті з ароматним м'ясним соусом</p>
-                    <div class="recipe-meta">
-                        <div class="meta-left">
-                            <span class="cook-time">40 хв</span>
-                            <span class="recipe-category">Паста</span>
-                        </div>
-                        <div class="meta-right">
-                            <button class="recipe-button">Рецепт</button>
-                            <button class="recipe-like" aria-label="Додати в улюблені">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="recipe-card" data-difficulty="Легка" data-ingredients="Пенне - 200г|Томатний соус - 200мл|Часник - 2 зубчики|Перець чілі - за смаком|Оливкова олія - 1 ст.л." data-steps="Відваріть пенне до готовності.|Приготуйте гострий томатний соус з часником і перцем чілі.|Змішайте пасту з соусом і подавайте гарячою.">
-                <div class="recipe-image" style="background-image: url('images/homepage/pasta3.jpg');"></div>
-                <div class="recipe-info">
-                    <h4>Пенне Арабіата</h4>
-                    <p class="recipe-description">Гостра паста в томатному соусі з часником</p>
-                    <div class="recipe-meta">
-                        <div class="meta-left">
-                            <span class="cook-time">25 хв</span>
-                            <span class="recipe-category">Паста</span>
-                        </div>
-                        <div class="meta-right">
-                            <button class="recipe-button">Рецепт</button>
-                            <button class="recipe-like" aria-label="Додати в улюблені">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="recipe-card" data-difficulty="Середня" data-ingredients="Фетучіні - 200г|Вершки - 200мл|Пармезан - 70г|Вершкове масло - 30г|Часник - 1 зубчик" data-steps="Відваріть фетучіні до аль денте.|На сковороді розтопіть масло, додайте вершки і пармезан.|Змішайте пасту з соусом і подавайте одразу.">
-                <div class="recipe-image" style="background-image: url('images/homepage/pasta4.jpg');"></div>
-                <div class="recipe-info">
-                    <h4>Фетучіні Альфредо</h4>
-                    <p class="recipe-description">Паста у вершковому соусі з пармезаном</p>
-                    <div class="recipe-meta">
-                        <div class="meta-left">
-                            <span class="cook-time">35 хв</span>
-                            <span class="recipe-category">Паста</span>
-                        </div>
-                        <div class="meta-right">
-                            <button class="recipe-button">Рецепт</button>
-                            <button class="recipe-like" aria-label="Додати в улюблені">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="categories-grid" id="pastaCategory">
+            <!-- Рецепти завантажуються динамічно -->
         </div>
 
         <h2>Десерти</h2>
-        <div class="categories-grid">
-            <div class="recipe-card" data-difficulty="Легка" data-ingredients="Сир маскарпоне - 250г|Кава еспресо - 200мл|Печиво савоярді - 200г|Цукор - 80г|Какао для посипки" data-steps="Збийте маскарпоне з цукром.|Змочіть печиво у каві і викладіть шари печива і крему.|Охолодіть мінімум 2 години, перед подачею посипте какао.">
-                <div class="recipe-image" style="background-image: url('images/homepage/dessert1.jpg');"></div>
-                <div class="recipe-info">
-                    <h4>Тірамісу</h4>
-                    <p class="recipe-description">Класичний італійський десерт з кавою</p>
-                    <div class="recipe-meta">
-                        <div class="meta-left">
-                            <span class="cook-time">20 хв</span>
-                            <span class="recipe-category">Десерт</span>
-                        </div>
-                        <div class="meta-right">
-                            <button class="recipe-button">Рецепт</button>
-                            <button class="recipe-like" aria-label="Додати в улюблені">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="recipe-card" data-difficulty="Середня" data-ingredients="Крем-сир - 400г|Пісочна основа - 200г|Яйця - 2 шт|Цукор - 120г|Ягоди для прикраси" data-steps="Змішайте крем-сир з цукром і яйцями.|Викладіть на пісочну основу і випікайте до готовності.|Охолодіть і прикрасьте ягодами перед подачею.">
-                <div class="recipe-image" style="background-image: url('images/homepage/dessert2.jpg');"></div>
-                <div class="recipe-info">
-                    <h4>Чізкейк</h4>
-                    <p class="recipe-description">Ніжний десерт з крем-сиром та ягодами</p>
-                    <div class="recipe-meta">
-                        <div class="meta-left">
-                            <span class="cook-time">60 хв</span>
-                            <span class="recipe-category">Десерт</span>
-                        </div>
-                        <div class="meta-right">
-                            <button class="recipe-button">Рецепт</button>
-                            <button class="recipe-like" aria-label="Додати в улюблені">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="recipe-card" data-difficulty="Середня" data-ingredients="Темний шоколад - 150г|Масло - 100г|Яйця - 3 шт|Цукор - 80г|Борошно - 30г" data-steps="Розтопіть шоколад з маслом.|Збийте яйця з цукром, додайте шоколад і борошно.|Випікайте в маленьких формах 8-10 хвилин до рідкої серцевини.">
-                <div class="recipe-image" style="background-image: url('images/homepage/dessert3.jpg');"></div>
-                <div class="recipe-info">
-                    <h4>Шоколадний фондан</h4>
-                    <p class="recipe-description">Десерт з рідкою шоколадною начинкою</p>
-                    <div class="recipe-meta">
-                        <div class="meta-left">
-                            <span class="cook-time">25 хв</span>
-                            <span class="recipe-category">Десерт</span>
-                        </div>
-                        <div class="meta-right">
-                            <button class="recipe-button">Рецепт</button>
-                            <button class="recipe-like" aria-label="Додати в улюблені">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="recipe-card" data-difficulty="Легка" data-ingredients="Яблука - 4 шт|Листовий дріжджовий лист - 1 упаковка|Цукор - 80г|Кориця - 1 ч.л.|Масло - 30г" data-steps="Поріжте яблука і змішайте з цукром і корицею.|Викладіть начинку на тісто, загорніть і випікайте до золотистої скоринки.|Подавайте трохи охолодженим.">
-                <div class="recipe-image" style="background-image: url('images/homepage/dessert4.jpg');"></div>
-                <div class="recipe-info">
-                    <h4>Яблучний штрудель</h4>
-                    <p class="recipe-description">Віденський десерт з яблуками та корицею</p>
-                    <div class="recipe-meta">
-                        <div class="meta-left">
-                            <span class="cook-time">50 хв</span>
-                            <span class="recipe-category">Десерт</span>
-                        </div>
-                        <div class="meta-right">
-                            <button class="recipe-button">Рецепт</button>
-                            <button class="recipe-like" aria-label="Додати в улюблені">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="categories-grid" id="dessertCategory">
+            <!-- Рецепти завантажуються динамічно -->
         </div>
     </section>
 
@@ -388,7 +137,7 @@
         <div class="footer-bottom">
             <p>&copy; 2025 CookBook. Всі права захищено.</p>
         </div>
-                </footer>
+    </footer>
 
 </div>
         <!-- Auth Modal -->
@@ -507,6 +256,7 @@
 
         <!-- JS Files -->
         <link rel="stylesheet" href="css/seasonal-modal.css">
+        <script src="js/load-recipes.js"></script>
         <script src="js/main.js"></script>
         <script src="js/recipes.js"></script>
         <script src="js/seasonal-modal.js"></script>

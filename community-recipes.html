@@ -196,6 +196,8 @@
             article.className = 'recipe-card';
             // set recipe id on article for easier access
             if (recipe.id) article.dataset.recipeId = recipe.id;
+            // mark source as user for community recipes
+            article.dataset.source = 'user';
 
             const image = (recipe.image_path && recipe.image_path.trim()) ? recipe.image_path : 'images/homepage/salad1.jpg';
             const ingredients = recipe.ingredients || '';
@@ -215,12 +217,105 @@
                         </div>
                         <div class="meta-right">
                             <button class="details-btn recipe-view-btn" data-recipe='${JSON.stringify(recipe).replace(/'/g, "&apos;")}'>Переглянути</button>
-                            <button class="recipe-like" aria-label="Додати в улюблені" data-recipe-id="${recipe.id || ''}">❤️</button>
+                            <button class="recipe-like" aria-label="Додати в улюблені" data-recipe-id="${recipe.id || ''}">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 </div>
             `;
 
+            // ensure like button has source attribute and add direct click handler (fallback)
+            const likeBtn = article.querySelector('.recipe-like');
+            if (likeBtn) {
+                likeBtn.dataset.source = article.dataset.source || 'user';
+                // direct click handler in case event delegation misses the click
+                likeBtn.addEventListener('click', (ev) => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    console.log('community: like clicked', {recipeId: likeBtn.dataset.recipeId, source: likeBtn.dataset.source});
+                    const btn = ev.currentTarget;
+                    const articleEl = btn.closest('.recipe-card');
+                    const recipeId = btn.dataset.recipeId || articleEl?.dataset.recipeId;
+                    const source = btn.dataset.source || articleEl?.dataset.source || 'user';
+                    if (!recipeId) return;
+
+                    // Optimistic UI: toggle immediately for feedback
+                    const wasLiked = btn.classList.contains('liked');
+                    btn.classList.toggle('liked');
+                    if (!wasLiked) {
+                        btn.style.color = '#ff6b6b';
+                        btn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+                    } else {
+                        btn.style.color = '';
+                        btn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2"/></svg>';
+                    }
+
+                    // Then call backend; if it fails, revert UI
+                    fetch('backend/session.php')
+                        .then(r => r.json())
+                        .then(data => {
+                            console.log('community: session response', data);
+                            if (data.status !== 'logged') {
+                                // revert and open auth
+                                btn.classList.toggle('liked');
+                                if (wasLiked) { btn.style.color = '#ff6b6b'; btn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>'; }
+                                else { btn.style.color = ''; btn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2"/></svg>'; }
+                                if (typeof openAuthModal === 'function') openAuthModal();
+                                else alert('Будь ласка, увійдіть, щоб додавати улюблені.');
+                                return;
+                            }
+
+                            const endpoint = wasLiked ? 'remove-favorite.php' : 'add-favorite.php';
+                            const formData = new FormData();
+                            formData.append('recipe_id', recipeId);
+                            formData.append('source', source);
+
+                            console.log('community: calling favorite endpoint', { endpoint, recipeId, source });
+
+                            fetch('backend/' + endpoint, { method: 'POST', body: formData })
+                                .then(r => r.text().then(text => {
+                                    // try parse json, if fails log raw text
+                                    try {
+                                        const json = JSON.parse(text);
+                                        console.log('community: favorite endpoint json', json);
+                                        return json;
+                                    } catch (e) {
+                                        console.log('community: favorite endpoint raw response', text);
+                                        return { success: false, raw: text };
+                                    }
+                                }))
+                                .then(resp => {
+                                    console.log('community: favorite final response', resp);
+                                    if (!(resp && (resp.success || resp.status === 'success'))) {
+                                        // revert UI
+                                        btn.classList.toggle('liked');
+                                        if (wasLiked) { btn.style.color = '#ff6b6b'; btn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>'; }
+                                        else { btn.style.color = ''; btn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2"/></svg>'; }
+                                        console.error('Favorite response (direct):', resp);
+                                    }
+                                })
+                                .catch(err => {
+                                    // revert on error
+                                    btn.classList.toggle('liked');
+                                    if (wasLiked) { btn.style.color = '#ff6b6b'; btn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>'; }
+                                    else { btn.style.color = ''; btn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2"/></svg>'; }
+                                    console.error('Favorite error (direct):', err);
+                                });
+                        })
+                        .catch(err => {
+                            // revert and show auth modal
+                            btn.classList.toggle('liked');
+                            if (wasLiked) { btn.style.color = '#ff6b6b'; btn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>'; }
+                            else { btn.style.color = ''; btn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2"/></svg>'; }
+                            console.error('Session check error (direct):', err);
+                            if (typeof openAuthModal === 'function') openAuthModal();
+                            else alert('Помилка при перевірці аутентифікації.');
+                        });
+                });
+            }
             grid.appendChild(article);
         }
 
@@ -254,8 +349,15 @@
                                 if (favData && Array.isArray(favData.favorites)) {
                                     const favSet = new Set(favData.favorites.map(String));
                                     document.querySelectorAll('.recipe-like').forEach(btn => {
-                                        const id = btn.dataset.recipeId;
-                                        if (id && favSet.has(id)) btn.classList.add('liked');
+                                        const article = btn.closest('.recipe-card');
+                                        const id = btn.dataset.recipeId || article?.dataset.recipeId;
+                                        const source = btn.dataset.source || article?.dataset.source || 'user';
+                                        const key = source + ':' + String(id);
+                                        if (id && favSet.has(key)) {
+                                            btn.classList.add('liked');
+                                            btn.style.color = '#ff6b6b';
+                                            btn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+                                        }
                                     });
                                 }
                             })
@@ -332,7 +434,7 @@
             if (e.target === modal) closeModal();
         });
 
-        // Delegate click for recipe view buttons
+        // Delegate click for recipe view buttons only
         grid.addEventListener('click', (e) => {
             if (e.target.classList.contains('recipe-view-btn')) {
                 try {
@@ -342,46 +444,7 @@
                     console.error('Error parsing recipe:', err);
                 }
             }
-            // handle like/unlike on community cards
-            if (e.target.classList.contains('recipe-like')) {
-                const btn = e.target;
-                const article = btn.closest('.recipe-card');
-                const recipeId = btn.dataset.recipeId || article?.dataset.recipeId;
-                if (!recipeId) return;
-
-                const liked = btn.classList.contains('liked');
-                // choose endpoint
-                const endpoint = liked ? 'remove-favorite.php' : 'add-favorite.php';
-
-                fetch('backend/' + endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `recipe_id=${encodeURIComponent(recipeId)}`
-                })
-                .then(res => res.json())
-                .then(resp => {
-                    if (resp && (resp.success || resp.status === 'success')) {
-                        btn.classList.toggle('liked');
-                        // optional visual feedback
-                        if (!liked) {
-                            // recipe added to favorites
-                            // increment favorites count in profile (if visible)
-                            const favCountElem = document.querySelector('.profile-stats span:nth-child(3) strong');
-                            if (favCountElem) favCountElem.textContent = parseInt(favCountElem.textContent || '0') + 1;
-                        } else {
-                            const favCountElem = document.querySelector('.profile-stats span:nth-child(3) strong');
-                            if (favCountElem) favCountElem.textContent = Math.max(0, parseInt(favCountElem.textContent || '0') - 1);
-                        }
-                    } else {
-                        // not authenticated — open auth modal if present
-                        if (typeof openAuthModal === 'function') openAuthModal();
-                        else alert('Будь ласка, увійдіть, щоб додавати улюблені.');
-                    }
-                })
-                .catch(err => {
-                    console.error('Favorite error:', err);
-                });
-            }
+            // Note: like/unlike is handled by a direct per-button listener to avoid double-handling
         });
 
         // Initial load

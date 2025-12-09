@@ -4,14 +4,47 @@ document.addEventListener('DOMContentLoaded', () => {
     const catalogModal = document.getElementById('catalogModal');
     const closeCatalog = document.getElementById('closeCatalog');
     const catButtons = Array.from(document.querySelectorAll('.cat-btn'));
-
-    const cards = Array.from(document.querySelectorAll('.recipe-card'));
-    const pageButtons = Array.from(document.querySelectorAll('.page-btn'));
-    const nextBtn = document.querySelector('.page-next');
+    const recipesGrid = document.getElementById('recipesGrid');
+    const pagination = document.getElementById('pagination');
 
     const cardsPerPage = 12;
     let currentPage = 1;
-    let activeCategory = 'Усі';
+    let activeCategory = 'all';
+    let allRecipes = [];
+
+    // Функція для завантаження рецептів з backend
+    async function loadRecipesPage(category = 'all', page = 1) {
+        currentPage = page;
+        activeCategory = category;
+        
+        const data = await loadRecipes(recipesGrid.id, {
+            category,
+            page,
+            per_page: cardsPerPage
+        });
+
+        // Оновляємо пагінацію
+        if (pagination && data.pagination) {
+            pagination.innerHTML = '';
+            for (let i = 1; i <= data.pagination.total_pages; i++) {
+                const btn = document.createElement('button');
+                btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+                btn.textContent = i;
+                btn.dataset.page = i;
+                btn.addEventListener('click', () => loadRecipesPage(activeCategory, i));
+                pagination.appendChild(btn);
+            }
+
+            // Додаємо кнопку "Наступна"
+            if (currentPage < data.pagination.total_pages) {
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'page-next';
+                nextBtn.textContent = '→';
+                nextBtn.addEventListener('click', () => loadRecipesPage(activeCategory, currentPage + 1));
+                pagination.appendChild(nextBtn);
+            }
+        }
+    }
 
     // Відкриття/закриття модального каталогу
     catalogBtn.addEventListener('click', () => {
@@ -27,27 +60,76 @@ document.addEventListener('DOMContentLoaded', () => {
     // Кнопки категорій — фільтрація
     catButtons.forEach(btn => {
         btn.addEventListener('click', () => {
-            activeCategory = btn.dataset.category;
-            currentPage = 1;
-            renderCards();
+            const category = btn.dataset.category || 'all';
+            loadRecipesPage(category, 1);
             catalogModal.setAttribute('aria-hidden', 'true');
         });
     });
 
     // Модальне вікно рецепту
     document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('details-btn')) {
+        // Обробка кнопки "Рецепт"
+        if (e.target.classList.contains('recipe-button')) {
             const card = e.target.closest('.recipe-card');
             openRecipeModal(card);
         }
 
+        // Обробка кнопки "вподобайки" — звертаємось до backend
         if (e.target.classList.contains('recipe-like')) {
-            e.target.classList.toggle('liked');
-            const title = e.target.closest('.recipe-card').querySelector('h4').textContent;
-            const liked = e.target.classList.contains('liked');
-            const likes = JSON.parse(localStorage.getItem('likes') || '{}');
-            likes[title] = liked;
-            localStorage.setItem('likes', JSON.stringify(likes));
+            e.preventDefault();
+            e.stopPropagation();
+
+            const likeBtn = e.target;
+            const card = likeBtn.closest('.recipe-card');
+            const recipeId = card.dataset.recipeId;
+            const source = card.dataset.source || 'admin';
+
+            // Перевіряємо чи користувач залогінений
+            fetch('backend/session.php')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status !== 'logged') {
+                        // Показуємо авт модал
+                        if (typeof openAuthModal === 'function') {
+                            openAuthModal();
+                        } else {
+                            alert('Будь ласка, увійдіть, щоб додавати улюблені.');
+                        }
+                        return;
+                    }
+
+                    // Перевіряємо чи вже вподобано
+                    const isLiked = likeBtn.classList.contains('liked');
+                    const endpoint = isLiked ? 'backend/remove-favorite.php' : 'backend/add-favorite.php';
+
+                    const formData = new FormData();
+                    formData.append('recipe_id', recipeId);
+                    formData.append('source', source);
+
+                    fetch(endpoint, {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(r => r.json())
+                        .then(res => {
+                            if (res && (res.success || res.status === 'success')) {
+                                likeBtn.classList.toggle('liked');
+                                // Заповняємо серце якщо вподобано
+                                if (likeBtn.classList.contains('liked')) {
+                                    likeBtn.style.color = '#ff6b6b';
+                                    likeBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+                                } else {
+                                    likeBtn.style.color = '';
+                                    likeBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2"/></svg>';
+                                }
+                            } else {
+                                console.error('Add favorite response:', res);
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Like error:', err);
+                        });
+                });
         }
     });
 
@@ -138,59 +220,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Escape') closeAllModals(); 
     });
 
-    // Пагінація
-    pageButtons.forEach(btn => btn.addEventListener('click', (e) => {
-        const page = Number(e.target.dataset.page);
-        currentPage = page;
-        renderCards();
-    }));
-
-    nextBtn.addEventListener('click', () => {
-        const totalVisible = filteredCards().length;
-        const totalPages = Math.max(1, Math.ceil(totalVisible / cardsPerPage));
-        currentPage = Math.min(totalPages, currentPage + 1);
-        renderCards();
-    });
-
-    function filteredCards(){
-        if (!activeCategory || activeCategory === 'Усі') return cards;
-        return cards.filter(c => c.dataset.category === activeCategory);
-    }
-
-    function renderCards(){
-        const filtered = filteredCards();
-        const totalPages = Math.max(1, Math.ceil(filtered.length / cardsPerPage));
-
-        // Сховати всі
-        cards.forEach(c => c.style.display = 'none');
-
-        // Показати ті, що на поточній сторінці
-        const start = (currentPage - 1) * cardsPerPage;
-        const end = start + cardsPerPage;
-        filtered.slice(start, end).forEach(c => {
-            c.style.display = 'flex';
-            c.style.opacity = '1';
-        });
-
-        // Оновити активну кнопку пагінації
-        pageButtons.forEach(b => b.classList.remove('active'));
-        const btn = pageButtons.find(b => Number(b.dataset.page) === currentPage);
-        if (btn) btn.classList.add('active');
-
-        // Якщо поточна сторінка перевищує totalPages, зафіксувати
-        if (currentPage > totalPages) { currentPage = totalPages; renderCards(); }
-    }
-
-    // Ініціалізація лайків з localStorage
-    (function restoreLikes(){
-        const likes = JSON.parse(localStorage.getItem('likes') || '{}');
-        cards.forEach(c => {
-            const title = c.querySelector('h4').textContent;
-            const btn = c.querySelector('.recipe-like');
-            if (likes[title]) btn.classList.add('liked');
-        });
-    })();
-
-    // Ініціалізуємо відображення
-    renderCards();
+    // Ініціалізуємо завантаження рецептів
+    loadRecipesPage('all', 1);
 });

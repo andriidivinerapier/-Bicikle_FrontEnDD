@@ -81,12 +81,25 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
     }
 }
 
-$status = 'pending'; // user-submitted recipes go to moderation
-$stmt = $conn->prepare('INSERT INTO recipes (user_id, title, ingredients, instructions, category, image_path, status) VALUES (?, ?, ?, ?, ?, ?, ?)');
+// Check if user is admin or regular user
+$is_admin = isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'admin';
+
+// Admin recipes go to 'recipes' table with status='approved'
+// User recipes go to 'user_recipes' table with status='pending'
+$table = $is_admin ? 'recipes' : 'user_recipes';
+$status = $is_admin ? 'approved' : 'pending';
+
+$stmt = $conn->prepare("INSERT INTO $table (user_id, title, ingredients, instructions, category, image_path, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
 $stmt->bind_param('issssss', $user_id, $title, $ingredients, $instructions, $category, $image_path, $status);
+
 if ($stmt->execute()) {
     $inserted_id = $stmt->insert_id;
-    echo json_encode(['status' => 'success', 'id' => $inserted_id, 'message' => 'Рецепт відправлено на модерацію']);
+    if ($is_admin) {
+        $message = 'Рецепт успішно додано';
+    } else {
+        $message = 'Рецепт відправлено на модерацію адміністратором';
+    }
+    echo json_encode(['status' => 'success', 'id' => $inserted_id, 'message' => $message]);
 } else {
     echo json_encode(['status' => 'error', 'message' => 'Помилка при збереженні рецепту']);
 }
