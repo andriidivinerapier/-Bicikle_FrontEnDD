@@ -84,7 +84,7 @@ body {
 
 .recipe-meta { display:flex; justify-content:space-between; align-items:center; margin-top:6px; }
 .cook-time { color: var(--accent); font-weight:600 }
-.recipe-category { background: rgba(255,255,255,0.03); color: var(--muted); padding: 0.25rem 0.5rem; border-radius: 999px; font-size:0.82rem }
+.recipe-category { background: rgba(255,122,0,0.15); color: #FF7A00; padding: 0.25rem 0.5rem; border-radius: 999px; font-size:0.82rem }
 
 .details-btn { background: none; border: 1px solid rgba(255,255,255,0.06); color: var(--accent); padding:0.35rem 0.6rem; border-radius:8px; cursor:pointer; backdrop-filter: blur(2px) }
 .details-btn:hover { background: linear-gradient(90deg, rgba(255,122,0,0.95), rgba(255,122,0,0.85)); color: #111; transform: translateY(-3px) }
@@ -192,6 +192,20 @@ body {
 @media (max-width: 1100px){ .recipes-grid{ grid-template-columns: repeat(3,1fr) } .categories-modal-grid{ grid-template-columns: repeat(3,1fr) } }
 @media (max-width: 780px){ .recipes-grid{ grid-template-columns: repeat(2,1fr) } .categories-modal-grid{ grid-template-columns: repeat(2,1fr) } }
 @media (max-width: 480px){ .recipes-grid{ grid-template-columns: 1fr } .categories-modal-grid{ grid-template-columns: 1fr } .recipes-header{ flex-direction:column; align-items:flex-start } }
+
+/* Community recipes page background */
+.recipes-page {
+    background-color: var(--bg-1);
+    min-height: 100vh;
+}
+
+.recipes-page .recipes-header {
+    color: #ffffff;
+}
+
+.recipes-page .recipes-header h2 {
+    color: #ffffff;
+}
 
 /* Ensure fade container visible class still works */
 .fade-page{ min-height:100vh }

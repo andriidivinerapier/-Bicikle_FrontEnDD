@@ -408,7 +408,7 @@ body.modal-open {
 
 /* Секція рецептів */
 .recipes-section {
-     padding: 2rem;
+    padding: 2rem;
     max-width: 1400px;
     margin: 0 auto;
     background-color: #0d1420;
@@ -423,10 +423,13 @@ body.modal-open {
 
 .categories-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
     margin-bottom: 3rem;
     padding: 0.5rem;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .category-container h3 {
