@@ -170,15 +170,14 @@ document.querySelectorAll('.nav-links a').forEach(link => {
         document.body.classList.remove('modal-open');
     }
 
-    // Attach to recipe buttons
-    document.querySelectorAll('.recipe-button').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const card = btn.closest('.recipe-card');
+    // Attach to recipe buttons using event delegation (to handle dynamically added cards)
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('recipe-button')) {
+            const card = e.target.closest('.recipe-card');
             if (!card) return;
             const title = (card.querySelector('h4')?.textContent || '').trim();
             const rawBg = card.querySelector('.recipe-image')?.style.backgroundImage || getComputedStyle(card.querySelector('.recipe-image')).backgroundImage;
             const imageUrl = extractUrlFromBg(rawBg) || 'images/homepage/salad1.jpg';
-
 
             const key = title.toLowerCase();
             const ds = card.dataset || {};
@@ -197,7 +196,7 @@ document.querySelectorAll('.nav-links a').forEach(link => {
             };
 
             openModal(data);
-        });
+        }
     });
 
     // Attach to hero CTA button ("Переглянути рецепт") — opens modal with hero recipe

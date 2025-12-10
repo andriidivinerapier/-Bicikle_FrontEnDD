@@ -100,26 +100,32 @@
         </main>
 
         <!-- Recipe Modal -->
-        <div id="recipeModal" class="modal" style="display:none;" aria-hidden="true">
-            <div class="modal-content">
-                <button id="modalClose" class="modal-close">✕</button>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-                    <img id="modalImage" src="" alt="" style="width: 100%; border-radius: 8px; object-fit: cover; max-height: 400px;">
-                    <div>
-                        <h2 id="modalTitle"></h2>
-                        <p style="color: #9aa6b6; margin-bottom: 1rem;">
-                            <span id="modalAuthor"></span> • <span id="modalDate"></span>
-                        </p>
-                        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
-                            <span class="tag difficulty" id="modalCategory" style="padding: 0.5rem 1rem; border-radius: 20px; background: var(--bg-secondary);">Категорія</span>
-                        </div>
-                        <h3>🥘 Інгредієнти:</h3>
-                        <ul id="modalIngredients" style="margin: 1rem 0; list-style-position: inside;">
-                        </ul>
-                        <h3 style="margin-top: 1.5rem;">📖 Інструкції:</h3>
-                        <ol id="modalInstructions" style="margin: 1rem 0; list-style-position: inside;">
-                        </ol>
+        <div class="recipe-modal-overlay" id="recipeModal" aria-hidden="true">
+            <div class="recipe-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+                <button class="modal-close" id="modalClose" aria-label="Закрити">×</button>
+                <div class="modal-image-wrap">
+                    <img src="images/homepage/salad1.jpg" alt="Фото страви" id="modalImage">
+                </div>
+                <div class="modal-body">
+                    <h3 id="modalTitle">Рецепт</h3>
+                    <div class="modal-tags">
+                        <span class="tag difficulty" id="modalDifficulty">Середня</span>
+                        <span class="tag time" id="modalTime">30 хв</span>
                     </div>
+
+                    <section class="modal-section ingredients">
+                        <h4>Інгредієнти:</h4>
+                        <ul class="ingredients-list" id="modalIngredients">
+                            <!-- ingredients populated by JS -->
+                        </ul>
+                    </section>
+
+                    <section class="modal-section preparation">
+                        <h4>Приготування:</h4>
+                        <ol id="modalPreparation">
+                            <!-- steps populated by JS -->
+                        </ol>
+                    </section>
                 </div>
             </div>
         </div>
@@ -198,9 +204,13 @@
             if (recipe.id) article.dataset.recipeId = recipe.id;
             // mark source as user for community recipes
             article.dataset.source = 'user';
+            // store ingredients and instructions for modal
+            article.dataset.ingredients = recipe.ingredients || '';
+            article.dataset.instructions = recipe.instructions || '';
 
             const image = (recipe.image_path && recipe.image_path.trim()) ? recipe.image_path : 'images/homepage/salad1.jpg';
             const ingredients = recipe.ingredients || '';
+            const instructions = recipe.instructions || '';
             const firstIngredient = ingredients.split('|')[0] || 'Рецепт';
             const created = recipe.created_at ? recipe.created_at.split(' ')[0] : 'Недавно';
 
@@ -216,7 +226,7 @@
                             <span class="recipe-category">${escapeHtml(recipe.category || 'Загальне')}</span>
                         </div>
                         <div class="meta-right">
-                            <button class="recipe-btn" style="background: var(--accent); color: #fff; border: none; border-radius: 999px; padding: 0.35rem 1.1rem; font-weight: 600; margin-right: 0.5rem; cursor:pointer;">Рецепт</button>
+                            <button class="recipe-button" style="background: var(--accent); color: #fff; border: none; border-radius: 999px; padding: 0.35rem 1.1rem; font-weight: 600; margin-right: 0.5rem; cursor:pointer;">Рецепт</button>
                             <button class="details-btn recipe-view-btn" data-recipe='${JSON.stringify(recipe).replace(/'/g, "&apos;")}' style="display:none">Переглянути</button>
                             <button class="recipe-like" aria-label="Додати в улюблені" data-recipe-id="${recipe.id || ''}">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -385,9 +395,15 @@
         function openRecipeModal(recipe) {
             document.getElementById('modalImage').src = (recipe.image_path && recipe.image_path.trim()) ? recipe.image_path : 'images/homepage/salad1.jpg';
             document.getElementById('modalTitle').textContent = recipe.title || 'Без назви';
-            document.getElementById('modalAuthor').textContent = `👨‍🍳 ${recipe.username || 'Автор'}`;
-            document.getElementById('modalDate').textContent = recipe.created_at ? recipe.created_at.split(' ')[0] : 'Недавно';
-            document.getElementById('modalCategory').textContent = recipe.category || 'Загальне';
+            
+            // Set difficulty and time (extracted from ingredients first line or default)
+            const difficulty = recipe.difficulty || 'Середня';
+            const time = recipe.cooking_time ? `${recipe.cooking_time} хв` : '30 хв';
+            
+            const difficultyTag = document.getElementById('modalDifficulty');
+            const timeTag = document.getElementById('modalTime');
+            if (difficultyTag) difficultyTag.textContent = difficulty;
+            if (timeTag) timeTag.textContent = time;
             
             const ingredientsList = document.getElementById('modalIngredients');
             ingredientsList.innerHTML = '';
@@ -399,24 +415,24 @@
                 }
             });
             
-            const instructionsList = document.getElementById('modalInstructions');
-            instructionsList.innerHTML = '';
+            const preparationList = document.getElementById('modalPreparation');
+            preparationList.innerHTML = '';
             (recipe.instructions || '').split('|').forEach(step => {
                 if (step.trim()) {
                     const li = document.createElement('li');
                     li.textContent = step.trim();
-                    instructionsList.appendChild(li);
+                    preparationList.appendChild(li);
                 }
             });
             
-            modal.style.display = 'flex';
+            modal.classList.add('open');
             modal.setAttribute('aria-hidden', 'false');
             document.body.classList.add('modal-open');
         }
 
         // Close modal
         function closeModal() {
-            modal.style.display = 'none';
+            modal.classList.remove('open');
             modal.setAttribute('aria-hidden', 'true');
             document.body.classList.remove('modal-open');
         }
@@ -439,8 +455,25 @@
             if (e.target === modal) closeModal();
         });
 
-        // Delegate click for recipe view buttons only
+        // Handle recipe button clicks (shows modal with recipe details)
         grid.addEventListener('click', (e) => {
+            if (e.target.classList.contains('recipe-button')) {
+                const card = e.target.closest('.recipe-card');
+                if (card && card.dataset.recipeId) {
+                    // Get recipe data from card's data-* attributes
+                    const recipe = {
+                        id: card.dataset.recipeId,
+                        title: card.querySelector('h4')?.textContent || 'Без назви',
+                        image_path: card.querySelector('.recipe-image')?.style.backgroundImage?.replace(/url\(["']?/, '').replace(/["']?\)/, '') || 'images/homepage/salad1.jpg',
+                        username: card.querySelector('.recipe-description')?.textContent.replace('👨‍🍳 ', '') || 'Автор',
+                        created_at: card.querySelector('.cook-time')?.textContent || 'Недавно',
+                        category: card.querySelector('.recipe-category')?.textContent || 'Загальне',
+                        ingredients: card.dataset.ingredients || '',
+                        instructions: card.dataset.instructions || ''
+                    };
+                    openRecipeModal(recipe);
+                }
+            }
             if (e.target.classList.contains('recipe-view-btn')) {
                 try {
                     const recipeData = JSON.parse(e.target.dataset.recipe);
