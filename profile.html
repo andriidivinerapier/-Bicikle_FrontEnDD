@@ -387,21 +387,88 @@
 
     <!-- Create Recipe Modal (inserted in profile) -->
     <div class="create-recipe-overlay" id="createRecipeOverlay" style="display:none;">
-        <div class="create-recipe-modal">
+        <div class="create-recipe-modal" style="background: #1a1f2e; color: #fff; max-width: 900px; max-height: 90vh; overflow-y: auto;">
             <button class="modal-close" id="createRecipeClose">×</button>
-            <h3>Створення рецепта</h3>
-            <form id="profileCreateRecipeForm" enctype="multipart/form-data">
-                <label>Додати фото</label>
-                <input type="file" name="image" id="profileRecipeImage" accept="image/*">
-                <label>Назва рецепта</label>
-                <input type="text" name="title" id="profileRecipeTitle" placeholder="Введіть назву рецепту" required>
-                <label>Інгредієнти (через | )</label>
-                <textarea name="ingredients" id="profileRecipeIngredients" placeholder="Введіть інгредієнти рецепта" required></textarea>
-                <label>Інструкції до рецепта (через | )</label>
-                <textarea name="instructions" id="profileRecipeInstructions" placeholder="Введіть інструкцію до рецепта" required></textarea>
-                <label>Категорія</label>
-                <input type="text" name="category" id="profileRecipeCategory" placeholder="Введіть категорію рецепта">
-                <button type="submit" class="btn btn-primary">Опублікувати</button>
+            <h1 style="color: #ff9800; font-size: 2rem; margin-bottom: 1.5rem; padding: 0 20px;">Створення рецепта</h1>
+            <form id="profileCreateRecipeForm" enctype="multipart/form-data" style="padding: 0 20px 20px 20px;">
+                
+                <!-- Назва рецепта -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem;">Назва рецепта</label>
+                    <input type="text" name="title" id="profileRecipeTitle" placeholder="Введіть назву рецепту" required style="width: 100%; padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px;">
+                </div>
+
+                <!-- Складність, Час, Категорія -->
+                <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="flex: 0.5;">
+                        <label style="display: block; margin-bottom: 0.5rem;">Складність</label>
+                        <select name="difficulty" id="profileRecipeDifficulty" required style="width: 100%; padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px; cursor: pointer;">
+                            <option value="Легка">Легка</option>
+                            <option value="Середня" selected>Середня</option>
+                            <option value="Важка">Важка</option>
+                        </select>
+                    </div>
+                    <div style="flex: 0.5;">
+                        <label style="display: block; margin-bottom: 0.5rem;">Час (хв)</label>
+                        <select name="time" id="profileRecipeTime" required style="width: 100%; padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px; cursor: pointer;">
+                            <option value="5">5 хв</option>
+                            <option value="10">10 хв</option>
+                            <option value="15">15 хв</option>
+                            <option value="20">20 хв</option>
+                            <option value="25">25 хв</option>
+                            <option value="30" selected>30 хв</option>
+                            <option value="45">45 хв</option>
+                            <option value="60">1 годину</option>
+                            <option value="90">1.5 години</option>
+                            <option value="120">2 години</option>
+                            <option value="180">3 години</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="display: block; margin-bottom: 0.5rem;">Категорія</label>
+                        <select name="category" id="profileRecipeCategory" required style="width: 100%; padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px; cursor: pointer;">
+                            <option value="">-- Виберіть категорію --</option>
+                            <option value="Сніданки">Сніданки</option>
+                            <option value="Основні">Основні страви</option>
+                            <option value="Супи">Супи</option>
+                            <option value="Салати">Салати</option>
+                            <option value="Десерти">Десерти</option>
+                            <option value="Вегетаріанські">Вегетаріанські</option>
+                            <option value="Напої">Напої</option>
+                            <option value="Дополнения">Печиво й Тістечко</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Додати фото -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem;">Додати фото</label>
+                    <input type="file" name="image" id="profileRecipeImage" accept="image/*" style="padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px; cursor: pointer; width: 100%;">
+                </div>
+
+                <!-- Інгредієнти -->
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: #ff9800; font-size: 1.1rem; margin-bottom: 1rem;">Інгредієнти:</h3>
+                    <div id="profileIngredientsContainer" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 0.5rem;">
+                        <input type="text" name="ingredients[]" placeholder="Спагетті - 300г" style="padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px;">
+                        <input type="text" name="ingredients[]" placeholder="Помідори черві - 200г" style="padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px;">
+                    </div>
+                    <button type="button" id="profileAddIngredientBtn" style="background: none; border: none; color: #ff9800; cursor: pointer; font-size: 0.95rem;">+ Додати інгредієнт</button>
+                </div>
+
+                <!-- Етапи приготування -->
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: #ff9800; font-size: 1.1rem; margin-bottom: 1rem;">Етапи приготування:</h3>
+                    <div id="profileStepsContainer">
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                            <span style="color: #ff9800; font-weight: bold; min-width: 30px;">1.</span>
+                            <textarea name="steps[]" placeholder="Опишіть перший етап приготування..." style="flex: 1; padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px; resize: vertical; min-height: 80px;"></textarea>
+                        </div>
+                    </div>
+                    <button type="button" id="profileAddStepBtn" style="background: none; border: none; color: #ff9800; cursor: pointer; font-size: 0.95rem;">+ Додати етап</button>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="background: #ff9800; color: #000; padding: 0.75rem 2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 1rem;">Опублікувати</button>
             </form>
         </div>
     </div>

@@ -438,6 +438,8 @@ function displayUserRecipes(recipes) {
             <td><strong>${escapeHtml(r.title)}</strong></td>
             <td>${escapeHtml(r.username || r.email || '-')}</td>
             <td>${r.category || '-'}</td>
+            <td>${r.difficulty || '-'}</td>
+            <td>${r.time ? r.time + ' хв' : '-'}</td>
             <td>${createdDate}</td>
             <td>
                 <div class="table-actions">

@@ -673,3 +673,26 @@
 }
 
 .modal-open { overflow: hidden; }
+
+/* Add Recipe Form Styles */
+.add-recipe-form {
+    display: none !important;
+}
+
+.add-recipe-form.visible {
+    display: block !important;
+}
+
+.add-recipe-form input[type="text"],
+.add-recipe-form textarea {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 0.95rem;
+}
+
+.add-recipe-form input[type="text"]:focus,
+.add-recipe-form textarea:focus {
+    outline: none;
+    border-color: #ff9800 !important;
+    box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.1);
+}
+

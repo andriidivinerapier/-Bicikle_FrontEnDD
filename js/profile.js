@@ -209,27 +209,94 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Submit create recipe form
     if (createForm) {
+        // Add Ingredient Button
+        const addIngredientBtn = document.getElementById('profileAddIngredientBtn');
+        const ingredientsContainer = document.getElementById('profileIngredientsContainer');
+        
+        if (addIngredientBtn && ingredientsContainer) {
+            addIngredientBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const newInput = document.createElement('input');
+                newInput.type = 'text';
+                newInput.name = 'ingredients[]';
+                newInput.placeholder = 'Додайте інгредієнт';
+                newInput.style.cssText = 'padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px; width: 100%;';
+                ingredientsContainer.appendChild(newInput);
+            });
+        }
+
+        // Add Step Button
+        const addStepBtn = document.getElementById('profileAddStepBtn');
+        const stepsContainer = document.getElementById('profileStepsContainer');
+        
+        if (addStepBtn && stepsContainer) {
+            addStepBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const stepNumber = stepsContainer.querySelectorAll('textarea[name="steps[]"]').length + 1;
+                const newStep = document.createElement('div');
+                newStep.style.cssText = 'display: flex; gap: 0.5rem; margin-bottom: 1rem;';
+                newStep.innerHTML = `
+                    <span style="color: #ff9800; font-weight: bold; min-width: 30px;">${stepNumber}.</span>
+                    <textarea name="steps[]" placeholder="Опишіть етап приготування..." style="flex: 1; padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px; resize: vertical; min-height: 80px;"></textarea>
+                `;
+                stepsContainer.appendChild(newStep);
+            });
+        }
+
         createForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            
+            // Збираємо дані
+            const title = document.getElementById('profileRecipeTitle').value.trim();
+            const difficulty = document.getElementById('profileRecipeDifficulty').value.trim();
+            const time = document.getElementById('profileRecipeTime').value.trim();
+            const category = document.getElementById('profileRecipeCategory').value.trim();
+            
+            // Збираємо інгредієнти та етапи з форми напряму
+            const formData = new FormData(createForm);
+            const ingredientsArray = formData.getAll('ingredients[]').filter(v => v.trim());
+            const stepsArray = formData.getAll('steps[]').filter(v => v.trim());
+            
+            console.log('Form Data:', { title, difficulty, time, category, ingredients: ingredientsArray, steps: stepsArray });
+            
+            // Валідація
+            if (!title || !difficulty || !time || !category || ingredientsArray.length === 0 || stepsArray.length === 0) {
+                console.log('Validation failed:', { 
+                    title: !!title, 
+                    difficulty: !!difficulty, 
+                    time: !!time, 
+                    category: !!category, 
+                    ingredients: ingredientsArray.length, 
+                    steps: stepsArray.length 
+                });
+                showToast('Заповніть усі обов\'язкові поля!', 'error');
+                return;
+            }
+
+            //準備FormData з усіма даними
             const fd = new FormData(createForm);
+            fd.append('ingredients', JSON.stringify(ingredientsArray));
+            fd.append('steps', JSON.stringify(stepsArray));
+            
             fetch('backend/create-recipe.php', { method: 'POST', body: fd })
                 .then(r => r.json())
                 .then(res => {
-                        if (res.status === 'success') {
-                            // Notify user that recipe was sent for moderation
-                            showToast('Рецепт відправлено на модерацію', 'success');
-                            // close modal
-                            if (createOverlay) {
-                                createOverlay.style.display = 'none';
-                                document.body.classList.remove('modal-open');
-                            }
-                            // clear form
-                            createForm.reset();
-                        } else {
-                            showToast(res.message || 'Помилка при створенні', 'error');
+                    console.log('Response:', res);
+                    if (res.status === 'success') {
+                        showToast('Рецепт відправлено на модерацію', 'success');
+                        if (createOverlay) {
+                            createOverlay.style.display = 'none';
+                            document.body.classList.remove('modal-open');
                         }
+                        createForm.reset();
+                    } else {
+                        showToast(res.message || 'Помилка при створенні', 'error');
+                    }
                 })
-                .catch(() => showToast('Помилка мережі', 'error'));
+                .catch(err => {
+                    console.error('Error:', err);
+                    showToast('Помилка мережі', 'error');
+                });
         });
     }
 
@@ -718,6 +785,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.style.overflow = 'hidden';
         });
 
+
         // Close handlers
         const closeModal = () => {
             modal.classList.remove('open');
@@ -734,3 +802,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
