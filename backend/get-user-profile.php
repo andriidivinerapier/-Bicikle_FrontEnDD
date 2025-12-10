@@ -31,9 +31,20 @@ if ($user_id) {
         $stmt->close();
     }
 
-    // Count user_recipes
-    $recipes_count = 0;
+    // Count user_recipes (user submitted recipes)
+    $user_recipes_count = 0;
     $stmt = $conn->prepare('SELECT COUNT(*) as cnt FROM user_recipes WHERE user_id = ?');
+    if ($stmt) {
+        $stmt->bind_param('i', $user_id);
+        $stmt->execute();
+        $stmt->bind_result($user_recipes_count);
+        $stmt->fetch();
+        $stmt->close();
+    }
+    
+    // Count recipes table (admin recipes or approved user recipes)
+    $recipes_count = 0;
+    $stmt = $conn->prepare('SELECT COUNT(*) as cnt FROM recipes WHERE user_id = ?');
     if ($stmt) {
         $stmt->bind_param('i', $user_id);
         $stmt->execute();
@@ -41,7 +52,10 @@ if ($user_id) {
         $stmt->fetch();
         $stmt->close();
     }
-    error_log("DEBUG: user_recipes count=$recipes_count");
+    
+    // Total recipes count
+    $total_recipes = $user_recipes_count + $recipes_count;
+    error_log("DEBUG: user_recipes count=$user_recipes_count, recipes count=$recipes_count, total=$total_recipes");
 
     // Count favorites
     $favorites_count = 0;
@@ -57,26 +71,22 @@ if ($user_id) {
 
     // Count comments if table exists
     $comments_count = 0;
-    $check = $conn->prepare("SELECT COUNT(*) as cnt FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'comments'");
-    if ($check) {
-        $check->execute();
-        $check->bind_result($tbl_exists);
-        $check->fetch();
-        $check->close();
-        if ($tbl_exists) {
-            $stmt = $conn->prepare('SELECT COUNT(*) as cnt FROM comments WHERE user_id = ?');
-            if ($stmt) {
-                $stmt->bind_param('i', $user_id);
-                $stmt->execute();
-                $stmt->bind_result($comments_count);
-                $stmt->fetch();
-                $stmt->close();
-            }
+    try {
+        $stmt = $conn->prepare('SELECT COUNT(*) as cnt FROM comments WHERE user_id = ?');
+        if ($stmt) {
+            $stmt->bind_param('i', $user_id);
+            $stmt->execute();
+            $stmt->bind_result($comments_count);
+            $stmt->fetch();
+            $stmt->close();
         }
+    } catch (Exception $e) {
+        // Comments table may not exist
+        $comments_count = 0;
     }
     error_log("DEBUG: comments count=$comments_count");
 } else {
-    $recipes_count = 0;
+    $total_recipes = 0;
     $comments_count = 0;
     $favorites_count = 0;
 }
@@ -86,7 +96,7 @@ echo json_encode([
     'user' => [
         'username' => $username,
         'email' => $email,
-        'recipes_count' => intval($recipes_count),
+        'recipes_count' => intval($total_recipes),
         'comments_count' => intval($comments_count),
         'favorites_count' => intval($favorites_count)
     ]

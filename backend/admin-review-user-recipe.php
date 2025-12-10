@@ -63,35 +63,8 @@ if (!$upd->execute()) {
 }
 $upd->close();
 
-// If approved, copy recipe to main recipes table
-if ($new_status === 'approved') {
-    // Get full recipe details from user_recipes
-    $get_recipe = $conn->prepare('SELECT user_id, title, ingredients, instructions, category, difficulty, time, image_path FROM user_recipes WHERE id = ?');
-    $get_recipe->bind_param('i', $recipe_id);
-    $get_recipe->execute();
-    $recipe_data = $get_recipe->get_result()->fetch_assoc();
-    $get_recipe->close();
-    
-    if ($recipe_data) {
-        // Insert into recipes table with approved status
-        $ins = $conn->prepare('INSERT INTO recipes (user_id, title, ingredients, instructions, category, difficulty, time, image_path, status, reviewed_by, reviewed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())');
-        $approved_status = 'approved';
-        $ins->bind_param('isssssissi', 
-            $recipe_data['user_id'], 
-            $recipe_data['title'], 
-            $recipe_data['ingredients'], 
-            $recipe_data['instructions'],
-            $recipe_data['category'],
-            $recipe_data['difficulty'],
-            $recipe_data['time'],
-            $recipe_data['image_path'],
-            $approved_status,
-            $admin_id
-        );
-        $ins->execute();
-        $ins->close();
-    }
-}
+// DO NOT copy to recipes table - user recipes stay in user_recipes table with approved status
+// They will be shown ONLY on community-recipes.html page
 
 // Create notification for user
 $user_id = intval($recipe['user_id']);

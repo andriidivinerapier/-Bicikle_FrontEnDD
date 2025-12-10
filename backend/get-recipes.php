@@ -46,7 +46,7 @@ try {
     
     $total_pages = ceil($total_recipes / $per_page);
 
-    // Get ONLY admin recipes from recipes table (not user-submitted)
+    // Get ONLY admin recipes from recipes table (STRICTLY from recipes table only, not user_recipes)
     $sql = "
         SELECT 
             r.id,
@@ -63,7 +63,7 @@ try {
         FROM recipes r
         LEFT JOIN users u ON r.user_id = u.id
         WHERE r.status = 'approved'$where
-        ORDER BY created_at DESC
+        ORDER BY r.created_at DESC
         LIMIT $offset, $per_page
     ";
 

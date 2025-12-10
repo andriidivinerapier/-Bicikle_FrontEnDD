@@ -209,6 +209,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Submit create recipe form
     if (createForm) {
+        // File input handler
+        const fileInput = document.getElementById('profileRecipeImage');
+        const imageFileInfo = document.getElementById('imageFileName');
+        const imageFileNameText = document.getElementById('imageFileNameText');
+        
+        if (fileInput) {
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                    const fileName = e.target.files[0].name;
+                    const fileSize = (e.target.files[0].size / 1024 / 1024).toFixed(2);
+                    imageFileNameText.textContent = `${fileName} (${fileSize} MB)`;
+                    imageFileInfo.style.display = 'block';
+                    console.log('✅ Файл вибрано:', fileName);
+                } else {
+                    imageFileInfo.style.display = 'none';
+                }
+            });
+        }
+        
         // Add Ingredient Button
         const addIngredientBtn = document.getElementById('profileAddIngredientBtn');
         const ingredientsContainer = document.getElementById('profileIngredientsContainer');
@@ -251,6 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const difficulty = document.getElementById('profileRecipeDifficulty').value.trim();
             const time = document.getElementById('profileRecipeTime').value.trim();
             const category = document.getElementById('profileRecipeCategory').value.trim();
+            const imageInput = document.getElementById('profileRecipeImage');
             
             // Збираємо інгредієнти та етапи з форми напряму
             const formData = new FormData(createForm);
@@ -259,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             console.log('Form Data:', { title, difficulty, time, category, ingredients: ingredientsArray, steps: stepsArray });
             
-            // Валідація
+            // Валідація - включаючи фото!
             if (!title || !difficulty || !time || !category || ingredientsArray.length === 0 || stepsArray.length === 0) {
                 console.log('Validation failed:', { 
                     title: !!title, 
@@ -272,29 +292,77 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast('Заповніть усі обов\'язкові поля!', 'error');
                 return;
             }
+            
+            // Перевірити фото
+            if (!imageInput.files || imageInput.files.length === 0) {
+                console.log('❌ Фото не вибрано!');
+                showToast('Виберіть фото рецепту!', 'error');
+                return;
+            }
+            
+            const file = imageInput.files[0];
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            
+            if (!allowedTypes.includes(file.type)) {
+                console.log('❌ Невідомий формат фото:', file.type);
+                showToast('Дозволені формати: JPG, PNG, GIF, WebP', 'error');
+                return;
+            }
+            
+            if (file.size > 10 * 1024 * 1024) { // 10MB максимум
+                console.log('❌ Фото занадто велике:', file.size);
+                showToast('Фото не повинна перевищувати 10MB', 'error');
+                return;
+            }
+            
+            console.log('✅ Фото валідно:', file.name, file.size);
+
 
             //準備FormData з усіма даними
             const fd = new FormData(createForm);
             fd.append('ingredients', JSON.stringify(ingredientsArray));
             fd.append('steps', JSON.stringify(stepsArray));
             
+            // Debug: log what we're sending
+            console.log('📋 FormData entries:');
+            for (let [key, value] of fd.entries()) {
+                if (key === 'image') {
+                    console.log(`  ${key}: File(${value.size} bytes, name: ${value.name})`);
+                } else if (typeof value === 'string' && value.length > 100) {
+                    console.log(`  ${key}: "${value.substring(0, 100)}..."`);
+                } else {
+                    console.log(`  ${key}: ${value}`);
+                }
+            }
+            
             fetch('backend/create-recipe.php', { method: 'POST', body: fd })
                 .then(r => r.json())
                 .then(res => {
-                    console.log('Response:', res);
+                    console.log('📝 Response:', res);
+                    if (res.debug_upload) {
+                        console.log('📤 Upload Debug:', res.debug_upload);
+                    }
                     if (res.status === 'success') {
                         showToast('Рецепт відправлено на модерацію', 'success');
+                        console.log('✅ Recipe created with image_path:', res.image_path);
                         if (createOverlay) {
                             createOverlay.style.display = 'none';
                             document.body.classList.remove('modal-open');
                         }
                         createForm.reset();
+                        // Reload user recipes after a short delay
+                        setTimeout(() => {
+                            loadUserRecipes();
+                        }, 500);
                     } else {
                         showToast(res.message || 'Помилка при створенні', 'error');
+                        if (res.debug) {
+                            console.error('❌ Debug info:', res.debug);
+                        }
                     }
                 })
                 .catch(err => {
-                    console.error('Error:', err);
+                    console.error('❌ Error:', err);
                     showToast('Помилка мережі', 'error');
                 });
         });
@@ -595,11 +663,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 demoCards.forEach(card => card.remove());
                 
                 if (data.status === 'success' && Array.isArray(data.recipes) && data.recipes.length > 0) {
-                    data.recipes.forEach(recipe => {
+                    console.log(`📦 Found ${data.recipes.length} recipes`);
+                    data.recipes.forEach((recipe, idx) => {
+                        console.log(`  Recipe ${idx+1}: "${recipe.title}" - image_path: "${recipe.image_path}"`);
+                        
                         const article = document.createElement('div');
                         article.className = 'recipe-card recipe-card-editable';
                         
-                        const image = (recipe.image_path && recipe.image_path.trim()) ? recipe.image_path : 'images/homepage/salad1.jpg';
+                        // Отримуємо image_path
+                        let image = recipe.image_path ? recipe.image_path.trim() : '';
+                        
+                        // Якщо пусто або невалідно, використовуємо fallback
+                        if (!image || image === '0' || image === 'null') {
+                            image = 'images/homepage/salad1.jpg';
+                        }
+                        
+                        console.log(`    Image path from DB: "${recipe.image_path}"`);
+                        console.log(`    Final image URL: "${image}"`);
+                        
+                        // Логуємо файл для перевірки
+                        const fileCheckUrl = image;
+                        console.log(`    Will try to load from: ${fileCheckUrl}`);
                         const ingredients = recipe.ingredients || '';
                         const firstIngredient = ingredients.split('|')[0] || 'Рецепт';
                         
@@ -642,9 +726,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     // Re-attach delete handlers to new cards
                     attachRecipeCardHandlers();
+                    
+                    // Оновимо статистику після завантаження рецептів
+                    loadUserProfileStats();
                 } else {
                     console.log('ℹ️ Рецептів не знайдено');
                     grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #9aa6b6;">Ви ще не створили рецептів. Натисніть "Додати новий рецепт", щоб почати!</p>';
+                    
+                    // Оновимо статистику також
+                    loadUserProfileStats();
                 }
             })
             .catch(error => {
@@ -679,6 +769,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.style.transform = 'scale(0.95)';
                 setTimeout(() => {
                     card.remove();
+                    // Оновляємо статистику після видалення
+                    loadUserProfileStats();
                 }, 300);
             }
         } else {

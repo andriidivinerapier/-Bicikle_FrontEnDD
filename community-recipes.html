@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/recipes.css">
+    <link rel="stylesheet" href="css/recipe-cards.css">
     <link rel="stylesheet" href="css/modal.css">
     <link rel="stylesheet" href="css/auth-modal.css">
     <link rel="stylesheet" href="css/auth-toast.css">
@@ -209,6 +210,8 @@
             article.dataset.instructions = recipe.instructions || '';
 
             const image = (recipe.image_path && recipe.image_path.trim()) ? recipe.image_path : 'images/homepage/salad1.jpg';
+            // Debug: log image path for troubleshooting
+            try { console.log('RenderRecipe image:', { id: recipe.id, image }); } catch (e) {}
             const ingredients = recipe.ingredients || '';
             const instructions = recipe.instructions || '';
             const firstIngredient = ingredients.split('|')[0] || 'Рецепт';

@@ -106,28 +106,62 @@ foreach ($columns_to_add as $col_name => $col_def) {
 }
 
 $image_path = '';
-if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-    $tmp = $_FILES['image']['tmp_name'];
-    $name = basename($_FILES['image']['name']);
-    $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
-    $allowed = ['jpg','jpeg','png','gif','webp'];
-    if (!in_array($ext, $allowed)) {
-        echo json_encode(['status' => 'error', 'message' => 'Неприпустимий формат зображення']);
-        exit;
-    }
+$debug_upload = [];
 
-    $uploadsDir = __DIR__ . '/../uploads';
-    if (!is_dir($uploadsDir)) @mkdir($uploadsDir, 0755, true);
+if (isset($_FILES['image'])) {
+    $debug_upload['files_received'] = true;
+    $debug_upload['error_code'] = $_FILES['image']['error'];
+    
+    if ($_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        $tmp = $_FILES['image']['tmp_name'];
+        $name = basename($_FILES['image']['name']);
+        $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+        $allowed = ['jpg','jpeg','png','gif','webp'];
+        
+        $debug_upload['filename'] = $name;
+        $debug_upload['extension'] = $ext;
+        $debug_upload['is_allowed'] = in_array($ext, $allowed);
+        
+        if (!in_array($ext, $allowed)) {
+            echo json_encode(['status' => 'error', 'message' => 'Неприпустимий формат зображення']);
+            exit;
+        }
 
-    try {
-        $newName = 'recipe_' . time() . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
-    } catch (Exception $e) {
-        $newName = 'recipe_' . time() . '_' . rand(1000,9999) . '.' . $ext;
+        $uploadsDir = __DIR__ . '/../uploads';
+        
+        // Ensure uploads directory exists with proper permissions
+        if (!is_dir($uploadsDir)) {
+            $mkdir_result = @mkdir($uploadsDir, 0755, true);
+            $debug_upload['mkdir_attempted'] = true;
+            $debug_upload['mkdir_success'] = $mkdir_result;
+        }
+        $debug_upload['directory_exists'] = is_dir($uploadsDir);
+        $debug_upload['directory_writable'] = is_writable($uploadsDir);
+
+        try {
+            $newName = 'recipe_' . time() . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
+        } catch (Exception $e) {
+            $newName = 'recipe_' . time() . '_' . rand(1000,9999) . '.' . $ext;
+        }
+        $dest = $uploadsDir . '/' . $newName;
+        
+        $debug_upload['destination'] = $dest;
+        $debug_upload['tmp_name'] = $tmp;
+        $debug_upload['file_exists_before'] = file_exists($tmp);
+        
+        if (move_uploaded_file($tmp, $dest)) {
+            $image_path = 'uploads/' . $newName;
+            $debug_upload['upload_success'] = true;
+            $debug_upload['file_exists_after'] = file_exists($dest);
+        } else {
+            $debug_upload['upload_success'] = false;
+            $debug_upload['last_error'] = error_get_last();
+        }
+    } else {
+        $debug_upload['upload_error'] = $_FILES['image']['error'];
     }
-    $dest = $uploadsDir . '/' . $newName;
-    if (move_uploaded_file($tmp, $dest)) {
-        $image_path = 'uploads/' . $newName;
-    }
+} else {
+    $debug_upload['files_received'] = false;
 }
 
 // Check if user is admin or regular user
@@ -168,21 +202,29 @@ if ($table === 'user_recipes') {
 }
 
 $time_int = intval($time);
-$stmt = $conn->prepare("INSERT INTO $table (user_id, title, ingredients, instructions, category, difficulty, time, image_path, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-$stmt->bind_param('issssisis', $user_id, $title, $ingredients, $instructions, $category, $difficulty, $time_int, $image_path, $status);
 
-if ($stmt->execute()) {
+// If no image was uploaded, set a placeholder so frontend can display something
+if (empty($image_path)) {
+    $image_path = 'images/homepage/salad1.jpg';
+}
+
+$stmt = $conn->prepare("INSERT INTO $table (user_id, title, ingredients, instructions, category, difficulty, time, image_path, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt->bind_param('isssssiss', $user_id, $title, $ingredients, $instructions, $category, $difficulty, $time_int, $image_path, $status);
+
+    if ($stmt->execute()) {
     $inserted_id = $stmt->insert_id;
     if ($is_admin) {
         $message = 'Рецепт успішно додано';
     } else {
         $message = 'Рецепт відправлено на модерацію адміністратором';
     }
-    echo json_encode(['status' => 'success', 'id' => $inserted_id, 'message' => $message]);
+    // Return image_path so frontend can verify the saved image location
+    echo json_encode(['status' => 'success', 'id' => $inserted_id, 'image_path' => $image_path, 'message' => $message, 'debug_upload' => $debug_upload]);
 } else {
     $debug_log['insert_error'] = $stmt->error;
     $debug_log['table'] = $table;
     $debug_log['bind_params'] = ['user_id' => $user_id, 'title_len' => strlen($title), 'ingredients_len' => strlen($ingredients), 'instructions_len' => strlen($instructions)];
+    $debug_log['debug_upload'] = $debug_upload;
     echo json_encode(['status' => 'error', 'message' => 'Помилка при збереженні рецепту: ' . $stmt->error, 'debug' => $debug_log]);
 }
 

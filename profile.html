@@ -442,8 +442,11 @@
 
                 <!-- Додати фото -->
                 <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; margin-bottom: 0.5rem;">Додати фото</label>
-                    <input type="file" name="image" id="profileRecipeImage" accept="image/*" style="padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px; cursor: pointer; width: 100%;">
+                    <label style="display: block; margin-bottom: 0.5rem;">Додати фото <span style="color: #ff6b6b;">*</span></label>
+                    <input type="file" name="image" id="profileRecipeImage" accept="image/*" required style="padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px; cursor: pointer; width: 100%;">
+                    <div id="imageFileName" style="margin-top: 0.5rem; font-size: 0.9rem; color: #9aa6b6; display: none;">
+                        Обрано: <span id="imageFileNameText" style="color: #4ecdc4;"></span>
+                    </div>
                 </div>
 
                 <!-- Інгредієнти -->
