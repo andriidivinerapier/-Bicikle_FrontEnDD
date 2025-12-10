@@ -228,6 +228,28 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
+        // Helper function to update delete button visibility
+        function updateDeleteButtonVisibility(container, itemSelector) {
+            const items = container.querySelectorAll(itemSelector);
+            items.forEach(item => {
+                const deleteBtn = item.querySelector('.delete-btn');
+                if (deleteBtn) {
+                    deleteBtn.style.display = items.length > 1 ? 'flex' : 'none';
+                }
+            });
+        }
+
+        // Helper function to renumber items
+        function renumberItems(container, numberSelector) {
+            const items = container.querySelectorAll('[class$="-item"]');
+            items.forEach((item, index) => {
+                const numberSpan = item.querySelector(numberSelector);
+                if (numberSpan) {
+                    numberSpan.textContent = (index + 1) + '.';
+                }
+            });
+        }
+
         // Add Ingredient Button
         const addIngredientBtn = document.getElementById('profileAddIngredientBtn');
         const ingredientsContainer = document.getElementById('profileIngredientsContainer');
@@ -235,12 +257,38 @@ document.addEventListener('DOMContentLoaded', () => {
         if (addIngredientBtn && ingredientsContainer) {
             addIngredientBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                const newInput = document.createElement('input');
-                newInput.type = 'text';
-                newInput.name = 'ingredients[]';
-                newInput.placeholder = 'Додайте інгредієнт';
-                newInput.style.cssText = 'padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px; width: 100%;';
-                ingredientsContainer.appendChild(newInput);
+                const itemCount = ingredientsContainer.querySelectorAll('.ingredient-item').length;
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'ingredient-item';
+                itemDiv.innerHTML = `
+                    <span class="ingredient-number">${itemCount + 1}.</span>
+                    <input type="text" name="ingredients[]" placeholder="Додайте інгредієнт">
+                    <button type="button" class="delete-btn" title="Видалити інгредієнт">✕</button>
+                `;
+                
+                // Add delete handler for this new item
+                const deleteBtn = itemDiv.querySelector('.delete-btn');
+                deleteBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    itemDiv.remove();
+                    renumberItems(ingredientsContainer, '.ingredient-number');
+                    updateDeleteButtonVisibility(ingredientsContainer, '.ingredient-item');
+                });
+                
+                ingredientsContainer.appendChild(itemDiv);
+                updateDeleteButtonVisibility(ingredientsContainer, '.ingredient-item');
+            });
+        }
+
+        // Add delete handlers to existing ingredient items
+        if (ingredientsContainer) {
+            ingredientsContainer.querySelectorAll('.ingredient-item .delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    btn.closest('.ingredient-item').remove();
+                    renumberItems(ingredientsContainer, '.ingredient-number');
+                    updateDeleteButtonVisibility(ingredientsContainer, '.ingredient-item');
+                });
             });
         }
 
@@ -251,15 +299,47 @@ document.addEventListener('DOMContentLoaded', () => {
         if (addStepBtn && stepsContainer) {
             addStepBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                const stepNumber = stepsContainer.querySelectorAll('textarea[name="steps[]"]').length + 1;
-                const newStep = document.createElement('div');
-                newStep.style.cssText = 'display: flex; gap: 0.5rem; margin-bottom: 1rem;';
-                newStep.innerHTML = `
-                    <span style="color: #ff9800; font-weight: bold; min-width: 30px;">${stepNumber}.</span>
-                    <textarea name="steps[]" placeholder="Опишіть етап приготування..." style="flex: 1; padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px; resize: vertical; min-height: 80px;"></textarea>
+                const itemCount = stepsContainer.querySelectorAll('.step-item').length;
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'step-item';
+                stepDiv.innerHTML = `
+                    <span class="step-number">${itemCount + 1}.</span>
+                    <textarea name="steps[]" placeholder="Опишіть етап приготування..."></textarea>
+                    <button type="button" class="delete-btn" title="Видалити етап">✕</button>
                 `;
-                stepsContainer.appendChild(newStep);
+                
+                // Add delete handler for this new item
+                const deleteBtn = stepDiv.querySelector('.delete-btn');
+                deleteBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    stepDiv.remove();
+                    renumberItems(stepsContainer, '.step-number');
+                    updateDeleteButtonVisibility(stepsContainer, '.step-item');
+                });
+                
+                stepsContainer.appendChild(stepDiv);
+                updateDeleteButtonVisibility(stepsContainer, '.step-item');
             });
+        }
+
+        // Add delete handlers to existing step items
+        if (stepsContainer) {
+            stepsContainer.querySelectorAll('.step-item .delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    btn.closest('.step-item').remove();
+                    renumberItems(stepsContainer, '.step-number');
+                    updateDeleteButtonVisibility(stepsContainer, '.step-item');
+                });
+            });
+        }
+
+        // Initialize delete button visibility on page load
+        if (ingredientsContainer) {
+            updateDeleteButtonVisibility(ingredientsContainer, '.ingredient-item');
+        }
+        if (stepsContainer) {
+            updateDeleteButtonVisibility(stepsContainer, '.step-item');
         }
 
         createForm.addEventListener('submit', (e) => {

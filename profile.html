@@ -388,30 +388,33 @@
 
     <!-- Create Recipe Modal (inserted in profile) -->
     <div class="create-recipe-overlay" id="createRecipeOverlay" style="display:none;">
-        <div class="create-recipe-modal" style="background: #1a1f2e; color: #fff; max-width: 900px; max-height: 90vh; overflow-y: auto;">
+        <div class="create-recipe-modal" style="max-width: 900px; max-height: 90vh;">
             <button class="modal-close" id="createRecipeClose">×</button>
-            <h1 style="color: #ff9800; font-size: 2rem; margin-bottom: 1.5rem; padding: 0 20px;">Створення рецепта</h1>
-            <form id="profileCreateRecipeForm" enctype="multipart/form-data" style="padding: 0 20px 20px 20px;">
+            <div class="modal-header">
+                <h1>👨‍🍳 Створення рецепта</h1>
+                <p>Поділіться своїм смачним рецептом зі спільнотою</p>
+            </div>
+            <form id="profileCreateRecipeForm" enctype="multipart/form-data" class="recipe-form-content">
                 
                 <!-- Назва рецепта -->
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; margin-bottom: 0.5rem;">Назва рецепта</label>
-                    <input type="text" name="title" id="profileRecipeTitle" placeholder="Введіть назву рецепту" required style="width: 100%; padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px;">
+                <div class="form-group">
+                    <label>📝 Назва рецепта</label>
+                    <input type="text" name="title" id="profileRecipeTitle" placeholder="Введіть назву рецепту" required>
                 </div>
 
                 <!-- Складність, Час, Категорія -->
-                <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
-                    <div style="flex: 0.5;">
-                        <label style="display: block; margin-bottom: 0.5rem;">Складність</label>
-                        <select name="difficulty" id="profileRecipeDifficulty" required style="width: 100%; padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px; cursor: pointer;">
-                            <option value="Легка">Легка</option>
-                            <option value="Середня" selected>Середня</option>
-                            <option value="Важка">Важка</option>
+                <div class="form-group-row">
+                    <div class="form-group">
+                        <label>⚡ Складність</label>
+                        <select name="difficulty" id="profileRecipeDifficulty" required>
+                            <option value="Легка">🟢 Легка</option>
+                            <option value="Середня" selected>🟡 Середня</option>
+                            <option value="Важка">🔴 Важка</option>
                         </select>
                     </div>
-                    <div style="flex: 0.5;">
-                        <label style="display: block; margin-bottom: 0.5rem;">Час (хв)</label>
-                        <select name="time" id="profileRecipeTime" required style="width: 100%; padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px; cursor: pointer;">
+                    <div class="form-group">
+                        <label>⏱️ Час (хв)</label>
+                        <select name="time" id="profileRecipeTime" required>
                             <option value="5">5 хв</option>
                             <option value="10">10 хв</option>
                             <option value="15">15 хв</option>
@@ -425,54 +428,65 @@
                             <option value="180">3 години</option>
                         </select>
                     </div>
-                    <div style="flex: 1;">
-                        <label style="display: block; margin-bottom: 0.5rem;">Категорія</label>
-                        <select name="category" id="profileRecipeCategory" required style="width: 100%; padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px; cursor: pointer;">
+                    <div class="form-group">
+                        <label>🏷️ Категорія</label>
+                        <select name="category" id="profileRecipeCategory" required>
                             <option value="">-- Виберіть категорію --</option>
-                            <option value="Сніданки">Сніданки</option>
-                            <option value="Основні">Основні страви</option>
-                            <option value="Супи">Супи</option>
-                            <option value="Салати">Салати</option>
-                            <option value="Десерти">Десерти</option>
-                            <option value="Вегетаріанські">Вегетаріанські</option>
-                            <option value="Напої">Напої</option>
-                            <option value="Дополнения">Печиво й Тістечко</option>
+                            <option value="Сніданки">🌅 Сніданки</option>
+                            <option value="Основні">🍽️ Основні страви</option>
+                            <option value="Супи">🥣 Супи</option>
+                            <option value="Салати">🥗 Салати</option>
+                            <option value="Десерти">🍰 Десерти</option>
+                            <option value="Вегетаріанські">🌱 Вегетаріанські</option>
+                            <option value="Напої">🥤 Напої</option>
+                            <option value="Дополнения">🍪 Печиво й Тістечко</option>
                         </select>
                     </div>
                 </div>
 
                 <!-- Додати фото -->
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; margin-bottom: 0.5rem;">Додати фото <span style="color: #ff6b6b;">*</span></label>
-                    <input type="file" name="image" id="profileRecipeImage" accept="image/*" required style="padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px; cursor: pointer; width: 100%;">
-                    <div id="imageFileName" style="margin-top: 0.5rem; font-size: 0.9rem; color: #9aa6b6; display: none;">
-                        Обрано: <span id="imageFileNameText" style="color: #4ecdc4;"></span>
+                <div class="form-group">
+                    <label>📸 Додати фото <span style="color: #ff6b6b;">*</span></label>
+                    <div class="file-input-wrapper">
+                        <input type="file" name="image" id="profileRecipeImage" accept="image/*" required>
+                        <div id="imageFileName" style="display: none;">
+                            ✓ Обрано: <span id="imageFileNameText"></span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Інгредієнти -->
-                <div style="margin-bottom: 1.5rem;">
-                    <h3 style="color: #ff9800; font-size: 1.1rem; margin-bottom: 1rem;">Інгредієнти:</h3>
-                    <div id="profileIngredientsContainer" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 0.5rem;">
-                        <input type="text" name="ingredients[]" placeholder="Спагетті - 300г" style="padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px;">
-                        <input type="text" name="ingredients[]" placeholder="Помідори черві - 200г" style="padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px;">
+                <div class="form-section">
+                    <h3>📋 Інгредієнти</h3>
+                    <div id="profileIngredientsContainer" class="ingredients-list">
+                        <div class="ingredient-item">
+                            <span class="ingredient-number">1.</span>
+                            <input type="text" name="ingredients[]" placeholder="Спагетті - 300г">
+                            <button type="button" class="delete-btn" style="display: none;" title="Видалити інгредієнт">✕</button>
+                        </div>
+                        <div class="ingredient-item">
+                            <span class="ingredient-number">2.</span>
+                            <input type="text" name="ingredients[]" placeholder="Помідори черві - 200г">
+                            <button type="button" class="delete-btn" style="display: none;" title="Видалити інгредієнт">✕</button>
+                        </div>
                     </div>
-                    <button type="button" id="profileAddIngredientBtn" style="background: none; border: none; color: #ff9800; cursor: pointer; font-size: 0.95rem;">+ Додати інгредієнт</button>
+                    <button type="button" id="profileAddIngredientBtn" class="add-btn">+ Додати інгредієнт</button>
                 </div>
 
                 <!-- Етапи приготування -->
-                <div style="margin-bottom: 1.5rem;">
-                    <h3 style="color: #ff9800; font-size: 1.1rem; margin-bottom: 1rem;">Етапи приготування:</h3>
-                    <div id="profileStepsContainer">
-                        <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-                            <span style="color: #ff9800; font-weight: bold; min-width: 30px;">1.</span>
-                            <textarea name="steps[]" placeholder="Опишіть перший етап приготування..." style="flex: 1; padding: 0.75rem; background: #23283b; border: 1px solid #333; color: #fff; border-radius: 6px; resize: vertical; min-height: 80px;"></textarea>
+                <div class="form-section">
+                    <h3>👨‍🍳 Етапи приготування</h3>
+                    <div id="profileStepsContainer" class="steps-list">
+                        <div class="step-item">
+                            <span class="step-number">1.</span>
+                            <textarea name="steps[]" placeholder="Опишіть перший етап приготування..."></textarea>
+                            <button type="button" class="delete-btn" style="display: none;" title="Видалити етап">✕</button>
                         </div>
                     </div>
-                    <button type="button" id="profileAddStepBtn" style="background: none; border: none; color: #ff9800; cursor: pointer; font-size: 0.95rem;">+ Додати етап</button>
+                    <button type="button" id="profileAddStepBtn" class="add-btn">+ Додати етап</button>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="background: #ff9800; color: #000; padding: 0.75rem 2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 1rem;">Опублікувати</button>
+                <button type="submit" class="submit-btn">🚀 Опублікувати рецепт</button>
             </form>
         </div>
     </div>
