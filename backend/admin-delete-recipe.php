@@ -52,6 +52,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Видалення рецепту з відповідної таблиці
+    // Remove related favorites entries (so deleted recipes disappear from users' favorites)
+    $hasSource = false;
+    $colCheck = $conn->prepare("SELECT COUNT(*) as cnt FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'favorites' AND COLUMN_NAME = 'source'");
+    if ($colCheck) {
+        $dbName = $conn->real_escape_string($dbname ?? '');
+        $colCheck->bind_param('s', $dbName);
+        if ($colCheck->execute()) {
+            $res = $colCheck->get_result();
+            if ($r = $res->fetch_assoc()) {
+                $hasSource = intval($r['cnt']) > 0;
+            }
+        }
+        $colCheck->close();
+    }
+
+    try {
+        if ($hasSource) {
+            if ($isUserRecipe) {
+                $delFav = $conn->prepare("DELETE FROM favorites WHERE recipe_id = ? AND source = 'user'");
+            } else {
+                // admin recipes are stored with source 'admin'
+                $delFav = $conn->prepare("DELETE FROM favorites WHERE recipe_id = ? AND source = 'admin'");
+            }
+            if ($delFav) {
+                $delFav->bind_param('i', $recipe_id);
+                $delFav->execute();
+                $delFav->close();
+            }
+        } else {
+            // No source column — remove any favorites by recipe_id
+            $delFav = $conn->prepare('DELETE FROM favorites WHERE recipe_id = ?');
+            if ($delFav) {
+                $delFav->bind_param('i', $recipe_id);
+                $delFav->execute();
+                $delFav->close();
+            }
+        }
+    } catch (Exception $e) {
+        // non-fatal — log and continue
+        error_log('Error deleting favorites for recipe ' . $recipe_id . ': ' . $e->getMessage());
+    }
+
+    // Видалення рецепту з відповідної таблиці
     if ($isUserRecipe) {
         $stmt = $conn->prepare('DELETE FROM user_recipes WHERE id = ?');
     } else {
