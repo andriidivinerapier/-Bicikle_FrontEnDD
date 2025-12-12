@@ -100,43 +100,78 @@
             <!-- Секція Додати рецепт -->
             <section id="add-recipe-section" class="admin-section">
                 <h3>Додати новий рецепт</h3>
+
                 <form id="add-recipe-form" class="recipe-form" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label for="recipe-title">Назва рецепту *</label>
-                        <input type="text" id="recipe-title" name="title" required placeholder="Введіть назву рецепту">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="recipe-title">Назва рецепту *</label>
+                            <input type="text" id="recipe-title" name="title" required placeholder="Введіть назву рецепту">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="recipe-category">Категорія</label>
+                            <select id="recipe-category" name="category">
+                                <option value="">Оберіть категорію</option>
+                                <option value="breakfast">Сніданок</option>
+                                <option value="lunch">Обід</option>
+                                <option value="dinner">Вечеря</option>
+                                <option value="desserts">Десерти</option>
+                                <option value="salads">Салати</option>
+                                <option value="soups">Супи</option>
+                                <option value="snacks">Закуски</option>
+                                <option value="drinks">Напої</option>
+                                <option value="vegan">Веганські</option>
+                                <option value="pastries">Булочки</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="recipe-difficulty">Складність</label>
+                            <select id="recipe-difficulty" name="difficulty">
+                                <option value="">Оберіть</option>
+                                <option value="Легка">Легка</option>
+                                <option value="Середня">Середня</option>
+                                <option value="Важка">Важка</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="recipe-time">Час приготування (хв)</label>
+                            <input type="number" id="recipe-time" name="time" min="0" placeholder="Наприклад: 30">
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="recipe-category">Категорія</label>
-                        <select id="recipe-category" name="category">
-                            <option value="">Оберіть категорію</option>
-                            <option value="breakfast">Сніданок</option>
-                            <option value="lunch">Обід</option>
-                            <option value="dinner">Вечеря</option>
-                            <option value="desserts">Десерти</option>
-                            <option value="salads">Салати</option>
-                            <option value="soups">Супи</option>
-                            <option value="snacks">Закуски</option>
-                            <option value="drinks">Напої</option>
-                            <option value="vegan">Веганські</option>
-                            <option value="pastries">Булочки</option>
-                        </select>
+                    <!-- Інгредієнти -->
+                    <div class="form-section">
+                        <h4>📋 Інгредієнти</h4>
+                        <div id="ingredientsContainer" class="ingredients-list">
+                            <div class="ingredient-item">
+                                <span class="ingredient-number">1.</span>
+                                <input type="text" name="ingredients[]" placeholder="Додайте інгредієнт">
+                                <button type="button" class="delete-btn" style="display: none;" title="Видалити">✕</button>
+                            </div>
+                        </div>
+                        <button type="button" id="addIngredientBtn" class="add-btn">+ Додати інгредієнт</button>
                     </div>
 
-                    <div class="form-group">
-                        <label for="recipe-ingredients">Інгредієнти *</label>
-                        <textarea id="recipe-ingredients" name="ingredients" required placeholder="Перелічіть інгредієнти, розділяючи їх на нові рядки"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="recipe-instructions">Інструкції *</label>
-                        <textarea id="recipe-instructions" name="instructions" required placeholder="Опишіть крок за кроком як готувати блюдо"></textarea>
+                    <!-- Етапи приготування -->
+                    <div class="form-section">
+                        <h4>👨‍🍳 Етапи приготування</h4>
+                        <div id="stepsContainer" class="steps-list">
+                            <div class="step-item">
+                                <span class="step-number">1.</span>
+                                <textarea name="steps[]" placeholder="Опишіть перший етап приготування..."></textarea>
+                                <button type="button" class="delete-btn" style="display: none;" title="Видалити">✕</button>
+                            </div>
+                        </div>
+                        <button type="button" id="addStepBtn" class="add-btn">+ Додати етап</button>
                     </div>
 
                     <div class="form-group">
                         <label for="recipe-image">Зображення рецепту</label>
                         <input type="file" id="recipe-image" name="image" accept="image/*">
                         <small>Приймаються формати: JPG, PNG, GIF, WebP (макс. 5MB)</small>
+                        <div id="add-image-preview" class="current-image" aria-hidden="true"></div>
                     </div>
 
                     <div class="form-actions">
@@ -169,27 +204,43 @@
             <h3>Редагувати рецепт</h3>
             <form id="edit-recipe-form" class="recipe-form" enctype="multipart/form-data">
                 <input type="hidden" id="edit-recipe-id" name="recipe_id">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="edit-recipe-title">Назва рецепту *</label>
+                        <input type="text" id="edit-recipe-title" name="title" required>
+                    </div>
 
-                <div class="form-group">
-                    <label for="edit-recipe-title">Назва рецепту *</label>
-                    <input type="text" id="edit-recipe-title" name="title" required>
-                </div>
+                    <div class="form-group">
+                        <label for="edit-recipe-category">Категорія</label>
+                        <select id="edit-recipe-category" name="category">
+                            <option value="">Оберіть категорію</option>
+                            <option value="breakfast">Сніданок</option>
+                            <option value="lunch">Обід</option>
+                            <option value="dinner">Вечеря</option>
+                            <option value="desserts">Десерти</option>
+                            <option value="salads">Салати</option>
+                            <option value="soups">Супи</option>
+                            <option value="snacks">Закуски</option>
+                            <option value="drinks">Напої</option>
+                            <option value="vegan">Веганські</option>
+                            <option value="pastries">Булочки</option>
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label for="edit-recipe-category">Категорія</label>
-                    <select id="edit-recipe-category" name="category">
-                        <option value="">Оберіть категорію</option>
-                        <option value="breakfast">Сніданок</option>
-                        <option value="lunch">Обід</option>
-                        <option value="dinner">Вечеря</option>
-                        <option value="desserts">Десерти</option>
-                        <option value="salads">Салати</option>
-                        <option value="soups">Супи</option>
-                        <option value="snacks">Закуски</option>
-                        <option value="drinks">Напої</option>
-                        <option value="vegan">Веганські</option>
-                        <option value="pastries">Булочки</option>
-                    </select>
+                    <div class="form-group">
+                        <label for="edit-recipe-difficulty">Складність</label>
+                        <select id="edit-recipe-difficulty" name="difficulty">
+                            <option value="">Оберіть</option>
+                            <option value="Легка">Легка</option>
+                            <option value="Середня">Середня</option>
+                            <option value="Важка">Важка</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-recipe-time">Час приготування (хв)</label>
+                        <input type="number" id="edit-recipe-time" name="time" min="0">
+                    </div>
                 </div>
 
                 <div class="form-group">

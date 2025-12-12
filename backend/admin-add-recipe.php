@@ -12,9 +12,23 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = trim($_POST['title'] ?? '');
-    $ingredients = trim($_POST['ingredients'] ?? '');
-    $instructions = trim($_POST['instructions'] ?? '');
     $category = trim($_POST['category'] ?? '');
+    $difficulty = trim($_POST['difficulty'] ?? '');
+    $time = trim($_POST['time'] ?? '');
+
+    // Обробка інгредієнтів (масив)
+    $ingredients_array = $_POST['ingredients'] ?? [];
+    $ingredients_array = array_filter($ingredients_array, function($item) {
+        return trim($item) !== '';
+    });
+    $ingredients = implode('|', $ingredients_array);
+
+    // Обробка етапів (масив)
+    $steps_array = $_POST['steps'] ?? [];
+    $steps_array = array_filter($steps_array, function($item) {
+        return trim($item) !== '';
+    });
+    $instructions = implode('|', $steps_array);
 
     if (!$title || !$ingredients || !$instructions) {
         echo json_encode(['status' => 'error', 'message' => 'Заповніть всі обов\'язкові поля']);
@@ -54,9 +68,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->query("ALTER TABLE recipes ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'approved'");
     }
 
+    // Ensure difficulty and cooking_time columns exist
+    $cols = [
+        'difficulty' => "VARCHAR(50) DEFAULT ''",
+        'cooking_time' => 'INT DEFAULT 0'
+    ];
+    foreach ($cols as $col => $def) {
+        $check = $conn->query("SHOW COLUMNS FROM recipes LIKE '$col'");
+        if ($check && $check->num_rows == 0) {
+            $conn->query("ALTER TABLE recipes ADD COLUMN $col $def");
+        }
+    }
+
     $status = 'approved';
-    $stmt = $conn->prepare('INSERT INTO recipes (user_id, title, ingredients, instructions, category, image_path, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())');
-    $stmt->bind_param('issssss', $admin_id, $title, $ingredients, $instructions, $category, $image_path, $status);
+    $cooking_time = is_numeric($time) ? intval($time) : 0;
+    $stmt = $conn->prepare('INSERT INTO recipes (user_id, title, ingredients, instructions, category, difficulty, cooking_time, image_path, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())');
+    $stmt->bind_param('isssssiss', $admin_id, $title, $ingredients, $instructions, $category, $difficulty, $cooking_time, $image_path, $status);
 
     if ($stmt->execute()) {
         echo json_encode(['status' => 'success', 'message' => 'Рецепт успішно додано']);

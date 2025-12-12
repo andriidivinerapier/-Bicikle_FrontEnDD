@@ -16,6 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ingredients = trim($_POST['ingredients'] ?? '');
     $instructions = trim($_POST['instructions'] ?? '');
     $category = trim($_POST['category'] ?? '');
+    $difficulty = trim($_POST['difficulty'] ?? '');
+    $time = trim($_POST['time'] ?? '');
 
     if (!$recipe_id || !$title || !$ingredients || !$instructions) {
         echo json_encode(['status' => 'error', 'message' => 'Заповніть всі обов\'язкові поля']);
@@ -71,8 +73,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Оновлення рецепту
-    $stmt = $conn->prepare('UPDATE recipes SET title = ?, ingredients = ?, instructions = ?, category = ?, image_path = ? WHERE id = ?');
-    $stmt->bind_param('sssssi', $title, $ingredients, $instructions, $category, $image_path, $recipe_id);
+    // Ensure difficulty and cooking_time columns exist
+    $check = $conn->query("SHOW COLUMNS FROM recipes LIKE 'difficulty'");
+    if ($check && $check->num_rows == 0) {
+        $conn->query("ALTER TABLE recipes ADD COLUMN difficulty VARCHAR(50) DEFAULT ''");
+    }
+    $check = $conn->query("SHOW COLUMNS FROM recipes LIKE 'cooking_time'");
+    if ($check && $check->num_rows == 0) {
+        $conn->query("ALTER TABLE recipes ADD COLUMN cooking_time INT DEFAULT 0");
+    }
+
+    $cooking_time = is_numeric($time) ? intval($time) : 0;
+    $stmt = $conn->prepare('UPDATE recipes SET title = ?, ingredients = ?, instructions = ?, category = ?, difficulty = ?, cooking_time = ?, image_path = ? WHERE id = ?');
+    $stmt->bind_param('sssssisi', $title, $ingredients, $instructions, $category, $difficulty, $cooking_time, $image_path, $recipe_id);
 
     if ($stmt->execute()) {
         echo json_encode(['status' => 'success', 'message' => 'Рецепт успішно оновлено']);

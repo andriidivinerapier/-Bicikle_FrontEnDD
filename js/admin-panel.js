@@ -1,5 +1,7 @@
 // admin-panel.js — логіка адмін панелі
 
+// admin-panel.js — логіка адмін панелі
+
 document.addEventListener('DOMContentLoaded', () => {
     // Спочатку сховати контент поки перевіряємо автентифікацію
     document.querySelector('.admin-container').style.opacity = '0';
@@ -25,9 +27,36 @@ function initializeAdminPanel() {
     document.getElementById('add-recipe-form').addEventListener('submit', handleAddRecipe);
     document.getElementById('refresh-recipes-btn').addEventListener('click', loadRecipes);
     document.getElementById('search-recipes').addEventListener('input', filterRecipes);
+    // Image preview for add form
+    const addImageInput = document.getElementById('recipe-image');
+    const addImagePreview = document.getElementById('add-image-preview');
+    if (addImageInput) {
+        addImageInput.addEventListener('change', (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!addImagePreview) return;
+            if (file) {
+                const url = URL.createObjectURL(file);
+                addImagePreview.innerHTML = `<img src="${url}" alt="preview">`;
+                // revoke url after image loads to free memory
+                const img = addImagePreview.querySelector('img');
+                if (img) img.onload = () => URL.revokeObjectURL(url);
+            } else {
+                addImagePreview.innerHTML = '';
+            }
+        });
+        // clear preview on form reset
+        const addForm = document.getElementById('add-recipe-form');
+        if (addForm) addForm.addEventListener('reset', () => { if (addImagePreview) addImagePreview.innerHTML = ''; });
+    }
+
+    // no subcategory handling (removed)
     // user recipes controls (moderation)
     const refreshUserBtn = document.getElementById('refresh-user-recipes-btn');
     if (refreshUserBtn) refreshUserBtn.addEventListener('click', loadUserRecipes);
+
+    // Ініціалізація форми інгредієнтів та етапів
+    initializeIngredientsList();
+    initializeStepsList();
     const searchUserInput = document.getElementById('search-user-recipes');
     if (searchUserInput) searchUserInput.addEventListener('input', filterUserRecipes);
 
@@ -198,6 +227,7 @@ function displayRecipes(recipes) {
             <td>${createdDate}</td>
             <td>
                 <div class="table-actions">
+                    <button class="btn-small btn-edit" onclick="viewRecipe(${recipe.id})">Переглянути</button>
                     <button class="btn-small btn-edit" onclick="openEditModal(${recipe.id})">Редагувати</button>
                     <button class="btn-small btn-delete" onclick="deleteRecipe(${recipe.id})">Видалити</button>
                 </div>
@@ -220,6 +250,80 @@ function filterRecipes() {
         recipe.category.toLowerCase().includes(searchTerm)
     );
     displayRecipes(filtered);
+}
+
+/**
+ * Перегляд рецепту в модалі
+ */
+function viewRecipe(recipeId) {
+    // Fetch full recipe details to ensure we have ingredients, instructions, time, difficulty
+    fetch(`backend/get-recipe.php?id=${encodeURIComponent(recipeId)}`)
+        .then(r => r.json())
+        .then(data => {
+            if (!data || data.status !== 'success' || !data.recipe) {
+                showToast('Рецепт не знайдено', 'error');
+                return;
+            }
+
+            const recipe = data.recipe;
+            const modal = document.getElementById('edit-modal');
+            const content = modal.querySelector('.modal-content');
+            content.querySelector('h3').textContent = 'Перегляд рецепту';
+            const form = document.getElementById('edit-recipe-form');
+            form.style.display = 'none';
+
+            let viewDiv = document.getElementById('admin-view-recipe');
+            if (!viewDiv) {
+                viewDiv = document.createElement('div');
+                viewDiv.id = 'admin-view-recipe';
+                content.appendChild(viewDiv);
+            }
+
+            const imageTag = recipe.image_path ? `<img src="${escapeHtml(recipe.image_path)}" alt="${escapeHtml(recipe.title)}">` : '';
+
+            function splitLines(text) {
+                if (!text) return [];
+                return String(text).split(/(?:\r?\n|\|)+/).map(s => s.trim()).filter(Boolean);
+            }
+
+            const ingredientsList = splitLines(recipe.ingredients);
+            const stepsList = splitLines(recipe.instructions);
+
+            const ingredientsHtml = ingredientsList.length ? `
+                <div class="view-section view-ingredients">
+                    <strong>Інгредієнти:</strong>
+                    ${ingredientsList.map((it, idx) => `<div class="view-ingredient"><span class="ingredient-number">${idx+1}.</span><div class="ingredient-text">${escapeHtml(it)}</div></div>`).join('')}
+                </div>` : '';
+
+            const instructionsHtml = stepsList.length ? `
+                <div class="view-section view-steps">
+                    <strong>Етапи приготування:</strong>
+                    ${stepsList.map((st, idx) => `<div class="view-step"><span class="step-number">${idx+1}.</span><div class="step-text">${escapeHtml(st)}</div></div>`).join('')}
+                </div>` : '';
+
+            const metaBadges = [];
+            if (recipe.category) metaBadges.push(`<span class="meta-badge">${escapeHtml(recipe.category)}</span>`);
+            if (recipe.difficulty) metaBadges.push(`<span class="meta-badge">${escapeHtml(recipe.difficulty)}</span>`);
+            if (recipe.cooking_time || recipe.time) metaBadges.push(`<span class="meta-badge">${escapeHtml(recipe.cooking_time || recipe.time)}${isNaN(recipe.cooking_time || recipe.time) ? '' : ' хв'}</span>`);
+
+            viewDiv.innerHTML = `
+                <div class="view-image">${imageTag}</div>
+                <div class="view-details">
+                    <h4>${escapeHtml(recipe.title)}</h4>
+                    <div class="recipe-meta-row">${metaBadges.join(' ')}</div>
+                    <div class="view-columns">
+                        ${ingredientsHtml}
+                        ${instructionsHtml}
+                    </div>
+                </div>
+            `;
+
+            modal.classList.add('show');
+        })
+        .catch(err => {
+            console.error('Помилка завантаження рецепту:', err);
+            showToast('Помилка завантаження рецепту', 'error');
+        });
 }
 
 /**
@@ -273,6 +377,12 @@ function openEditModal(recipeId) {
                     document.getElementById('edit-recipe-id').value = fullRecipe.id;
                     document.getElementById('edit-recipe-title').value = fullRecipe.title;
                     document.getElementById('edit-recipe-category').value = fullRecipe.category;
+                    // set difficulty and time if available
+                    // set difficulty and time if available
+                    const editDiff = document.getElementById('edit-recipe-difficulty');
+                    if (editDiff) editDiff.value = fullRecipe.difficulty || '';
+                    const editTime = document.getElementById('edit-recipe-time');
+                    if (editTime) editTime.value = fullRecipe.cooking_time || fullRecipe.time || '';
                     document.getElementById('edit-recipe-ingredients').value = fullRecipe.ingredients;
                     document.getElementById('edit-recipe-instructions').value = fullRecipe.instructions;
 
@@ -652,4 +762,130 @@ function deleteUserRecipe(id) {
             } else showToast(res.message || 'Помилка при видаленні', 'error');
         })
         .catch(err => { console.error(err); showToast('Помилка мережі', 'error'); });
+}
+
+/**
+ * Ініціалізація списку інгредієнтів
+ */
+function initializeIngredientsList() {
+    const container = document.getElementById('ingredientsContainer');
+    const addBtn = document.getElementById('addIngredientBtn');
+
+    if (!addBtn) return;
+
+    addBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const itemCount = container.querySelectorAll('.ingredient-item').length;
+        const newItem = document.createElement('div');
+        newItem.className = 'ingredient-item';
+        newItem.innerHTML = `
+            <span class="ingredient-number">${itemCount + 1}.</span>
+            <input type="text" name="ingredients[]" placeholder="Додайте інгредієнт">
+            <button type="button" class="delete-btn" title="Видалити">✕</button>
+        `;
+
+        const deleteBtn = newItem.querySelector('.delete-btn');
+        deleteBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            newItem.remove();
+            renumberIngredients();
+            updateDeleteButtons();
+        });
+
+        container.appendChild(newItem);
+        updateDeleteButtons();
+    });
+
+    // Додати обробники видалення до існуючих інгредієнтів
+    container.querySelectorAll('.ingredient-item .delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            btn.closest('.ingredient-item').remove();
+            renumberIngredients();
+            updateDeleteButtons();
+        });
+    });
+
+    function renumberIngredients() {
+        const items = container.querySelectorAll('.ingredient-item');
+        items.forEach((item, index) => {
+            const numberSpan = item.querySelector('.ingredient-number');
+            if (numberSpan) numberSpan.textContent = (index + 1) + '.';
+        });
+    }
+
+    function updateDeleteButtons() {
+        const items = container.querySelectorAll('.ingredient-item');
+        items.forEach(item => {
+            const deleteBtn = item.querySelector('.delete-btn');
+            if (deleteBtn) {
+                deleteBtn.style.display = items.length > 1 ? 'flex' : 'none';
+            }
+        });
+    }
+
+    updateDeleteButtons();
+}
+
+/**
+ * Ініціалізація списку етапів
+ */
+function initializeStepsList() {
+    const container = document.getElementById('stepsContainer');
+    const addBtn = document.getElementById('addStepBtn');
+
+    if (!addBtn) return;
+
+    addBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const itemCount = container.querySelectorAll('.step-item').length;
+        const newItem = document.createElement('div');
+        newItem.className = 'step-item';
+        newItem.innerHTML = `
+            <span class="step-number">${itemCount + 1}.</span>
+            <textarea name="steps[]" placeholder="Опишіть етап приготування..."></textarea>
+            <button type="button" class="delete-btn" title="Видалити">✕</button>
+        `;
+
+        const deleteBtn = newItem.querySelector('.delete-btn');
+        deleteBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            newItem.remove();
+            renumberSteps();
+            updateDeleteButtons();
+        });
+
+        container.appendChild(newItem);
+        updateDeleteButtons();
+    });
+
+    // Додати обробники видалення до існуючих етапів
+    container.querySelectorAll('.step-item .delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            btn.closest('.step-item').remove();
+            renumberSteps();
+            updateDeleteButtons();
+        });
+    });
+
+    function renumberSteps() {
+        const items = container.querySelectorAll('.step-item');
+        items.forEach((item, index) => {
+            const numberSpan = item.querySelector('.step-number');
+            if (numberSpan) numberSpan.textContent = (index + 1) + '.';
+        });
+    }
+
+    function updateDeleteButtons() {
+        const items = container.querySelectorAll('.step-item');
+        items.forEach(item => {
+            const deleteBtn = item.querySelector('.delete-btn');
+            if (deleteBtn) {
+                deleteBtn.style.display = items.length > 1 ? 'flex' : 'none';
+            }
+        });
+    }
+
+    updateDeleteButtons();
 }
