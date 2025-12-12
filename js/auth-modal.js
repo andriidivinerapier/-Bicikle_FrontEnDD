@@ -47,44 +47,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Profile button click - go to profile page
+    // Profile button click — navigate to profile page (do not toggle submenu)
     if (profileBtn) {
         profileBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            // Check if on profile page - if yes, toggle menu; if no, go to profile
-            if (window.location.pathname.includes('profile.html')) {
-                // Toggle menu on profile page
-                const isOpen = profileMenu.classList.contains('open');
-                if (isOpen) {
-                    profileMenu.classList.remove('open');
-                    profileMenu.setAttribute('aria-hidden', 'true');
-                    profileBtn.setAttribute('aria-expanded', 'false');
-                    // hide notifications bell/dropdown when menu closed
-                    const notifWrapper = document.querySelector('.notif-wrapper');
-                    if (notifWrapper) notifWrapper.style.display = 'none';
-                } else {
-                    profileMenu.classList.add('open');
-                    profileMenu.setAttribute('aria-hidden', 'false');
-                    profileBtn.setAttribute('aria-expanded', 'true');
-                    // show notifications bell/dropdown when menu opened
-                    const notifWrapper = document.querySelector('.notif-wrapper');
-                    if (notifWrapper) notifWrapper.style.display = 'inline-block';
-                }
-            } else {
-                // Navigate to profile page
+            if (!window.location.pathname.includes('profile.html')) {
                 window.location.href = 'profile.html';
             }
-        });
-
-        // Close profile menu on outside click
-        document.addEventListener('click', (ev) => {
-            if (!profileContainer.contains(ev.target)) {
-                profileMenu.classList.remove('open');
-                profileMenu.setAttribute('aria-hidden', 'true');
-                profileBtn.setAttribute('aria-expanded', 'false');
-                const notifWrapper = document.querySelector('.notif-wrapper');
-                if (notifWrapper) notifWrapper.style.display = 'none';
-            }
+            // If already on profile page, do nothing — submenu is disabled to avoid nested subpages
         });
     }
 

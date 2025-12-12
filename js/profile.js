@@ -456,6 +456,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Close create modal when clicking on overlay background
+    if (createOverlay) {
+        createOverlay.addEventListener('click', (e) => {
+            if (e.target === createOverlay) {
+                createOverlay.style.display = 'none';
+                document.body.classList.remove('modal-open');
+            }
+        });
+    }
+
+    // Close create modal on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && createOverlay && createOverlay.style.display !== 'none') {
+            createOverlay.style.display = 'none';
+            document.body.classList.remove('modal-open');
+        }
+    });
+
     // Submit create recipe form
     if (createForm) {
         // File input handler
