@@ -47,7 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Додавання рецепту
     $admin_id = $_SESSION['user']['id'];
     // Ensure status column exists
     $check = $conn->query("SHOW COLUMNS FROM recipes LIKE 'status'");
