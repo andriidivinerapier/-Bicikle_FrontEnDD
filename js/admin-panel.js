@@ -53,6 +53,30 @@ function initializeAdminPanel() {
     // Завантаження рецептів користувачів (на модерації)
     if (typeof loadUserRecipes === 'function') loadUserRecipes();
     loadUserSettings();
+    
+    // Setup user recipes tab filtering
+    const userRecipesTabs = document.querySelectorAll('.user-recipes-tab');
+    if (userRecipesTabs.length > 0) {
+        userRecipesTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Update current status
+                window.currentUserRecipesStatus = tab.getAttribute('data-status');
+                
+                // Update active tab styling
+                userRecipesTabs.forEach(t => {
+                    t.classList.remove('active');
+                    t.style.color = '#7f8c8d';
+                    t.style.borderBottomColor = 'transparent';
+                });
+                tab.classList.add('active');
+                tab.style.color = 'var(--secondary-color)';
+                tab.style.borderBottomColor = 'var(--secondary-color)';
+                
+                // Filter and display recipes
+                filterAndDisplayUserRecipes();
+            });
+        });
+    }
 }
 
 /**
@@ -402,37 +426,86 @@ function escapeHtml(text) {
 }
 
 /* ======================== User recipes moderation ======================== */
+// Track current filter status
+window.currentUserRecipesStatus = 'pending';
+
 function loadUserRecipes() {
     const tbody = document.getElementById('user-recipes-tbody');
-    if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="loading-text">Завантаження...</td></tr>';
+    if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="loading-text">Завантаження...</td></tr>';
 
     fetch('backend/admin-get-user-recipes.php')
         .then(res => res.json())
         .then(data => {
             if (data.status === 'success') {
-                displayUserRecipes(data.recipes || []);
+                window.allUserRecipes = data.recipes || [];
+                filterAndDisplayUserRecipes();
             } else {
-                if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="loading-text">Помилка при завантаженні</td></tr>';
+                if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="loading-text">Помилка при завантаженні</td></tr>';
             }
         })
         .catch(err => {
             console.error('Помилка:', err);
-            if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="loading-text">Помилка при запиті</td></tr>';
+            if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="loading-text">Помилка при запиті</td></tr>';
         });
 }
 
-function displayUserRecipes(recipes) {
+function filterAndDisplayUserRecipes() {
+    // Filter by status (pending vs approved)
+    const status = window.currentUserRecipesStatus || 'pending';
+    let recipes = (window.allUserRecipes || []).filter(r => {
+        // Рецепти на модерації мають status 'pending' або відсутній status
+        // Опубліковані рецепти мають status 'approved' або існують в основному каталозі
+        if (status === 'pending') {
+            return !r.status || r.status === 'pending';
+        } else if (status === 'approved') {
+            return r.status === 'approved';
+        }
+        return true;
+    });
+
+    // Apply search filter
+    const q = (document.getElementById('search-user-recipes') || {value: ''}).value.toLowerCase();
+    if (q) {
+        recipes = recipes.filter(r => 
+            (r.title || '').toLowerCase().includes(q) || 
+            (r.username || '').toLowerCase().includes(q) || 
+            (r.email || '').toLowerCase().includes(q)
+        );
+    }
+
+    displayUserRecipes(recipes, status);
+}
+
+function displayUserRecipes(recipes, status) {
     const tbody = document.getElementById('user-recipes-tbody');
     tbody.innerHTML = '';
+    
+    const statusText = status === 'pending' ? 'на модерації' : 'опублікованих';
     if (!recipes || recipes.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="loading-text">Немає нових рецептів</td></tr>';
-        window.userRecipes = [];
+        tbody.innerHTML = `<tr><td colspan="8" class="loading-text">Немає ${statusText} рецептів</td></tr>`;
         return;
     }
 
     recipes.forEach(r => {
         const tr = document.createElement('tr');
         const createdDate = new Date(r.created_at).toLocaleString('uk-UA');
+        
+        let actionButtons = '';
+        if (status === 'pending') {
+            // Модерація рецептів
+            actionButtons = `
+                <button class="btn-small btn-edit" onclick="viewUserRecipe(${r.id})">Переглянути</button>
+                <button class="btn-small btn-edit" onclick="approveUserRecipe(${r.id})">Одобрити</button>
+                <button class="btn-small btn-delete" onclick="rejectUserRecipe(${r.id})">Відхилити</button>
+            `;
+        } else {
+            // Опубліковані рецепти
+            actionButtons = `
+                <button class="btn-small btn-edit" onclick="viewUserRecipe(${r.id})">Переглянути</button>
+                <button class="btn-small btn-delete" onclick="deleteUserRecipe(${r.id})">Видалити</button>
+            `;
+        }
+
         tr.innerHTML = `
             <td>${r.id}</td>
             <td><strong>${escapeHtml(r.title)}</strong></td>
@@ -443,9 +516,7 @@ function displayUserRecipes(recipes) {
             <td>${createdDate}</td>
             <td>
                 <div class="table-actions">
-                    <button class="btn-small btn-edit" onclick="viewUserRecipe(${r.id})">Переглянути</button>
-                    <button class="btn-small btn-edit" onclick="approveUserRecipe(${r.id})">Одобрити</button>
-                    <button class="btn-small btn-delete" onclick="rejectUserRecipe(${r.id})">Відхилити</button>
+                    ${actionButtons}
                 </div>
             </td>
         `;
@@ -456,9 +527,7 @@ function displayUserRecipes(recipes) {
 }
 
 function filterUserRecipes() {
-    const q = (document.getElementById('search-user-recipes') || {value: ''}).value.toLowerCase();
-    const filtered = (window.userRecipes || []).filter(r => (r.title || '').toLowerCase().includes(q) || (r.username || '').toLowerCase().includes(q) || (r.email || '').toLowerCase().includes(q));
-    displayUserRecipes(filtered);
+    filterAndDisplayUserRecipes();
 }
 
 function viewUserRecipe(id) {
@@ -475,8 +544,69 @@ function viewUserRecipe(id) {
         viewDiv.id = 'admin-view-recipe';
         content.appendChild(viewDiv);
     }
-    viewDiv.innerHTML = `<p><strong>Назва:</strong> ${escapeHtml(r.title)}</p><p><strong>Автор:</strong> ${escapeHtml(r.username || r.email || '-')}</p><p><strong>Інгредієнти:</strong></p><pre>${escapeHtml(r.ingredients)}</pre><p><strong>Інструкції:</strong></p><pre>${escapeHtml(r.instructions)}</pre>`;
+    // build structured view: image + details
+    const imageTag = r.image_path ? `<img src="${escapeHtml(r.image_path)}" alt="${escapeHtml(r.title)}">` : '';
+    // prepare numbered ingredients and steps
+    function splitLines(text) {
+        if (!text) return [];
+        // split by newline or pipe '|' to support different backend formats
+        return String(text).split(/(?:\r?\n|\|)+/).map(s => s.trim()).filter(Boolean);
+    }
+
+    const ingredientsList = splitLines(r.ingredients);
+    const stepsList = splitLines(r.instructions);
+
+    const ingredientsHtml = ingredientsList.length ? `
+        <div class="view-section view-ingredients">
+            <strong>Інгредієнти:</strong>
+            ${ingredientsList.map((it, idx) => `\n                <div class="view-ingredient"><span class="ingredient-number">${idx+1}.</span><div class="ingredient-text">${escapeHtml(it)}</div></div>`).join('')}
+        </div>` : '';
+
+    const instructionsHtml = stepsList.length ? `
+        <div class="view-section view-steps">
+            <strong>Етапи приготування:</strong>
+            ${stepsList.map((st, idx) => `\n                <div class="view-step"><span class="step-number">${idx+1}.</span><div class="step-text">${escapeHtml(st)}</div></div>`).join('')}
+        </div>` : '';
+    const metaBadges = [];
+    if (r.category) metaBadges.push(`<span class="meta-badge">${escapeHtml(r.category)}</span>`);
+    if (r.difficulty) metaBadges.push(`<span class="meta-badge">${escapeHtml(r.difficulty)}</span>`);
+    if (r.time) metaBadges.push(`<span class="meta-badge">${escapeHtml(r.time)}${isNaN(r.time) ? '' : ' хв'}</span>`);
+
+    // Show approve/reject buttons only for pending recipes
+    const actionButtons = (!r.status || r.status === 'pending') ? `
+            <div style="margin-top:8px; display:flex; gap:8px;">
+                <button class="btn btn-success" onclick="approveUserRecipe(${r.id})">Одобрити</button>
+                <button class="btn btn-secondary" onclick="rejectUserRecipe(${r.id})">Відхилити</button>
+            </div>` : '';
+    
+    viewDiv.innerHTML = `
+        <div class="view-image">${imageTag}</div>
+        <div class="view-details">
+            <h4>${escapeHtml(r.title)}</h4>
+            <div><strong>Автор:</strong> ${escapeHtml(r.username || r.email || '-')}</div>
+            <div class="recipe-meta-row">${metaBadges.join(' ')}</div>
+            <div class="view-columns">
+                ${ingredientsHtml}
+                ${instructionsHtml}
+            </div>
+            ${actionButtons}
+        </div>
+    `;
     modal.classList.add('show');
+}
+
+// cleanup view modal content and restore edit form when modal closes
+function clearViewModal() {
+    const modal = document.getElementById('edit-modal');
+    if (!modal) return;
+    const content = modal.querySelector('.modal-content');
+    const viewDiv = document.getElementById('admin-view-recipe');
+    if (viewDiv) viewDiv.remove();
+    const form = document.getElementById('edit-recipe-form');
+    if (form) form.style.display = '';
+    // restore heading
+    const h3 = content.querySelector('h3');
+    if (h3) h3.textContent = 'Редагувати рецепт';
 }
 
 function approveUserRecipe(id) {
@@ -487,6 +617,7 @@ function approveUserRecipe(id) {
         .then(res => {
             if (res.status === 'success') {
                 showToast('Рецепт одобрено', 'success');
+                closeEditModal();
                 loadUserRecipes();
                 loadRecipes();
             } else showToast(res.message || 'Помилка', 'error');
@@ -505,6 +636,20 @@ function rejectUserRecipe(id) {
                 showToast('Рецепт відхилено', 'success');
                 loadUserRecipes();
             } else showToast(res.message || 'Помилка', 'error');
+        })
+        .catch(err => { console.error(err); showToast('Помилка мережі', 'error'); });
+}
+function deleteUserRecipe(id) {
+    if (!confirm('Ви впевнені, що хочете видалити цей рецепт?')) return;
+    const fd = new FormData(); fd.append('recipe_id', id);
+    fetch('backend/admin-delete-recipe.php', { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(res => {
+            if (res.status === 'success') {
+                showToast('Рецепт видалено', 'success');
+                loadUserRecipes();
+                loadRecipes();
+            } else showToast(res.message || 'Помилка при видаленні', 'error');
         })
         .catch(err => { console.error(err); showToast('Помилка мережі', 'error'); });
 }

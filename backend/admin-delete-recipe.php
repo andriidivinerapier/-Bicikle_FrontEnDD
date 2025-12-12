@@ -18,13 +18,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Отримання інформації про рецепт
-    $stmt = $conn->prepare('SELECT image_path FROM recipes WHERE id = ?');
+    // Try to get from user_recipes first (for user-submitted recipes)
+    $stmt = $conn->prepare('SELECT image_path FROM user_recipes WHERE id = ?');
     $stmt->bind_param('i', $recipe_id);
     $stmt->execute();
     $result = $stmt->get_result();
     $recipe = $result->fetch_assoc();
     $stmt->close();
+    
+    $isUserRecipe = !empty($recipe);
+
+    // If not found in user_recipes, try recipes table
+    if (!$recipe) {
+        $stmt = $conn->prepare('SELECT image_path FROM recipes WHERE id = ?');
+        $stmt->bind_param('i', $recipe_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $recipe = $result->fetch_assoc();
+        $stmt->close();
+    }
 
     if (!$recipe) {
         echo json_encode(['status' => 'error', 'message' => 'Рецепт не знайдено']);
@@ -39,8 +51,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Видалення рецепту
-    $stmt = $conn->prepare('DELETE FROM recipes WHERE id = ?');
+    // Видалення рецепту з відповідної таблиці
+    if ($isUserRecipe) {
+        $stmt = $conn->prepare('DELETE FROM user_recipes WHERE id = ?');
+    } else {
+        $stmt = $conn->prepare('DELETE FROM recipes WHERE id = ?');
+    }
     $stmt->bind_param('i', $recipe_id);
 
     if ($stmt->execute()) {

@@ -30,8 +30,8 @@ foreach ($columns_to_add as $col_name => $col_def) {
     }
 }
 
-// Get pending user-submitted recipes from user_recipes table
-$stmt = $conn->prepare("SELECT ur.id, ur.user_id, ur.title, ur.category, ur.difficulty, ur.time, ur.created_at, ur.image_path, ur.ingredients, ur.instructions, ur.status, ur.review_reason, u.username, u.email FROM user_recipes ur LEFT JOIN users u ON ur.user_id = u.id WHERE ur.status = 'pending' ORDER BY ur.created_at DESC");
+// Get all user-submitted recipes (both pending and approved)
+$stmt = $conn->prepare("SELECT ur.id, ur.user_id, ur.title, ur.category, ur.difficulty, ur.time, ur.created_at, ur.image_path, ur.ingredients, ur.instructions, ur.status, ur.review_reason, u.username, u.email FROM user_recipes ur LEFT JOIN users u ON ur.user_id = u.id WHERE ur.status IN ('pending', 'approved') ORDER BY ur.created_at DESC");
 if (!$stmt) {
     echo json_encode(['status' => 'error', 'message' => 'Помилка SQL', 'sql_error' => $conn->error]);
     exit;
