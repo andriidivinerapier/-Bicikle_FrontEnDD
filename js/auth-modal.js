@@ -59,10 +59,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     profileMenu.classList.remove('open');
                     profileMenu.setAttribute('aria-hidden', 'true');
                     profileBtn.setAttribute('aria-expanded', 'false');
+                    // hide notifications bell/dropdown when menu closed
+                    const notifWrapper = document.querySelector('.notif-wrapper');
+                    if (notifWrapper) notifWrapper.style.display = 'none';
                 } else {
                     profileMenu.classList.add('open');
                     profileMenu.setAttribute('aria-hidden', 'false');
                     profileBtn.setAttribute('aria-expanded', 'true');
+                    // show notifications bell/dropdown when menu opened
+                    const notifWrapper = document.querySelector('.notif-wrapper');
+                    if (notifWrapper) notifWrapper.style.display = 'inline-block';
                 }
             } else {
                 // Navigate to profile page
@@ -76,6 +82,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 profileMenu.classList.remove('open');
                 profileMenu.setAttribute('aria-hidden', 'true');
                 profileBtn.setAttribute('aria-expanded', 'false');
+                const notifWrapper = document.querySelector('.notif-wrapper');
+                if (notifWrapper) notifWrapper.style.display = 'none';
             }
         });
     }

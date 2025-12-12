@@ -40,6 +40,196 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     loadUserProfileStats();
 
+    // ---------------- Notifications ----------------
+    const notifBtn = document.getElementById('notifBtn');
+    const notifDropdown = document.getElementById('notifDropdown');
+    const notifList = document.getElementById('notifList');
+    const notifBadge = document.getElementById('notifBadge');
+    // Profile header bell elements (small bell near username)
+    const profileNotifBtn = document.getElementById('profileNotifBtn');
+    const profileNotifBadge = document.getElementById('profileNotifBadge');
+    const markAllReadBtn = document.getElementById('markAllReadBtn');
+
+    function fetchNotifications() {
+        fetch('backend/get-user-notifications.php')
+            .then(r => r.json())
+            .then(data => {
+                if (data && data.status === 'success') {
+                    renderNotifications(data.notifications || []);
+                }
+            })
+            .catch(err => console.error('Error loading notifications:', err));
+    }
+
+    function renderNotifications(notes) {
+        if (!notifList) return;
+        notifList.innerHTML = '';
+        if (!notes || notes.length === 0) {
+            notifList.innerHTML = '<div class="notif-empty">Немає сповіщень</div>';
+            if (notifBadge) { notifBadge.style.display = 'none'; notifBadge.textContent = '0'; }
+            if (profileNotifBadge) { profileNotifBadge.style.display = 'none'; profileNotifBadge.textContent = '0'; }
+            return;
+        }
+        let unread = 0;
+        notes.forEach(n => {
+            if (!n) return;
+            const item = document.createElement('div');
+            item.className = 'notif-item' + (n.is_read == 0 ? ' unread' : '');
+            item.dataset.id = n.id;
+            const time = new Date(n.created_at).toLocaleString('uk-UA');
+            if (n.is_read == 0) unread++;
+            item.innerHTML = `
+                <div class="notif-meta">
+                    <div class="notif-message">${escapeHtml(n.message)}</div>
+                    <div class="notif-time">${time}</div>
+                </div>
+            `;
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                markNotificationRead(n.id, item);
+            });
+            notifList.appendChild(item);
+        });
+        if (unread > 0) {
+            if (notifBadge) { notifBadge.style.display = 'inline-block'; notifBadge.textContent = String(unread); }
+            if (profileNotifBadge) { profileNotifBadge.style.display = 'inline-block'; profileNotifBadge.textContent = String(unread); }
+        } else {
+            if (notifBadge) { notifBadge.style.display = 'none'; notifBadge.textContent = '0'; }
+            if (profileNotifBadge) { profileNotifBadge.style.display = 'none'; profileNotifBadge.textContent = '0'; }
+        }
+    }
+
+    function markNotificationRead(id, itemEl) {
+        if (!id) return;
+        const fd = new FormData(); fd.append('id', id);
+        fetch('backend/mark-notification-read.php', { method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(res => {
+                if (res && res.status === 'success') {
+                    if (itemEl) itemEl.classList.remove('unread');
+                    // refresh list to update badge count
+                    fetchNotifications();
+                }
+            })
+            .catch(err => console.error('Error marking notification read:', err));
+    }
+
+    if (notifBtn) {
+        notifBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const open = notifDropdown.classList.toggle('show');
+            notifDropdown.setAttribute('aria-hidden', open ? 'false' : 'true');
+            notifBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (open) fetchNotifications();
+        });
+    }
+
+    // small bell near profile header opens the same dropdown, positioned near button
+    if (profileNotifBtn) {
+        profileNotifBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!notifDropdown) return;
+            const isOpen = notifDropdown.classList.contains('show');
+            if (isOpen) {
+                // close
+                notifDropdown.classList.remove('show');
+                notifDropdown.setAttribute('aria-hidden', 'true');
+                if (notifBtn) notifBtn.setAttribute('aria-expanded', 'false');
+                profileNotifBtn.setAttribute('aria-expanded', 'false');
+            } else {
+                // open
+                fetchNotifications();
+                notifDropdown.classList.add('show');
+                notifDropdown.setAttribute('aria-hidden', 'false');
+                if (notifBtn) notifBtn.setAttribute('aria-expanded', 'true');
+                profileNotifBtn.setAttribute('aria-expanded', 'true');
+                // position near the profile button
+                const rect = profileNotifBtn.getBoundingClientRect();
+                const dd = notifDropdown;
+                dd.style.position = 'absolute';
+                dd.style.right = 'auto';
+                dd.style.left = (rect.left + window.scrollX) + 'px';
+                dd.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+                dd.style.zIndex = 1200;
+            }
+        });
+    }
+
+    // Close button handler for notif dropdown
+    const notifCloseBtn = document.getElementById('notifCloseBtn');
+    if (notifCloseBtn) {
+        notifCloseBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (notifDropdown) {
+                notifDropdown.classList.remove('show');
+                notifDropdown.setAttribute('aria-hidden', 'true');
+            }
+            if (notifBtn) notifBtn.setAttribute('aria-expanded', 'false');
+            if (profileNotifBtn) profileNotifBtn.setAttribute('aria-expanded', 'false');
+        });
+    }
+
+    // mark all read
+    if (markAllReadBtn) {
+        markAllReadBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // find all unread IDs
+            const ids = Array.from(document.querySelectorAll('.notif-item.unread')).map(el => el.dataset.id).filter(Boolean);
+            if (ids.length === 0) {
+                // nothing to mark — still close dropdown
+                if (notifDropdown) {
+                    notifDropdown.classList.remove('show');
+                    notifDropdown.setAttribute('aria-hidden', 'true');
+                }
+                if (notifBtn) notifBtn.setAttribute('aria-expanded', 'false');
+                if (profileNotifBtn) profileNotifBtn.setAttribute('aria-expanded', 'false');
+                showToast('Немає непрочитаних сповіщень', 'info');
+                return;
+            }
+            // mark sequentially
+            Promise.all(ids.map(id => {
+                const fd = new FormData(); fd.append('id', id);
+                return fetch('backend/mark-notification-read.php', { method: 'POST', body: fd }).then(r => r.json()).catch(()=>null);
+            }))
+            .then(()=> {
+                // refresh list to update badge count
+                return fetchNotifications();
+            })
+            .finally(() => {
+                // close dropdown after marking all as read
+                try {
+                    if (notifDropdown) {
+                        notifDropdown.classList.remove('show');
+                        notifDropdown.setAttribute('aria-hidden', 'true');
+                    }
+                    if (notifBtn) notifBtn.setAttribute('aria-expanded', 'false');
+                    if (profileNotifBtn) profileNotifBtn.setAttribute('aria-expanded', 'false');
+                } catch (err) { console.error('Error closing notif dropdown:', err); }
+            });
+        });
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        const clickedInside = notifDropdown && notifDropdown.contains(e.target);
+        const clickedNotifBtn = notifBtn && notifBtn.contains(e.target);
+        const clickedProfileBell = profileNotifBtn && profileNotifBtn.contains(e.target);
+        if (notifDropdown && !clickedInside && !clickedNotifBtn && !clickedProfileBell) {
+            notifDropdown.classList.remove('show');
+            notifDropdown.setAttribute('aria-hidden', 'true');
+            if (notifBtn) notifBtn.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    // escapeHtml helper
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>"']/g, function (m) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]); });
+    }
+
+    // Initial fetch to update badge on load
+    fetchNotifications();
+
     // Tab Switching
     tabButtons.forEach(btn => {
         btn.addEventListener('click', () => {
