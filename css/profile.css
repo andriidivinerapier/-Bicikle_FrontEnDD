@@ -140,6 +140,19 @@
     transform: translateY(-2px);
 }
 
+/* Disabled button styles */
+.btn[disabled], .btn.disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+.notif-footer .btn.btn-danger[disabled] {
+    border-color: rgba(255,77,77,0.06);
+    color: #ff9b9b;
+    background: transparent;
+}
+
 .btn-icon {
     background: none;
     border: none;
@@ -206,6 +219,15 @@
 @media (max-width: 720px) {
     .notif-dropdown { left: 12px !important; right: 12px !important; top: auto !important; position: static; margin-top: 12px; width: calc(100% - 24px); }
 }
+
+/* Footer layout tweaks */
+.notif-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.notif-footer-left { flex:1; }
+.notif-footer-right { display:flex; gap:8px; align-items:center; }
+.notif-view-all { color: #9aa6b6; text-decoration: none; font-weight:600; }
+.notif-view-all:hover { color: var(--accent); }
+.notif-footer .btn.btn-danger { background: transparent; border: 1px solid rgba(255,77,77,0.12); color: #ff6b6b; padding:6px 10px; }
+.notif-footer .btn.btn-danger:hover { background: rgba(255,77,77,0.06); }
 
 /* Profile header bell (small) */
 .profile-header-bell { background: none; border: none; color: #cbd5e1; margin-left: 10px; font-size: 0.95rem; vertical-align: middle; padding: 4px 6px; border-radius: 6px; cursor: pointer; }
