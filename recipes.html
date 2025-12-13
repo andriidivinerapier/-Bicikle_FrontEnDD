@@ -139,41 +139,40 @@
             </div>
             
             <div class="auth-content">
-                <!-- Login Form -->
+                <!-- Login Form (match main page) -->
                 <form id="loginForm" class="auth-form active">
                     <div class="form-group">
-                        <label for="loginUsername">Ім'я користувача або email</label>
-                        <input type="text" id="loginUsername" placeholder="username або email" required>
+                        <label for="loginName">Ім'я</label>
+                        <input type="text" id="loginName" name="loginName" placeholder="Ваше ім'я">
+                    </div>
+                    <div class="form-group">
+                        <label for="loginEmail">E-mail</label>
+                        <input type="email" id="loginEmail" name="loginEmail" placeholder="your@email.com" required>
                     </div>
                     <div class="form-group">
                         <label for="loginPassword">Пароль</label>
-                        <input type="password" id="loginPassword" placeholder="********" required>
+                        <input type="password" id="loginPassword" name="loginPassword" placeholder="********" required>
                     </div>
-                    <div class="form-group">
-                        <label for="loginRemember">
-                            <input type="checkbox" id="loginRemember"> Запам'ятати мене
-                        </label>
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="loginRemember" name="loginRemember">
+                        <label for="loginRemember">Запам'ятати мене</label>
                     </div>
                     <button type="submit" class="auth-submit">УВІЙТИ</button>
                 </form>
                 
-                <!-- Register Form -->
+                <!-- Register Form (three fields as on main page) -->
                 <form id="registerForm" class="auth-form">
                     <div class="form-group">
-                        <label for="registerUsername">Ім'я користувача</label>
-                        <input type="text" id="registerUsername" placeholder="Виберіть ім'я" required>
+                        <label for="registerName">Ім'я</label>
+                        <input type="text" id="registerName" name="registerName" placeholder="Ваше ім'я" required>
                     </div>
                     <div class="form-group">
                         <label for="registerEmail">E-mail</label>
-                        <input type="email" id="registerEmail" placeholder="your@email.com" required>
+                        <input type="email" id="registerEmail" name="registerEmail" placeholder="your@email.com" required>
                     </div>
                     <div class="form-group">
                         <label for="registerPassword">Пароль</label>
-                        <input type="password" id="registerPassword" placeholder="********" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="registerConfirmPassword">Підтвердження паролю</label>
-                        <input type="password" id="registerConfirmPassword" placeholder="********" required>
+                        <input type="password" id="registerPassword" name="registerPassword" placeholder="********" required>
                     </div>
                     <button type="submit" class="auth-submit">ЗАРЕЄСТРУВАТИСЯ</button>
                 </form>

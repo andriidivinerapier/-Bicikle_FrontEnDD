@@ -47,6 +47,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Fallback: delegated handler for any element with class `login-btn`
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest && e.target.closest('.login-btn');
+        if (btn) {
+            e.preventDefault();
+            if (authModal) openAuthModal();
+        }
+    });
+
+    // Expose a global helper so other scripts can open the auth modal
+    function openAuthModal() {
+        if (!authModal) return;
+        authModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        // Ensure login tab is active when opened by external callers
+        const loginTab = document.querySelector('.auth-tab[data-tab="login"]');
+        if (loginTab) loginTab.click();
+    }
+    window.openAuthModal = openAuthModal;
+
     // Profile button click — navigate to profile page (do not toggle submenu)
     if (profileBtn) {
         profileBtn.addEventListener('click', (e) => {
@@ -218,7 +238,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Run session check on DOMContentLoaded
     checkSession();
 
-    registerForm.addEventListener('submit', (e) => {
+    if (registerForm) {
+        registerForm.addEventListener('submit', (e) => {
         e.preventDefault();
         // Відправка даних на register.php через fetch
         const formData = new FormData();
@@ -242,5 +263,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         })
         .catch(() => showAuthToast('Помилка зʼєднання з сервером', 'error'));
-    });
+        });
+    }
 });

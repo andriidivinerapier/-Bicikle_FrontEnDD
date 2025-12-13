@@ -132,43 +132,62 @@
         </div>
 
         <!-- Auth Modal -->
-        <div id="authModal" class="auth-modal" aria-hidden="true" style="display: none;">
-            <div class="auth-modal__wrapper">
-                <button id="authModalClose" class="auth-modal__close">✕</button>
-                <div class="auth-modal__content">
-                    <div class="auth-tabs">
-                        <button class="auth-tab active" data-tab="login">Вхід</button>
-                        <button class="auth-tab" data-tab="register">Реєстрація</button>
-                    </div>
+        <div class="auth-modal-overlay" id="authModal" aria-hidden="true">
+            <div class="auth-modal" role="dialog" aria-modal="true">
+                <button class="modal-close" id="authModalClose" aria-label="Закрити">×</button>
+                
+                <!-- Logo -->
+                <div class="auth-logo">
+                    <div class="auth-logo-icon">👨‍🍳</div>
+                    <span class="auth-logo-text">Смачно :)</span>
+                </div>
 
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login">ВХІД</button>
+                    <button class="auth-tab" data-tab="register">РЕЄСТРАЦІЯ</button>
+                </div>
+                
+                <div class="auth-content">
                     <!-- Login Form -->
                     <form id="loginForm" class="auth-form active">
                         <div class="form-group">
-                            <label for="loginEmail">Email</label>
-                            <input type="email" id="loginEmail" name="loginEmail" placeholder="Введіть email" required>
+                            <label for="loginName">Ім'я</label>
+                            <input type="text" id="loginName" name="loginName" placeholder="Ваше ім'я" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginEmail">E-mail</label>
+                            <input type="email" id="loginEmail" name="loginEmail" placeholder="your@email.com" required>
                         </div>
                         <div class="form-group">
                             <label for="loginPassword">Пароль</label>
-                            <input type="password" id="loginPassword" name="loginPassword" placeholder="Введіть пароль" required>
+                            <input type="password" id="loginPassword" name="loginPassword" placeholder="********" required>
                         </div>
-                        <button type="submit" class="btn btn-primary">Увійти</button>
+                        <div class="form-checkbox">
+                            <input type="checkbox" id="loginRemember" name="loginRemember">
+                            <label for="loginRemember">Запам'ятати мене</label>
+                        </div>
+                        <button type="submit" class="auth-submit">УВІЙТИ</button>
                     </form>
-
+                    
                     <!-- Register Form -->
                     <form id="registerForm" class="auth-form">
                         <div class="form-group">
-                            <label for="registerName">Ім'я користувача</label>
-                            <input type="text" id="registerName" name="registerName" placeholder="Введіть ім'я" required>
+                            <label for="registerName">Ім'я</label>
+                            <input type="text" id="registerName" name="registerName" placeholder="Ваше ім'я" required>
                         </div>
                         <div class="form-group">
-                            <label for="registerEmail">Email</label>
-                            <input type="email" id="registerEmail" name="registerEmail" placeholder="Введіть email" required>
+                            <label for="registerEmail">E-mail</label>
+                            <input type="email" id="registerEmail" name="registerEmail" placeholder="your@email.com" required>
                         </div>
                         <div class="form-group">
                             <label for="registerPassword">Пароль</label>
-                            <input type="password" id="registerPassword" name="registerPassword" placeholder="Введіть пароль" required>
+                            <input type="password" id="registerPassword" name="registerPassword" placeholder="********" required>
                         </div>
-                        <button type="submit" class="btn btn-primary">Зареєструватися</button>
+                        <div class="form-group">
+                            <label for="registerConfirmPassword">Підтвердження паролю</label>
+                            <input type="password" id="registerConfirmPassword" name="registerConfirmPassword" placeholder="********" required>
+                        </div>
+                        <button type="submit" class="auth-submit">ЗАРЕЄСТРУВАТИСЯ</button>
                     </form>
                 </div>
             </div>
