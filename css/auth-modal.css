@@ -219,3 +219,140 @@
         font-size: 0.9rem;
     }
 }
+
+/* Improved styles for Forgot / Reset forms */
+.auth-form .form-note {
+    color: rgba(255,255,255,0.7);
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+#forgotForm, #resetForm {
+    padding: 8px 0 0 0;
+}
+
+.forgot-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 6px;
+}
+
+.reset-code-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.reset-code-row input[type="text"] {
+    width: 140px;
+    padding: 12px 14px;
+    font-size: 16px;
+    letter-spacing: 3px;
+    text-align: center;
+}
+
+.small-link {
+    color: rgba(255,255,255,0.8);
+    text-decoration: underline;
+    font-size: 13px;
+}
+
+/* Stylish forgot-password link/button */
+.forgot-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(255,122,61,0.08);
+    color: #ffd9c4;
+    border: 1px solid rgba(255,122,61,0.12);
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 180ms ease;
+}
+
+.forgot-link::before {
+    content: '🔒';
+    display: inline-block;
+    transform: translateY(1px);
+}
+
+.forgot-link:hover {
+    background: rgba(255,122,61,0.14);
+    box-shadow: 0 6px 18px rgba(255,122,61,0.08);
+    transform: translateY(-2px);
+    color: #fff;
+}
+
+.forgot-link:active {
+    transform: translateY(0);
+}
+
+/* Back-to-login link/button style */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: rgba(255,255,255,0.85);
+    background: transparent;
+    border: 1px solid transparent;
+    font-weight: 600;
+    font-size: 13px;
+    text-decoration: none;
+    transition: all 180ms ease;
+}
+
+.back-link::before {
+    content: '←';
+    opacity: 0.9;
+}
+
+.back-link:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.06);
+    transform: translateY(-2px);
+}
+
+.back-link:active { transform: translateY(0); }
+
+/* center small back link under buttons */
+.auth-form .back-row { text-align: center; margin-top: 10px; }
+
+.auth-submit.small {
+    padding: 10px 14px;
+    font-size: 15px;
+    border-radius: 6px;
+}
+
+/* compact layout for mobile */
+@media (max-width: 420px) {
+    .reset-code-row { flex-direction: column; align-items: stretch; }
+    .reset-code-row input[type="text"] { width: 100%; letter-spacing: 4px; }
+}
+
+/* Focused loading style for single button (forgot password) */
+.auth-submit.loading,
+.auth-submit.loading:disabled {
+    opacity: 0.95;
+}
+.auth-submit.loading::after {
+    content: '';
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-left: 10px;
+    vertical-align: middle;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.35);
+    border-top-color: #ffffff;
+    animation: amspin 820ms linear infinite;
+}
+
+@keyframes amspin { to { transform: rotate(360deg); } }

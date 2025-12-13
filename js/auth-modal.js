@@ -17,17 +17,15 @@ document.addEventListener('DOMContentLoaded', () => {
         toast.querySelector('.auth-toast__msg').textContent = message;
         toast.querySelector('.auth-toast__icon').innerHTML = type === 'success' ? '✔️' : '⚠️';
         toast.classList.add('show');
-        // Закрити вручну
         toast.querySelector('.auth-toast__close').onclick = () => toast.classList.remove('show');
-        // Автоматично сховати через 3.5 сек
         clearTimeout(toast._timeout);
         toast._timeout = setTimeout(() => toast.classList.remove('show'), 3500);
     }
+
     // Elements
     const authModal = document.getElementById('authModal');
     const authModalClose = document.getElementById('authModalClose');
     const loginButton = document.getElementById('loginBtn');
-    // Profile elements (shown when logged in)
     const profileContainer = document.getElementById('profileContainer');
     const profileBtn = document.getElementById('profileBtn');
     const profileMenu = document.getElementById('profileMenu');
@@ -47,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Fallback: delegated handler for any element with class `login-btn`
+    // Delegated handler for .login-btn
     document.addEventListener('click', (e) => {
         const btn = e.target.closest && e.target.closest('.login-btn');
         if (btn) {
@@ -56,54 +54,49 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Expose a global helper so other scripts can open the auth modal
     function openAuthModal() {
         if (!authModal) return;
         authModal.classList.add('open');
         document.body.style.overflow = 'hidden';
-        // Ensure login tab is active when opened by external callers
         const loginTab = document.querySelector('.auth-tab[data-tab="login"]');
         if (loginTab) loginTab.click();
     }
     window.openAuthModal = openAuthModal;
 
-    // Profile button click — navigate to profile page (do not toggle submenu)
     if (profileBtn) {
         profileBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             if (!window.location.pathname.includes('profile.html')) {
                 window.location.href = 'profile.html';
             }
-            // If already on profile page, do nothing — submenu is disabled to avoid nested subpages
         });
     }
 
-    // Close modal
+    function closeAuthModalAndMaybeRedirect() {
+        const activeForm = document.querySelector('.auth-form.active');
+        authModal.classList.remove('open');
+        document.body.style.overflow = '';
+        if (activeForm && (activeForm.id === 'forgotForm' || activeForm.id === 'resetForm')) {
+            // User closed while in forgot/reset flow — send to homepage
+            window.location.href = 'index.html';
+        }
+    }
+
     if (authModalClose) {
-        authModalClose.addEventListener('click', () => {
-            authModal.classList.remove('open');
-            document.body.style.overflow = '';
-        });
+        authModalClose.addEventListener('click', () => closeAuthModalAndMaybeRedirect());
     }
 
-    // Close modal when clicking outside
     if (authModal) {
         authModal.addEventListener('click', (e) => {
-            if (e.target === authModal) {
-                authModal.classList.remove('open');
-                document.body.style.overflow = '';
-            }
+            if (e.target === authModal) closeAuthModalAndMaybeRedirect();
         });
     }
 
     // Tab switching
     authTabs.forEach(tab => {
         tab.addEventListener('click', () => {
-            // Remove active class from all tabs and forms
             authTabs.forEach(t => t.classList.remove('active'));
             authForms.forEach(f => f.classList.remove('active'));
-            
-            // Add active class to clicked tab and corresponding form
             tab.classList.add('active');
             const formId = tab.dataset.tab + 'Form';
             const form = document.getElementById(formId);
@@ -111,40 +104,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Form submission
+    // Login
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            // Відправка даних на login.php через fetch
             const formData = new FormData();
             formData.append('email', loginForm.loginEmail.value);
             formData.append('password', loginForm.loginPassword.value);
 
-            fetch('backend/login.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    showAuthToast('Вхід успішний! Вітаємо, ' + data.username, 'success');
-                    authModal.classList.remove('open');
-                    document.body.style.overflow = '';
-                    
-                    // Якщо адмін - перенаправити на адмін панель
-                    if (data.role === 'admin') {
-                        setTimeout(() => {
-                            window.location.href = 'admin.html';
-                        }, 1000);
+            fetch('backend/login.php', { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showAuthToast('Вхід успішний! Вітаємо, ' + data.username, 'success');
+                        authModal.classList.remove('open');
+                        document.body.style.overflow = '';
+                        if (data.role === 'admin') {
+                            setTimeout(() => { window.location.href = 'admin.html'; }, 800);
+                        } else {
+                            setTimeout(() => { window.location.href = 'index.html'; }, 800);
+                        }
                     } else {
-                        // Оновлюємо UI після входу для звичайних користувачів
-                        updateAuthUI({ username: data.username, role: data.role });
+                        showAuthToast(data.message || 'Помилка входу', 'error');
                     }
-                } else {
-                    showAuthToast(data.message || 'Помилка входу', 'error');
-                }
-            })
-            .catch(() => showAuthToast('Помилка зʼєднання з сервером', 'error'));
+                })
+                .catch(() => showAuthToast('Помилка зʼєднання з сервером', 'error'));
         });
     }
 
@@ -165,15 +149,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Update UI according to user object (null = logged out)
     function updateAuthUI(user) {
         if (user && user.username) {
-            // hide login button, show profile
             if (loginButton) loginButton.style.display = 'none';
             if (profileContainer) profileContainer.style.display = 'flex';
             if (profileNameEl) profileNameEl.textContent = user.username;
-            
-            // Показати адмін меню якщо користувач адмін
             const adminMenuLink = document.getElementById('adminMenuLink');
             const adminMenuSeparator = document.getElementById('adminMenuSeparator');
             if (user.role === 'admin') {
@@ -187,8 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (loginButton) loginButton.style.display = '';
             if (profileContainer) profileContainer.style.display = 'none';
             if (profileNameEl) profileNameEl.textContent = 'Профіль';
-            
-            // Сховати адмін меню
             const adminMenuLink = document.getElementById('adminMenuLink');
             const adminMenuSeparator = document.getElementById('adminMenuSeparator');
             if (adminMenuLink) adminMenuLink.style.display = 'none';
@@ -196,73 +174,138 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // On load check session (if backend has active session)
     function checkSession() {
         fetch('backend/session.php')
             .then(res => res.json())
             .then(data => {
                 if (data.status === 'logged') {
-                    // Завантажимо повні дані користувача
                     fetch('backend/get-user-profile.php')
                         .then(res => res.json())
                         .then(profileData => {
                             if (profileData.status === 'success' && profileData.user) {
-                                updateAuthUI({ 
-                                    username: profileData.user.username || data.username,
-                                    email: profileData.user.email,
-                                    role: data.role
-                                });
+                                updateAuthUI({ username: profileData.user.username || data.username, email: profileData.user.email, role: data.role });
                             } else {
-                                updateAuthUI({ 
-                                    username: data.username,
-                                    role: data.role
-                                });
+                                updateAuthUI({ username: data.username, role: data.role });
                             }
                         })
-                        .catch(() => {
-                            updateAuthUI({ 
-                                username: data.username,
-                                role: data.role
-                            });
-                        });
+                        .catch(() => updateAuthUI({ username: data.username, role: data.role }));
                 } else {
                     updateAuthUI(null);
                 }
             })
-            .catch(() => {
-                // If session check fails, keep default (logged out)
-                updateAuthUI(null);
-            });
+            .catch(() => updateAuthUI(null));
     }
 
-    // Run session check on DOMContentLoaded
     checkSession();
 
     if (registerForm) {
         registerForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        // Відправка даних на register.php через fetch
-        const formData = new FormData();
-        formData.append('username', registerForm.registerName.value);
-        formData.append('email', registerForm.registerEmail.value);
-        formData.append('password', registerForm.registerPassword.value);
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('username', registerForm.registerName.value);
+            formData.append('email', registerForm.registerEmail.value);
+            formData.append('password', registerForm.registerPassword.value);
 
-        fetch('backend/register.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'success') {
-                showAuthToast('Аккаунт успішно зареєстровано! Тепер увійдіть.', 'success');
-                // Переключити на вкладку входу
-                const loginTab = document.querySelector('.auth-tab[data-tab="login"]');
-                if (loginTab) loginTab.click();
+            fetch('backend/register.php', { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showAuthToast('Аккаунт успішно зареєстровано! Тепер увійдіть.', 'success');
+                        const loginTab = document.querySelector('.auth-tab[data-tab="login"]');
+                        if (loginTab) loginTab.click();
+                    } else {
+                        showAuthToast(data.message || 'Помилка реєстрації', 'error');
+                    }
+                })
+                .catch(() => showAuthToast('Помилка зʼєднання з сервером', 'error'));
+        });
+    }
+
+    // Password reset flow
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+    const forgotForm = document.getElementById('forgotForm');
+    const resetForm = document.getElementById('resetForm');
+    const backToLoginFromForgot = document.getElementById('backToLoginFromForgot');
+    const backToLoginFromReset = document.getElementById('backToLoginFromReset');
+
+    function showAuthFormById(id) {
+        authTabs.forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.auth-form').forEach(f => {
+            if (f.id === id) {
+                f.classList.add('active');
+                f.style.display = '';
             } else {
-                showAuthToast(data.message || 'Помилка реєстрації', 'error');
+                f.classList.remove('active');
+                f.style.display = 'none';
             }
-        })
-        .catch(() => showAuthToast('Помилка зʼєднання з сервером', 'error'));
+        });
+    }
+
+    if (forgotPasswordLink && forgotForm) {
+        forgotPasswordLink.addEventListener('click', (e) => { e.preventDefault(); showAuthFormById('forgotForm'); });
+    }
+    if (backToLoginFromForgot) backToLoginFromForgot.addEventListener('click', (e) => { e.preventDefault(); showAuthFormById('loginForm'); });
+    if (backToLoginFromReset) backToLoginFromReset.addEventListener('click', (e) => { e.preventDefault(); showAuthFormById('loginForm'); });
+
+    if (forgotForm) {
+        forgotForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('forgotEmail').value;
+            // Show focused loading state on this submit button
+            const submitBtn = forgotForm.querySelector('button[type="submit"]');
+            let origHtml = submitBtn ? submitBtn.innerHTML : null;
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('loading');
+                submitBtn.innerHTML = 'Відправлення...';
+            }
+
+            const fd = new FormData();
+            fd.append('email', email);
+            fetch('backend/request-password-reset.php', { method: 'POST', body: fd })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'ok') {
+                        showAuthToast('Код відправлено, перевірте пошту', 'success');
+                        const re = document.getElementById('resetEmail');
+                        if (re) re.value = email;
+                        showAuthFormById('resetForm');
+                    } else {
+                        showAuthToast(data.message || 'Помилка при відправці', 'error');
+                    }
+                })
+                .catch(() => showAuthToast('Помилка зʼєднання з сервером', 'error'))
+                .finally(() => {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('loading');
+                        submitBtn.innerHTML = origHtml;
+                    }
+                });
+        });
+    }
+
+    if (resetForm) {
+        resetForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('resetEmail').value;
+            const code = document.getElementById('resetCode').value;
+            const newPassword = document.getElementById('resetNewPassword').value;
+            const fd = new FormData();
+            fd.append('email', email);
+            fd.append('code', code);
+            fd.append('new_password', newPassword);
+            fetch('backend/reset-password.php', { method: 'POST', body: fd })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'ok') {
+                        showAuthToast('Пароль успішно оновлено. Увійдіть.', 'success');
+                        showAuthFormById('loginForm');
+                    } else {
+                        showAuthToast(data.message || 'Помилка при оновленні пароля', 'error');
+                    }
+                })
+                .catch(() => showAuthToast('Помилка зʼєднання з сервером', 'error'));
         });
     }
 });

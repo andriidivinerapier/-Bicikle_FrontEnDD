@@ -158,6 +158,39 @@
                         <label for="loginRemember">Запам'ятати мене</label>
                     </div>
                     <button type="submit" class="auth-submit">УВІЙТИ</button>
+                    <div style="margin-top:8px;text-align:right;">
+                        <a href="#" id="forgotPasswordLink" class="forgot-link">Забули пароль?</a>
+                    </div>
+                </form>
+
+                <form id="forgotForm" class="auth-form" style="display:none;">
+                    <div class="form-group">
+                        <label for="forgotEmail">Введіть ваш E-mail</label>
+                        <input type="email" id="forgotEmail" placeholder="your@email.com" required>
+                    </div>
+                    <button type="submit" class="auth-submit">Відправити код</button>
+                    <div class="back-row">
+                        <a href="#" id="backToLoginFromForgot" class="back-link">Назад до входу</a>
+                    </div>
+                </form>
+
+                <form id="resetForm" class="auth-form" style="display:none;">
+                    <div class="form-group">
+                        <label for="resetEmail">E-mail</label>
+                        <input type="email" id="resetEmail" placeholder="your@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="resetCode">Код з пошти</label>
+                        <input type="text" id="resetCode" placeholder="123456" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="resetNewPassword">Новий пароль</label>
+                        <input type="password" id="resetNewPassword" placeholder="********" required>
+                    </div>
+                    <button type="submit" class="auth-submit">Встановити новий пароль</button>
+                    <div class="back-row">
+                        <a href="#" id="backToLoginFromReset" class="back-link">Назад до входу</a>
+                    </div>
                 </form>
                 
                 <!-- Register Form (three fields as on main page) -->
