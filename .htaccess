@@ -1,0 +1,7 @@
+# Temporary local env for SMTP — replace <APP_PASSWORD> with your App Password (without spaces)
+SetEnv SMTP_USER ihtp103@gmail.com
+# Insert your 16-character App Password here (no <>, no quotes, no spaces)
+SetEnv SMTP_PASS oxofoqhluirkjdir
+SetEnv SUPPORT_EMAIL andriy.yakubjak@kpk-lp.com.ua
+
+# Security note: remove this file after testing and add it to .gitignore

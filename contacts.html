@@ -88,6 +88,7 @@
                         <textarea id="message" name="message" rows="5" required></textarea>
                     </div>
                     <button type="submit" class="submit-btn">Надіслати</button>
+                    <div id="contactFeedback" style="margin-top: 10px; padding: 10px; border-radius: 4px; display: none;"></div>
                 </form>
             </section>
 
@@ -101,9 +102,9 @@
                 <div class="info-block">
                     <h3>Служба підтримки</h3>
                     <p><strong>Загальні питання:</strong><br>
-                    info@smachno.com</p>
+                    andriy.yakubjak@kpk-lp.com.ua</p>
                     <p><strong>Технічна підтримка:</strong><br>
-                    support@smachno.com</p>
+                    andriy.yakubjak@kpk-lp.com.ua</p>
                 </div>
 
                 <div class="info-block social-media">
@@ -226,6 +227,60 @@
             </div>
         </div>
     </div>
+
+    <script>
+    // Handle contact form submission
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('contactForm');
+        const feedback = document.getElementById('contactFeedback');
+        
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.textContent;
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Надсилання...';
+                
+                const formData = new FormData(form);
+                
+                fetch('backend/send-contact.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    feedback.style.display = 'block';
+                        if (data.status === 'ok') {
+                        feedback.style.backgroundColor = '#d4edda';
+                        feedback.style.color = '#155724';
+                        feedback.style.border = '1px solid #c3e6cb';
+                        	feedback.textContent = data.message || 'Ваше повідомлення успішно надіслано';
+                        form.reset();
+                    } else {
+                        feedback.style.backgroundColor = '#f8d7da';
+                        feedback.style.color = '#721c24';
+                        feedback.style.border = '1px solid #f5c6cb';
+                        feedback.textContent = data.message || 'Помилка при надсиланні.';
+                    }
+                })
+                .catch(error => {
+                    feedback.style.display = 'block';
+                    feedback.style.backgroundColor = '#f8d7da';
+                    feedback.style.color = '#721c24';
+                    feedback.style.border = '1px solid #f5c6cb';
+                    feedback.textContent = 'Помилка мережі. Спробуйте пізніше.';
+                    console.error('Error:', error);
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                });
+            });
+        }
+    });
+    </script>
 
     <script src="js/auth-modal.js"></script>
 </body>
