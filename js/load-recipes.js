@@ -115,6 +115,24 @@ async function loadRecipes(containerId, options = {}) {
     }
 }
 
+// map stored category keys to human-friendly Ukrainian labels
+function mapCategory(key) {
+    if (!key) return '';
+    const map = {
+        breakfast: 'Сніданок',
+        lunch: 'Обід',
+        dinner: 'Вечеря',
+        desserts: 'Десерти',
+        salads: 'Салати',
+        soups: 'Супи',
+        snacks: 'Закуски',
+        drinks: 'Напої',
+        vegan: 'Веганські',
+        pastries: '🍪 Печиво й Тістечко'
+    };
+    return map[key] || String(key);
+}
+
 // Функція для створення картки рецепту
 function createRecipeCard(recipe) {
     const card = document.createElement('div');
@@ -137,7 +155,7 @@ function createRecipeCard(recipe) {
             <div class="recipe-meta">
                 <div class="meta-left">
                     <span class="cook-time">${cookTime} хв</span>
-                    <span class="recipe-category">${recipe.category}</span>
+                    <span class="recipe-category">${mapCategory(recipe.category)}</span>
                 </div>
                 <div class="meta-right">
                     <button class="recipe-button">Рецепт</button>
@@ -223,31 +241,40 @@ document.addEventListener('DOMContentLoaded', () => {
             category: 'all',
             per_page: 100,
             onLoad: (data) => {
-                // Вегетаріанські/змішані - перші 4
+                // Вегетаріанські - беремо перші 4 рецепти з категорією 'vegan'
                 const veganCat = document.getElementById('veganCategory');
                 if (veganCat) {
                     veganCat.innerHTML = '';
-                    data.data.slice(0, 4).forEach(recipe => {
-                        veganCat.appendChild(createRecipeCard(recipe));
-                    });
+                    data.data
+                        .filter(r => String(r.category).toLowerCase() === 'vegan')
+                        .slice(0, 4)
+                        .forEach(recipe => {
+                            veganCat.appendChild(createRecipeCard(recipe));
+                        });
                 }
 
-                // Пасти (основні страви) - наступні 4
-                const pastaCat = document.getElementById('pastaCategory');
-                if (pastaCat) {
-                    pastaCat.innerHTML = '';
-                    data.data.slice(4, 8).forEach(recipe => {
-                        pastaCat.appendChild(createRecipeCard(recipe));
-                    });
+                // Супи - беремо перші 4 рецепти з категорією 'soups'
+                const soupsCat = document.getElementById('soupsCategory');
+                if (soupsCat) {
+                    soupsCat.innerHTML = '';
+                    data.data
+                        .filter(r => String(r.category).toLowerCase() === 'soups')
+                        .slice(0, 4)
+                        .forEach(recipe => {
+                            soupsCat.appendChild(createRecipeCard(recipe));
+                        });
                 }
 
-                // Десерти - останні 4
+                // Десерти - беремо перші 4 рецепти з категорією 'desserts'
                 const dessertCat = document.getElementById('dessertCategory');
                 if (dessertCat) {
                     dessertCat.innerHTML = '';
-                    data.data.slice(8, 12).forEach(recipe => {
-                        dessertCat.appendChild(createRecipeCard(recipe));
-                    });
+                    data.data
+                        .filter(r => String(r.category).toLowerCase() === 'desserts')
+                        .slice(0, 4)
+                        .forEach(recipe => {
+                            dessertCat.appendChild(createRecipeCard(recipe));
+                        });
                 }
             }
         });

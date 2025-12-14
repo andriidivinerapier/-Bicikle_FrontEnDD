@@ -219,11 +219,12 @@ function displayRecipes(recipes) {
     recipes.forEach(recipe => {
         const row = document.createElement('tr');
         const createdDate = new Date(recipe.created_at).toLocaleDateString('uk-UA');
+        const categoryLabel = mapCategory(recipe.category || '');
 
         row.innerHTML = `
             <td>${recipe.id}</td>
             <td><strong>${escapeHtml(recipe.title)}</strong></td>
-            <td>${recipe.category || '-'}</td>
+            <td>${escapeHtml(categoryLabel || '-')}</td>
             <td>${createdDate}</td>
             <td>
                 <div class="table-actions">
@@ -247,7 +248,8 @@ function filterRecipes() {
     const searchTerm = document.getElementById('search-recipes').value.toLowerCase();
     const filtered = window.allRecipes.filter(recipe =>
         recipe.title.toLowerCase().includes(searchTerm) ||
-        recipe.category.toLowerCase().includes(searchTerm)
+        (recipe.category && recipe.category.toString().toLowerCase().includes(searchTerm)) ||
+        (mapCategory(recipe.category || '').toLowerCase().includes(searchTerm))
     );
     displayRecipes(filtered);
 }
@@ -302,7 +304,7 @@ function viewRecipe(recipeId) {
                 </div>` : '';
 
             const metaBadges = [];
-            if (recipe.category) metaBadges.push(`<span class="meta-badge">${escapeHtml(recipe.category)}</span>`);
+            if (recipe.category) metaBadges.push(`<span class="meta-badge">${escapeHtml(mapCategory(recipe.category))}</span>`);
             if (recipe.difficulty) metaBadges.push(`<span class="meta-badge">${escapeHtml(recipe.difficulty)}</span>`);
             if (recipe.cooking_time || recipe.time) metaBadges.push(`<span class="meta-badge">${escapeHtml(recipe.cooking_time || recipe.time)}${isNaN(recipe.cooking_time || recipe.time) ? '' : ' хв'}</span>`);
 
@@ -888,4 +890,22 @@ function initializeStepsList() {
     }
 
     updateDeleteButtons();
+}
+
+// map stored category keys to human-friendly Ukrainian labels
+function mapCategory(key) {
+    if (!key) return '';
+    const map = {
+        breakfast: 'Сніданок',
+        lunch: 'Обід',
+        dinner: 'Вечеря',
+        desserts: 'Десерти',
+        salads: 'Салати',
+        soups: 'Супи',
+        snacks: 'Закуски',
+        drinks: 'Напої',
+        vegan: 'Веганські',
+        pastries: '🍪 Печиво й Тістечко'
+    };
+    return map[key] || String(key);
 }

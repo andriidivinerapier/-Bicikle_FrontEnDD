@@ -938,7 +938,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <div class="recipe-meta">
                                     <div class="meta-left">
                                         <span class="cook-time">${recipe.created_at ? recipe.created_at.split(' ')[0] : 'Недавно'}</span>
-                                        <span class="recipe-category">${escapeHtml(recipe.category || '')}</span>
+                                        <span class="recipe-category">${escapeHtml(mapCategory(recipe.category || ''))}</span>
                                     </div>
                                     <div class="meta-right">
                                         <button class="recipe-button details-btn">Переглянути</button>
@@ -1173,6 +1173,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
+    }
+    
+    // map stored category keys to human-friendly Ukrainian labels
+    function mapCategory(key) {
+        if (!key) return '';
+        const map = {
+            breakfast: 'Сніданок',
+            lunch: 'Обід',
+            dinner: 'Вечеря',
+            desserts: 'Десерти',
+            salads: 'Салати',
+            soups: 'Супи',
+            snacks: 'Закуски',
+            drinks: 'Напої',
+            vegan: 'Веганські',
+            pastries: '🍪 Печиво й Тістечко'
+        };
+        return map[key] || String(key);
     }
 
     // Attach handlers to recipe cards

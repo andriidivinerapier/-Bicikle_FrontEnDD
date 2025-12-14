@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const catalogBtn = document.getElementById('catalogBtn');
     const catalogModal = document.getElementById('catalogModal');
     const closeCatalog = document.getElementById('closeCatalog');
-    const catButtons = Array.from(document.querySelectorAll('.cat-btn'));
+    // Do not query cat buttons statically — use delegation so dynamic changes still work
     const recipesGrid = document.getElementById('recipesGrid');
     const pagination = document.getElementById('pagination');
 
@@ -46,25 +46,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Відкриття/закриття модального каталогу
-    catalogBtn.addEventListener('click', () => {
-        catalogModal.setAttribute('aria-hidden', 'false');
-    });
-    closeCatalog.addEventListener('click', () => {
-        catalogModal.setAttribute('aria-hidden', 'true');
-    });
-    catalogModal.addEventListener('click', (e) => {
-        if (e.target === catalogModal) catalogModal.setAttribute('aria-hidden', 'true');
-    });
+    // Відкриття/закриття модального каталогу — з перевірками на наявність елементів
+    if (catalogBtn) {
+        catalogBtn.addEventListener('click', () => {
+            if (catalogModal) {
+                catalogModal.setAttribute('aria-hidden', 'false');
+                catalogModal.classList.add('show');
+            }
+        });
+    }
+    if (closeCatalog) {
+        closeCatalog.addEventListener('click', () => {
+            if (catalogModal) {
+                catalogModal.setAttribute('aria-hidden', 'true');
+                catalogModal.classList.remove('show');
+            }
+        });
+    }
+    if (catalogModal) {
+        // Закриття при кліку поза контентом
+        catalogModal.addEventListener('click', (e) => {
+            if (e.target === catalogModal) {
+                catalogModal.setAttribute('aria-hidden', 'true');
+                catalogModal.classList.remove('show');
+            }
+        });
 
-    // Кнопки категорій — фільтрація
-    catButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
+        // Делегуємо кліки на кнопки категорій — це працюватиме незалежно від того, коли кнопки додані
+        catalogModal.addEventListener('click', (e) => {
+            const btn = e.target.closest && e.target.closest('.cat-btn');
+            if (!btn) return;
             const category = btn.dataset.category || 'all';
             loadRecipesPage(category, 1);
             catalogModal.setAttribute('aria-hidden', 'true');
+            catalogModal.classList.remove('show');
         });
-    });
+    }
 
     // Модальне вікно рецепту
     document.addEventListener('click', (e) => {
@@ -213,7 +230,10 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.style.overflow = '';
             setTimeout(() => modal.remove(), 300);
         }
-        catalogModal.setAttribute('aria-hidden', 'true');
+        if (catalogModal) {
+            catalogModal.setAttribute('aria-hidden', 'true');
+            catalogModal.classList.remove('show');
+        }
     }
 
     document.addEventListener('keydown', (e) => { 
