@@ -937,7 +937,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <p class="recipe-description">${escapeHtml(firstIngredient)}</p>
                                 <div class="recipe-meta">
                                     <div class="meta-left">
-                                        <span class="cook-time">${recipe.created_at ? recipe.created_at.split(' ')[0] : 'Недавно'}</span>
+                                        ${(() => {
+                                            const t = recipe.cooking_time || recipe.time || '';
+                                            const formatted = t === '' ? '30 хв' : (isNaN(t) ? t : `${t} хв`);
+                                            return `<span class="cook-time">${escapeHtml(formatted)}</span>`;
+                                        })()}
                                         <span class="recipe-category">${escapeHtml(mapCategory(recipe.category || ''))}</span>
                                     </div>
                                     <div class="meta-right">

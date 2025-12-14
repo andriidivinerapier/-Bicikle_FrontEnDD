@@ -267,21 +267,22 @@
             const ingredients = recipe.ingredients || '';
             const instructions = recipe.instructions || '';
             const firstIngredient = ingredients.split('|')[0] || 'Рецепт';
-            const created = recipe.created_at ? recipe.created_at.split(' ')[0] : 'Недавно';
+            const timeVal = recipe.cooking_time || recipe.time || '30';
+            const time = isNaN(timeVal) ? timeVal : `${timeVal} хв`;
 
             article.innerHTML = `
                 <div class="recipe-image" style="background-image: url('${escapeHtml(image)}')"></div>
                 <div class="recipe-info">
                     <h4>${escapeHtml(recipe.title || 'Без назви')}</h4>
-                    <p class="recipe-description" style="font-size: 0.9rem; color: #9aa6b6;">👨‍🍳 ${escapeHtml(recipe.username || 'Автор')}</p>
+                    <p class="recipe-description">👨‍🍳 ${escapeHtml(recipe.username || 'Автор')}</p>
                     <p class="recipe-description">${escapeHtml(firstIngredient)}</p>
                     <div class="recipe-meta">
                         <div class="meta-left">
-                            <span class="cook-time">${escapeHtml(created)}</span>
+                            <span class="cook-time">${escapeHtml(time)}</span>
                             <span class="recipe-category">${escapeHtml(recipe.category || 'Загальне')}</span>
                         </div>
                         <div class="meta-right">
-                            <button class="recipe-button" style="background: var(--accent); color: #fff; border: none; border-radius: 999px; padding: 0.35rem 1.1rem; font-weight: 600; margin-right: 0.5rem; cursor:pointer;">Рецепт</button>
+                            <button class="recipe-button">Рецепт</button>
                             <button class="details-btn recipe-view-btn" data-recipe='${JSON.stringify(recipe).replace(/'/g, "&apos;")}' style="display:none">Переглянути</button>
                             <button class="recipe-like" aria-label="Додати в улюблені" data-recipe-id="${recipe.id || ''}">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

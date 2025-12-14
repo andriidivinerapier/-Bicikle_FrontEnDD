@@ -531,9 +531,21 @@ body.modal-open {
 }
 
 .cook-time {
-    color: #f97316;
+    color: #ffffff;
     font-size: 0.9rem;
     font-weight: 500;
+}
+
+/* Unified badge + cook-time appearance across all pages */
+.recipe-meta .cook-time { color: #ffffff !important; }
+.recipe-category {
+    background: rgba(0,0,0,0.28) !important;
+    color: #ff7a00 !important;
+    padding: 0.34rem 0.9rem !important;
+    border-radius: 20px !important;
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,0.18) !important;
 }
 
 .recipe-category {
@@ -1011,7 +1023,7 @@ body.modal-open {
 }
 
 .cook-time {
-    color: var(--accent);
+    color: #ffffff;
 }
 
 .ingredients {

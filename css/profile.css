@@ -264,6 +264,15 @@
 .profile-tabs-nav::-webkit-scrollbar-thumb {
     background: rgba(255,255,255,0.1);
     border-radius: 4px;
+.recipe-category {
+    background: rgba(0,0,0,0.28);
+    color: #ff7a00;
+    padding: 0.34rem 0.9rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,0.18);
+}
 }
 
 .profile-tab-btn {
@@ -435,7 +444,7 @@
 }
 
 .cook-time {
-    color: var(--accent);
+    color: #ffffff;
     font-size: 0.9rem;
     font-weight: 600;
 }
