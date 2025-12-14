@@ -905,7 +905,7 @@ function mapCategory(key) {
         snacks: 'Закуски',
         drinks: 'Напої',
         vegan: 'Веганські',
-        pastries: '🍪 Печиво й Тістечко'
+        pastries: 'Печиво й Тістечко'
     };
     return map[key] || String(key);
 }

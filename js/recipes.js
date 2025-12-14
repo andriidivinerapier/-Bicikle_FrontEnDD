@@ -85,18 +85,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Модальне вікно рецепту
     document.addEventListener('click', (e) => {
-        // Обробка кнопки "Рецепт"
-        if (e.target.classList.contains('recipe-button')) {
-            const card = e.target.closest('.recipe-card');
+        // Обробка кнопки "Рецепт" — використовуємо closest(), щоб спрацьовувало при кліку на SVG або внутрішні елементи
+        const recipeBtn = e.target.closest && e.target.closest('.recipe-button');
+        if (recipeBtn) {
+            const card = recipeBtn.closest('.recipe-card');
             openRecipeModal(card);
+            return;
         }
 
-        // Обробка кнопки "вподобайки" — звертаємось до backend
-        if (e.target.classList.contains('recipe-like')) {
+        // Обробка кнопки "вподобайки" — використовуємо closest() аналогічно
+        const likeElem = e.target.closest && e.target.closest('.recipe-like');
+        if (likeElem) {
             e.preventDefault();
             e.stopPropagation();
 
-            const likeBtn = e.target;
+            const likeBtn = likeElem;
             const card = likeBtn.closest('.recipe-card');
             const recipeId = card.dataset.recipeId;
             const source = card.dataset.source || 'admin';
@@ -194,41 +197,66 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>`;
 
+        // Видаляємо будь-які існуючі модальні вікна рецепту щоб уникнути дублювання
+        document.querySelectorAll('.recipe-modal-overlay').forEach(m => m.remove());
+
         // Додаємо модал до body
         document.body.insertAdjacentHTML('beforeend', modalHtml);
-        
-        // Отримуємо посилання на новостворені елементи
-        const modal = document.querySelector('.recipe-modal-overlay');
+
+        // Отримуємо посилання на останній доданий modal (щоб не конфліктувати зі статичними модалами на index.html)
+        const modals = document.querySelectorAll('.recipe-modal-overlay');
+        const modal = modals[modals.length - 1];
         const closeBtn = modal.querySelector('.modal-close');
 
         // Відкриваємо модал
         requestAnimationFrame(() => {
             modal.classList.add('open');
             document.body.style.overflow = 'hidden';
+            // Add common modal class so other scripts/styles remain consistent
+            document.body.classList.add('modal-open');
+            document.body.classList.add('no-scroll');
         });
 
         // Обробники закриття
         const closeModal = () => {
             modal.classList.remove('open');
+            // restore scrolling
             document.body.style.overflow = '';
-            setTimeout(() => modal.remove(), 300);
+            document.body.style.height = '';
+            document.body.classList.remove('modal-open');
+            document.body.classList.remove('no-scroll');
+            document.removeEventListener('keydown', onKeyDown);
+            // Remove immediately to avoid stale modal remaining and needing a second click
+            try { modal.remove(); } catch (e) { /* ignore */ }
         };
 
-        closeBtn.addEventListener('click', closeModal);
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeModal();
+        });
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal();
+            if (e.target === modal) {
+                e.stopPropagation();
+                closeModal();
+            }
         });
-        document.addEventListener('keydown', (e) => {
+
+        const onKeyDown = (e) => {
             if (e.key === 'Escape') closeModal();
-        });
+        };
+        document.addEventListener('keydown', onKeyDown);
     }
 
     function closeAllModals() {
         const modal = document.querySelector('.recipe-modal-overlay');
         if (modal) {
             modal.classList.remove('open');
+            // restore scrolling and remove modal-related classes
             document.body.style.overflow = '';
-            setTimeout(() => modal.remove(), 300);
+            document.body.style.height = '';
+            document.body.classList.remove('modal-open');
+            document.body.classList.remove('no-scroll');
+            try { modal.remove(); } catch (e) { setTimeout(() => modal.remove(), 300); }
         }
         if (catalogModal) {
             catalogModal.setAttribute('aria-hidden', 'true');
