@@ -347,6 +347,91 @@
             </div>
         </div>
     </main>
+    <!-- Edit Modal for user recipes -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>Редагувати рецепт</h3>
+            <form id="edit-recipe-form" class="recipe-form-content" enctype="multipart/form-data">
+                <input type="hidden" id="edit-recipe-id" name="recipe_id">
+
+                <div class="form-group">
+                    <label>📝 Назва рецепта</label>
+                    <input type="text" name="title" id="editRecipeTitle" placeholder="Введіть назву рецепту" required>
+                </div>
+
+                <div class="form-group-row">
+                    <div class="form-group">
+                        <label>⚡ Складність</label>
+                        <select name="difficulty" id="editRecipeDifficulty" required>
+                            <option value="Легка">🟢 Легка</option>
+                            <option value="Середня">🟡 Середня</option>
+                            <option value="Важка">🔴 Важка</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>⏱️ Час (хв)</label>
+                        <select name="time" id="editRecipeTime" required>
+                            <option value="5">5 хв</option>
+                            <option value="10">10 хв</option>
+                            <option value="15">15 хв</option>
+                            <option value="20">20 хв</option>
+                            <option value="25">25 хв</option>
+                            <option value="30">30 хв</option>
+                            <option value="45">45 хв</option>
+                            <option value="60">1 годину</option>
+                            <option value="90">1.5 години</option>
+                            <option value="120">2 години</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>🏷️ Категорія</label>
+                        <select name="category" id="editRecipeCategory" required>
+                            <option value="">-- Виберіть категорію --</option>
+                            <option value="Сніданки">🌅 Сніданки</option>
+                            <option value="Основні">🍽️ Основні страви</option>
+                            <option value="Супи">🥣 Супи</option>
+                            <option value="Салати">🥗 Салати</option>
+                            <option value="Десерти">🍰 Десерти</option>
+                            <option value="Вегетаріанські">🌱 Вегетаріанські</option>
+                            <option value="Напої">🥤 Напої</option>
+                            <option value="Дополнения">🍪 Печиво й Тістечко</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>📸 Змінити фото</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" name="image" id="editRecipeImage" accept="image/*">
+                        <div id="editImageFileName" style="display:none;">✓ Обрано: <span id="editImageFileNameText"></span></div>
+                    </div>
+                    <div id="edit-current-image" class="current-image"></div>
+                </div>
+
+                <div class="form-section">
+                    <h3>📋 Інгредієнти</h3>
+                    <div id="editIngredientsContainer" class="ingredients-list">
+                        <!-- populated dynamically -->
+                    </div>
+                    <button type="button" id="editAddIngredientBtn" class="add-btn">+ Додати інгредієнт</button>
+                </div>
+
+                <div class="form-section">
+                    <h3>👨‍🍳 Етапи приготування</h3>
+                    <div id="editStepsContainer" class="steps-list">
+                        <!-- populated dynamically -->
+                    </div>
+                    <button type="button" id="editAddStepBtn" class="add-btn">+ Додати етап</button>
+                </div>
+
+                <div class="buttons-row" style="margin-top:12px;">
+                    <button type="submit" class="submit-btn">Зберегти зміни</button>
+                    <button type="button" class="btn-cancel close-modal">Скасувати</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Auth Modal -->
     <div class="auth-modal-overlay" id="authModal" aria-hidden="true">

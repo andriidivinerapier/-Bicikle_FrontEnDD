@@ -15,8 +15,7 @@ if (!$user_id) {
     exit;
 }
 
-// Get recipes from user_recipes table (all statuses - user can see pending, approved, and rejected)
-$stmt = $conn->prepare('SELECT id, title, ingredients, instructions, category, image_path, status, created_at, "user" as source FROM user_recipes WHERE user_id = ? ORDER BY created_at DESC');
+$stmt = $conn->prepare('SELECT id, title, ingredients, instructions, category, image_path, status, difficulty, cooking_time, created_at, "user" as source FROM user_recipes WHERE user_id = ? ORDER BY created_at DESC');
 $stmt->bind_param('i', $user_id);
 if ($stmt->execute()) {
     $res = $stmt->get_result();

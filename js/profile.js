@@ -1082,6 +1082,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (data.status === 'success' && Array.isArray(data.recipes) && data.recipes.length > 0) {
                     console.log(`📦 Found ${data.recipes.length} recipes`);
+                    // keep recipes for editing
+                    window.userRecipes = data.recipes;
                     data.recipes.forEach((recipe, idx) => {
                         console.log(`  Recipe ${idx+1}: "${recipe.title}" - image_path: "${recipe.image_path}"`);
                         
@@ -1137,9 +1139,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                 </div>
                             </div>
                         `;
-                        
-                        // attach recipe id for backend operations
+                        // attach recipe id and full data for backend/ modal operations
                         article.dataset.recipeId = recipe.id || '';
+                        article.dataset.ingredients = recipe.ingredients || '';
+                        article.dataset.steps = recipe.instructions || '';
+                        article.dataset.difficulty = recipe.difficulty || '';
                         grid.appendChild(article);
                     });
                     console.log(`✅ Завантажено ${data.recipes.length} рецептів`);
@@ -1216,8 +1220,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
             });
         } else {
-            // Edit recipe
-            alert('Редагування рецепту (функцію ще не реалізовано)');
+            // Edit recipe - open edit modal for user's recipe
+            const card = this.closest('.recipe-card');
+            if (!card) return;
+            const recipeId = card.dataset.recipeId || card.dataset.recipeid || '';
+            if (!recipeId) return;
+            openUserEditModal(recipeId);
         }
     }
     const searchInput = document.getElementById('searchInput');
@@ -1335,5 +1343,265 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.key === 'Escape') closeModal();
         });
     }
+
+    // ---------- User edit modal handling ----------
+    function openUserEditModal(recipeId) {
+        const modal = document.getElementById('edit-modal');
+        const form = document.getElementById('edit-recipe-form');
+
+        function populateAndShow(recipe) {
+            if (!recipe) return showToast('Рецепт не знайдено', 'error');
+            document.getElementById('edit-recipe-id').value = recipe.id || '';
+            document.getElementById('editRecipeTitle').value = recipe.title || '';
+            document.getElementById('editRecipeCategory').value = recipe.category || '';
+            const diff = document.getElementById('editRecipeDifficulty'); if (diff) diff.value = recipe.difficulty || '';
+            const t = document.getElementById('editRecipeTime'); if (t) t.value = recipe.cooking_time || recipe.time || '';
+
+            // populate ingredients and steps into dynamic lists
+            const ingCont = document.getElementById('editIngredientsContainer');
+            const stepsCont = document.getElementById('editStepsContainer');
+            if (ingCont) {
+                ingCont.innerHTML = '';
+                const ingredients = (recipe.ingredients || '').split('|').map(s => s.trim()).filter(Boolean);
+                if (ingredients.length === 0) ingredients.push('');
+                ingredients.forEach((ing, idx) => {
+                    const div = document.createElement('div'); div.className = 'ingredient-item';
+                    div.innerHTML = `<span class="ingredient-number">${idx+1}.</span><input type="text" name="ingredients[]" value="${escapeHtml(ing)}"><button type="button" class="delete-btn">✕</button>`;
+                    ingCont.appendChild(div);
+                });
+            }
+            if (stepsCont) {
+                stepsCont.innerHTML = '';
+                const steps = (recipe.instructions || '').split('|').map(s => s.trim()).filter(Boolean);
+                if (steps.length === 0) steps.push('');
+                steps.forEach((st, idx) => {
+                    const div = document.createElement('div'); div.className = 'step-item';
+                    div.innerHTML = `<span class="step-number">${idx+1}.</span><textarea name="steps[]">${escapeHtml(st)}</textarea><button type="button" class="delete-btn">✕</button>`;
+                    stepsCont.appendChild(div);
+                });
+            }
+
+            const imageContainer = document.getElementById('edit-current-image');
+            if (imageContainer) {
+                imageContainer.innerHTML = '';
+                if (recipe.image_path) {
+                    const img = document.createElement('img'); img.src = recipe.image_path; img.alt = 'Поточне зображення';
+                    imageContainer.appendChild(img);
+                }
+            }
+
+            // initialize delete buttons and counters
+            renumberItems(ingCont || document, '.ingredient-number');
+            renumberItems(stepsCont || document, '.step-number');
+            updateDeleteButtonVisibility(ingCont || document, '.ingredient-item');
+            updateDeleteButtonVisibility(stepsCont || document, '.step-item');
+
+            // attach delete handlers for newly created items
+            if (ingCont) {
+                ingCont.querySelectorAll('.ingredient-item .delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => { e.preventDefault(); btn.closest('.ingredient-item').remove(); renumberItems(ingCont, '.ingredient-number'); updateDeleteButtonVisibility(ingCont, '.ingredient-item'); });
+                });
+            }
+            if (stepsCont) {
+                stepsCont.querySelectorAll('.step-item .delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => { e.preventDefault(); btn.closest('.step-item').remove(); renumberItems(stepsCont, '.step-number'); updateDeleteButtonVisibility(stepsCont, '.step-item'); });
+                });
+            }
+
+            // show modal
+            if (modal) modal.classList.add('show');
+
+            // attach close handlers
+            document.querySelectorAll('#edit-modal .close-modal').forEach(btn => btn.addEventListener('click', () => {
+                if (modal) modal.classList.remove('show');
+            }));
+
+            if (modal) {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) modal.classList.remove('show');
+                });
+            }
+
+            // attach submit handler once
+            if (!window._profileEditHandlerAttached) {
+                form.addEventListener('submit', handleUserEditRecipe);
+                window._profileEditHandlerAttached = true;
+            }
+        }
+
+        const recipes = window.userRecipes || [];
+        let recipe = recipes.find(r => String(r.id) === String(recipeId));
+        if (recipe) return populateAndShow(recipe);
+
+        // fallback: reload from server
+        fetch('backend/get-user-recipes.php')
+            .then(r => r.json())
+            .then(data => {
+                if (data && data.status === 'success' && Array.isArray(data.recipes)) {
+                    window.userRecipes = data.recipes;
+                    recipe = data.recipes.find(r => String(r.id) === String(recipeId));
+                    populateAndShow(recipe);
+                } else {
+                    showToast('Не вдалося завантажити рецепт', 'error');
+                }
+            })
+            .catch(err => {
+                console.error('Error loading user recipes for edit:', err);
+                showToast('Помилка мережі', 'error');
+            });
+    }
+
+    function handleUserEditRecipe(e) {
+        e.preventDefault();
+        const form = document.getElementById('edit-recipe-form');
+        // collect arrays from dynamic fields
+        const ingredientsArray = Array.from((form.querySelectorAll('input[name="ingredients[]"]') || [])).map(i => i.value.trim()).filter(Boolean);
+        const stepsArray = Array.from((form.querySelectorAll('textarea[name="steps[]"]') || [])).map(i => i.value.trim()).filter(Boolean);
+        // Client-side validation to avoid server-side 'Заповніть всі обов\'язкові поля'
+        const title = (form.querySelector('input[name="title"]') || {}).value || '';
+        const difficulty = (form.querySelector('select[name="difficulty"]') || {}).value || '';
+        const timeVal = (form.querySelector('select[name="time"]') || form.querySelector('input[name="time"]') || {}).value || '';
+
+        if (!title.trim() || !difficulty.trim() || !timeVal.toString().trim() || ingredientsArray.length === 0 || stepsArray.length === 0) {
+            showToast("Заповніть всі обов'язкові поля", 'error');
+            return;
+        }
+
+        const fd = new FormData(form);
+        fd.append('ingredients', JSON.stringify(ingredientsArray));
+        fd.append('steps', JSON.stringify(stepsArray));
+        // Debug: log FormData contents before sending
+        console.group('EditRecipe: FormData to send');
+        for (let pair of fd.entries()) {
+            if (pair[0] === 'image' && pair[1] instanceof File) {
+                console.log(pair[0], 'File:', pair[1].name, pair[1].size);
+            } else {
+                console.log(pair[0], pair[1]);
+            }
+        }
+        console.groupEnd();
+
+        // send and robustly log server response (try JSON, fall back to raw text)
+        fetch('backend/edit-user-recipe.php', { method: 'POST', body: fd })
+            .then(async r => {
+                const status = r.status;
+                const ok = r.ok;
+                let json = null;
+                let text = null;
+                try {
+                    json = await r.clone().json();
+                } catch (err) {
+                    try { text = await r.clone().text(); } catch (e) { text = null; }
+                }
+                return { status, ok, json, text };
+            })
+            .then(result => {
+                console.log('EditRecipe: server result', result);
+                const resp = result.json || null;
+
+                if (resp && resp.status === 'success') {
+                    showToast(resp.message || 'Рецепт оновлено', 'success');
+                    const modal = document.getElementById('edit-modal');
+                    if (modal) modal.classList.remove('show');
+                    setTimeout(() => loadUserRecipes(), 300);
+                    return;
+                }
+
+                // If server didn't return JSON, include raw text in logs
+                if (!resp && result.text) {
+                    console.error('Edit failed: non-JSON response from server:', result.text);
+                    showToast(result.text || 'Помилка при оновленні', 'error');
+                    return;
+                }
+
+                // Otherwise resp is JSON but reports error
+                console.error('Edit failed:', resp || result);
+                showToast((resp && resp.message) || 'Помилка при оновленні', 'error');
+            })
+            .catch(err => {
+                console.error('Error updating user recipe:', err);
+                showToast('Помилка мережі', 'error');
+            });
+    }
+
+    // ---- Edit form helpers: file preview, add/remove ingredients/steps ----
+    // initialize edit form controls when module loads
+    (function initEditFormControls(){
+        const fileInput = document.getElementById('editRecipeImage');
+        const imageFileInfo = document.getElementById('editImageFileName');
+        const imageFileNameText = document.getElementById('editImageFileNameText');
+        const addIngredientBtn = document.getElementById('editAddIngredientBtn');
+        const ingredientsContainer = document.getElementById('editIngredientsContainer');
+        const addStepBtn = document.getElementById('editAddStepBtn');
+        const stepsContainer = document.getElementById('editStepsContainer');
+
+        if (fileInput) {
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                    const fileName = e.target.files[0].name;
+                    const fileSize = (e.target.files[0].size / 1024 / 1024).toFixed(2);
+                    if (imageFileNameText) imageFileNameText.textContent = `${fileName} (${fileSize} MB)`;
+                    if (imageFileInfo) imageFileInfo.style.display = 'block';
+                    // show preview inside edit modal replacing current image
+                    const imageContainer = document.getElementById('edit-current-image');
+                    if (imageContainer) {
+                        imageContainer.innerHTML = '';
+                        const url = URL.createObjectURL(e.target.files[0]);
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.alt = 'Нове зображення';
+                        img.onload = () => URL.revokeObjectURL(url);
+                        imageContainer.appendChild(img);
+                    }
+                } else if (imageFileInfo) {
+                    imageFileInfo.style.display = 'none';
+                }
+            });
+        }
+
+        if (addIngredientBtn && ingredientsContainer) {
+            addIngredientBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const itemCount = ingredientsContainer.querySelectorAll('.ingredient-item').length;
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'ingredient-item';
+                itemDiv.innerHTML = `\n                    <span class="ingredient-number">${itemCount + 1}.</span>\n                    <input type="text" name="ingredients[]" placeholder="Додайте інгредієнт">\n                    <button type="button" class="delete-btn" title="Видалити інгредієнт">✕</button>\n                `;
+                const deleteBtn = itemDiv.querySelector('.delete-btn');
+                deleteBtn.addEventListener('click', (e) => {
+                    e.preventDefault(); itemDiv.remove(); renumberItems(ingredientsContainer, '.ingredient-number'); updateDeleteButtonVisibility(ingredientsContainer, '.ingredient-item');
+                });
+                ingredientsContainer.appendChild(itemDiv);
+                updateDeleteButtonVisibility(ingredientsContainer, '.ingredient-item');
+            });
+        }
+
+        if (ingredientsContainer) {
+            ingredientsContainer.querySelectorAll('.ingredient-item .delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault(); btn.closest('.ingredient-item').remove(); renumberItems(ingredientsContainer, '.ingredient-number'); updateDeleteButtonVisibility(ingredientsContainer, '.ingredient-item');
+                });
+            });
+        }
+
+        if (addStepBtn && stepsContainer) {
+            addStepBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const itemCount = stepsContainer.querySelectorAll('.step-item').length;
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'step-item';
+                stepDiv.innerHTML = `\n                    <span class="step-number">${itemCount + 1}.</span>\n                    <textarea name="steps[]" placeholder="Опишіть етап приготування..."></textarea>\n                    <button type="button" class="delete-btn" title="Видалити етап">✕</button>\n                `;
+                const deleteBtn = stepDiv.querySelector('.delete-btn');
+                deleteBtn.addEventListener('click', (e) => { e.preventDefault(); stepDiv.remove(); renumberItems(stepsContainer, '.step-number'); updateDeleteButtonVisibility(stepsContainer, '.step-item'); });
+                stepsContainer.appendChild(stepDiv);
+                updateDeleteButtonVisibility(stepsContainer, '.step-item');
+            });
+        }
+
+        if (stepsContainer) {
+            stepsContainer.querySelectorAll('.step-item .delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => { e.preventDefault(); btn.closest('.step-item').remove(); renumberItems(stepsContainer, '.step-number'); updateDeleteButtonVisibility(stepsContainer, '.step-item'); });
+            });
+        }
+    })();
 });
 
