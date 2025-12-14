@@ -243,14 +243,20 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="edit-recipe-ingredients">Інгредієнти *</label>
-                    <textarea id="edit-recipe-ingredients" name="ingredients" required></textarea>
+                <div class="form-section">
+                    <h4>📋 Інгредієнти</h4>
+                    <div id="editIngredientsContainer" class="ingredients-list">
+                        <!-- items will be injected here -->
+                    </div>
+                    <button type="button" id="editAddIngredientBtn" class="add-btn">+ Додати інгредієнт</button>
                 </div>
 
-                <div class="form-group">
-                    <label for="edit-recipe-instructions">Інструкції *</label>
-                    <textarea id="edit-recipe-instructions" name="instructions" required></textarea>
+                <div class="form-section">
+                    <h4>👨‍🍳 Етапи приготування</h4>
+                    <div id="editStepsContainer" class="steps-list">
+                        <!-- items will be injected here -->
+                    </div>
+                    <button type="button" id="editAddStepBtn" class="add-btn">+ Додати етап</button>
                 </div>
 
                 <div class="form-group">
@@ -261,7 +267,6 @@
 
                 <div class="form-actions">
                     <button type="submit" class="btn btn-success">Зберегти</button>
-                    <button type="button" class="btn btn-secondary close-modal">Скасувати</button>
                 </div>
             </form>
         </div>

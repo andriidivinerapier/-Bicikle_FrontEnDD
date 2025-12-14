@@ -267,10 +267,10 @@
 .recipe-category {
     background: rgba(0,0,0,0.28);
     color: #ff7a00;
-    padding: 0.34rem 0.9rem;
-    border-radius: 20px;
+    padding: 0.18rem 0.5rem;
+    border-radius: 16px;
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     box-shadow: inset 0 -3px 0 rgba(0,0,0,0.18);
 }
 }

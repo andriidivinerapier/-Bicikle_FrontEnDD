@@ -1110,6 +1110,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.log(`    Will try to load from: ${fileCheckUrl}`);
                         const ingredients = recipe.ingredients || '';
                         const firstIngredient = ingredients.split('|')[0] || 'Рецепт';
+                        const tval = recipe.cooking_time || recipe.time || '';
+                        const formattedTime = (tval === '' ? '' : (isNaN(tval) ? tval : `${tval} хв`));
                         
                         // Status badge colors
                         const statusColors = {
@@ -1133,8 +1135,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <p class="recipe-description">${escapeHtml(firstIngredient)}</p>
                                 <div class="recipe-meta">
                                     <div class="meta-left">
-                                        <span class="cook-time">${recipe.created_at ? recipe.created_at.split(' ')[0] : 'Недавно'}</span>
-                                        <span style="color: ${statusColor}; font-weight: 600; font-size: 0.85rem;">${statusText}</span>
+                                        <button class="recipe-button details-btn">Переглянути</button>
+                                        <span style="color: ${statusColor}; font-weight: 600; font-size: 0.85rem; margin-left: 8px;">${statusText}</span>
                                     </div>
                                     <div class="meta-right">
                                         <button class="btn-icon" title="Редагувати"><i class="fas fa-edit"></i></button>
@@ -1148,6 +1150,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         article.dataset.ingredients = recipe.ingredients || '';
                         article.dataset.steps = recipe.instructions || '';
                         article.dataset.difficulty = recipe.difficulty || '';
+                        article.dataset.time = tval || '';
                         grid.appendChild(article);
                     });
                     console.log(`✅ Завантажено ${data.recipes.length} рецептів`);
@@ -1292,10 +1295,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function openRecipeModal(card) {
-        const title = card.querySelector('h4')?.textContent || 'Рецепт';
-        const time = card.querySelector('.cook-time')?.textContent || '';
-        const category = card.querySelector('.recipe-category')?.textContent || '';
-        const imgUrl = card.querySelector('.recipe-image')?.style.backgroundImage.slice(4, -1).replace(/"/g, '') || 'images/homepage/salad1.jpg';
+    const title = card.querySelector('h4')?.textContent || 'Рецепт';
+    const rawTime = card.dataset.time || card.querySelector('.cook-time')?.textContent || '';
+    const time = rawTime ? (isNaN(rawTime) ? rawTime : `${rawTime} хв`) : '';
+    const category = card.querySelector('.recipe-category')?.textContent || '';
+    const imgUrl = card.querySelector('.recipe-image')?.style.backgroundImage.slice(4, -1).replace(/"/g, '') || 'images/homepage/salad1.jpg';
         const ingredientsRaw = card.dataset.ingredients || '';
         const stepsRaw = card.dataset.steps || '';
         const difficulty = card.dataset.difficulty || 'Легка';

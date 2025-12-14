@@ -57,6 +57,9 @@ function initializeAdminPanel() {
     // Ініціалізація форми інгредієнтів та етапів
     initializeIngredientsList();
     initializeStepsList();
+    // Ініціалізація для модального редагування
+    initializeEditIngredientsList();
+    initializeEditStepsList();
     const searchUserInput = document.getElementById('search-user-recipes');
     if (searchUserInput) searchUserInput.addEventListener('input', filterUserRecipes);
 
@@ -221,7 +224,7 @@ function displayRecipes(recipes) {
         const createdDate = new Date(recipe.created_at).toLocaleDateString('uk-UA');
         const categoryLabel = mapCategory(recipe.category || '');
 
-        row.innerHTML = `
+                row.innerHTML = `
             <td>${recipe.id}</td>
             <td><strong>${escapeHtml(recipe.title)}</strong></td>
             <td>${escapeHtml(categoryLabel || '-')}</td>
@@ -229,7 +232,13 @@ function displayRecipes(recipes) {
             <td>
                 <div class="table-actions">
                     <button class="btn-small btn-edit" onclick="viewRecipe(${recipe.id})">Переглянути</button>
-                    <button class="btn-small btn-edit" onclick="openEditModal(${recipe.id})">Редагувати</button>
+                    <button class="btn-small btn-edit" onclick="openEditModal(${recipe.id})" aria-label="Редагувати рецепт">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" fill="currentColor"/>
+                            <path d="M20.71 7.04a1.003 1.003 0 0 0 0-1.41l-2.34-2.34a1.003 1.003 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="currentColor"/>
+                        </svg>
+                        <span>Редагувати</span>
+                    </button>
                     <button class="btn-small btn-delete" onclick="deleteRecipe(${recipe.id})">Видалити</button>
                 </div>
             </td>
@@ -321,6 +330,8 @@ function viewRecipe(recipeId) {
             `;
 
             modal.classList.add('show');
+            // ensure photo is displayed on top for viewing
+            modal.classList.add('view-top-image');
         })
         .catch(err => {
             console.error('Помилка завантаження рецепту:', err);
@@ -368,41 +379,82 @@ function openEditModal(recipeId) {
         return;
     }
 
-    // Завантаження повної інформації рецепту
-    fetch(`backend/get-all-recipes.php`)
+    // Завантаження повної інформації рецепту (запит до одного рецепту)
+    fetch(`backend/get-recipe.php?id=${encodeURIComponent(recipeId)}`)
         .then(response => response.json())
         .then(data => {
-            if (data.status === 'success') {
-                const fullRecipe = data.recipes.find(r => r.id == recipeId);
+            if (data && data.status === 'success' && data.recipe) {
+                const fullRecipe = data.recipe;
 
-                if (fullRecipe) {
-                    document.getElementById('edit-recipe-id').value = fullRecipe.id;
-                    document.getElementById('edit-recipe-title').value = fullRecipe.title;
-                    document.getElementById('edit-recipe-category').value = fullRecipe.category;
-                    // set difficulty and time if available
-                    // set difficulty and time if available
-                    const editDiff = document.getElementById('edit-recipe-difficulty');
-                    if (editDiff) editDiff.value = fullRecipe.difficulty || '';
-                    const editTime = document.getElementById('edit-recipe-time');
-                    if (editTime) editTime.value = fullRecipe.cooking_time || fullRecipe.time || '';
-                    document.getElementById('edit-recipe-ingredients').value = fullRecipe.ingredients;
-                    document.getElementById('edit-recipe-instructions').value = fullRecipe.instructions;
+                document.getElementById('edit-recipe-id').value = fullRecipe.id;
+                document.getElementById('edit-recipe-title').value = fullRecipe.title || '';
+                document.getElementById('edit-recipe-category').value = fullRecipe.category || '';
 
-                    // Показ поточного зображення
-                    const imageContainer = document.getElementById('edit-current-image');
-                    imageContainer.innerHTML = '';
-                    if (fullRecipe.image_path) {
-                        const img = document.createElement('img');
-                        img.src = fullRecipe.image_path;
-                        img.alt = 'Поточне зображення';
-                        imageContainer.appendChild(img);
-                    }
+                const editDiff = document.getElementById('edit-recipe-difficulty');
+                if (editDiff) editDiff.value = fullRecipe.difficulty || '';
+                const editTime = document.getElementById('edit-recipe-time');
+                if (editTime) editTime.value = fullRecipe.cooking_time || fullRecipe.time || '';
 
-                    document.getElementById('edit-modal').classList.add('show');
+                // Populate edit ingredients/steps lists (stored as '|' delimited)
+                const ingCont = document.getElementById('editIngredientsContainer');
+                const stepsCont = document.getElementById('editStepsContainer');
+                if (ingCont) {
+                    ingCont.innerHTML = '';
+                    const parts = (fullRecipe.ingredients || '').toString().split(/\|/).map(s => s.trim()).filter(Boolean);
+                    if (parts.length === 0) parts.push('');
+                    parts.forEach((p, idx) => {
+                        const item = document.createElement('div');
+                        item.className = 'ingredient-item';
+                        item.innerHTML = `
+                            <span class="ingredient-number">${idx+1}.</span>
+                            <input type="text" name="ingredients[]" value="${escapeHtml(p)}" placeholder="Додайте інгредієнт">
+                            <button type="button" class="delete-btn" title="Видалити">✕</button>
+                        `;
+                        item.querySelector('.delete-btn').addEventListener('click', (e) => { e.preventDefault(); item.remove(); renumberContainer(ingCont, '.ingredient-number'); updateDeleteVisibility(ingCont, '.ingredient-item'); });
+                        ingCont.appendChild(item);
+                    });
+                    renumberContainer(ingCont, '.ingredient-number');
+                    updateDeleteVisibility(ingCont, '.ingredient-item');
                 }
+
+                if (stepsCont) {
+                    stepsCont.innerHTML = '';
+                    const parts = (fullRecipe.instructions || '').toString().split(/\|/).map(s => s.trim()).filter(Boolean);
+                    if (parts.length === 0) parts.push('');
+                    parts.forEach((p, idx) => {
+                        const item = document.createElement('div');
+                        item.className = 'step-item';
+                        item.innerHTML = `
+                            <span class="step-number">${idx+1}.</span>
+                            <textarea name="steps[]" placeholder="Опишіть етап приготування...">${escapeHtml(p)}</textarea>
+                            <button type="button" class="delete-btn" title="Видалити">✕</button>
+                        `;
+                        item.querySelector('.delete-btn').addEventListener('click', (e) => { e.preventDefault(); item.remove(); renumberContainer(stepsCont, '.step-number'); updateDeleteVisibility(stepsCont, '.step-item'); });
+                        stepsCont.appendChild(item);
+                    });
+                    renumberContainer(stepsCont, '.step-number');
+                    updateDeleteVisibility(stepsCont, '.step-item');
+                }
+
+                // Показ поточного зображення
+                const imageContainer = document.getElementById('edit-current-image');
+                if (imageContainer) imageContainer.innerHTML = '';
+                if (fullRecipe.image_path) {
+                    const img = document.createElement('img');
+                    img.src = fullRecipe.image_path;
+                    img.alt = 'Поточне зображення';
+                    if (imageContainer) imageContainer.appendChild(img);
+                }
+
+                document.getElementById('edit-modal').classList.add('show');
+            } else {
+                showToast('Рецепт не знайдено', 'error');
             }
         })
-        .catch(error => console.error('Помилка завантаження:', error));
+        .catch(error => {
+            console.error('Помилка завантаження:', error);
+            showToast('Помилка завантаження рецепту', 'error');
+        });
 }
 
 /**
@@ -680,15 +732,15 @@ function viewUserRecipe(id) {
             ${stepsList.map((st, idx) => `\n                <div class="view-step"><span class="step-number">${idx+1}.</span><div class="step-text">${escapeHtml(st)}</div></div>`).join('')}
         </div>` : '';
     const metaBadges = [];
-    if (r.category) metaBadges.push(`<span class="meta-badge">${escapeHtml(r.category)}</span>`);
+    if (r.category) metaBadges.push(`<span class="meta-badge">${escapeHtml(mapCategory(r.category))}</span>`);
     if (r.difficulty) metaBadges.push(`<span class="meta-badge">${escapeHtml(r.difficulty)}</span>`);
     if (r.time) metaBadges.push(`<span class="meta-badge">${escapeHtml(r.time)}${isNaN(r.time) ? '' : ' хв'}</span>`);
 
     // Show approve/reject buttons only for pending recipes
     const actionButtons = (!r.status || r.status === 'pending') ? `
             <div style="margin-top:8px; display:flex; gap:8px;">
-                <button class="btn btn-success" onclick="approveUserRecipe(${r.id})">Одобрити</button>
-                <button class="btn btn-secondary" onclick="rejectUserRecipe(${r.id})">Відхилити</button>
+                <button class="btn-edit" style="padding:8px 12px;" onclick="approveUserRecipe(${r.id})">Одобрити</button>
+                <button class="btn-delete" style="padding:8px 12px;" onclick="rejectUserRecipe(${r.id})">Відхилити</button>
             </div>` : '';
     
     viewDiv.innerHTML = `
@@ -705,6 +757,8 @@ function viewUserRecipe(id) {
         </div>
     `;
     modal.classList.add('show');
+    // show image above content for easier reading
+    modal.classList.add('view-top-image');
 }
 
 // cleanup view modal content and restore edit form when modal closes
@@ -719,6 +773,8 @@ function clearViewModal() {
     // restore heading
     const h3 = content.querySelector('h3');
     if (h3) h3.textContent = 'Редагувати рецепт';
+    // remove view-specific layout class
+    modal.classList.remove('view-top-image');
 }
 
 function approveUserRecipe(id) {
@@ -908,4 +964,82 @@ function mapCategory(key) {
         pastries: 'Печиво й Тістечко'
     };
     return map[key] || String(key);
+}
+
+// Initialize ingredients list for edit modal
+function initializeEditIngredientsList() {
+    const container = document.getElementById('editIngredientsContainer');
+    const addBtn = document.getElementById('editAddIngredientBtn');
+    if (!addBtn || !container) return;
+
+    addBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const itemCount = container.querySelectorAll('.ingredient-item').length;
+        const newItem = document.createElement('div');
+        newItem.className = 'ingredient-item';
+        newItem.innerHTML = `
+            <span class="ingredient-number">${itemCount + 1}.</span>
+            <input type="text" name="ingredients[]" placeholder="Додайте інгредієнт">
+            <button type="button" class="delete-btn" title="Видалити">✕</button>
+        `;
+
+        const deleteBtn = newItem.querySelector('.delete-btn');
+        deleteBtn.addEventListener('click', (e) => { e.preventDefault(); newItem.remove(); renumberContainer(container, '.ingredient-number'); updateDeleteVisibility(container, '.ingredient-item'); });
+
+        container.appendChild(newItem);
+        updateDeleteVisibility(container, '.ingredient-item');
+    });
+
+    // bind existing delete buttons
+    container.querySelectorAll('.ingredient-item .delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => { e.preventDefault(); btn.closest('.ingredient-item').remove(); renumberContainer(container, '.ingredient-number'); updateDeleteVisibility(container, '.ingredient-item'); });
+    });
+
+    updateDeleteVisibility(container, '.ingredient-item');
+}
+
+// Initialize steps list for edit modal
+function initializeEditStepsList() {
+    const container = document.getElementById('editStepsContainer');
+    const addBtn = document.getElementById('editAddStepBtn');
+    if (!addBtn || !container) return;
+
+    addBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const itemCount = container.querySelectorAll('.step-item').length;
+        const newItem = document.createElement('div');
+        newItem.className = 'step-item';
+        newItem.innerHTML = `
+            <span class="step-number">${itemCount + 1}.</span>
+            <textarea name="steps[]" placeholder="Опишіть етап приготування..."></textarea>
+            <button type="button" class="delete-btn" title="Видалити">✕</button>
+        `;
+
+        const deleteBtn = newItem.querySelector('.delete-btn');
+        deleteBtn.addEventListener('click', (e) => { e.preventDefault(); newItem.remove(); renumberContainer(container, '.step-number'); updateDeleteVisibility(container, '.step-item'); });
+
+        container.appendChild(newItem);
+        updateDeleteVisibility(container, '.step-item');
+    });
+
+    container.querySelectorAll('.step-item .delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => { e.preventDefault(); btn.closest('.step-item').remove(); renumberContainer(container, '.step-number'); updateDeleteVisibility(container, '.step-item'); });
+    });
+
+    updateDeleteVisibility(container, '.step-item');
+}
+
+// helpers used by edit initializers
+function renumberContainer(container, selector) {
+    // selector expected like '.ingredient-number' or '.step-number'
+    const nums = container.querySelectorAll(selector);
+    nums.forEach((n, i) => { n.textContent = (i + 1) + '.'; });
+}
+
+function updateDeleteVisibility(container, itemSelector) {
+    const items = container.querySelectorAll(itemSelector);
+    items.forEach(item => {
+        const deleteBtn = item.querySelector('.delete-btn');
+        if (deleteBtn) deleteBtn.style.display = items.length > 1 ? 'flex' : 'none';
+    });
 }

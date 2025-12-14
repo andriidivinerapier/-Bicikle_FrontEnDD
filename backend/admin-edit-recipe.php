@@ -13,8 +13,21 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $recipe_id = intval($_POST['recipe_id'] ?? 0);
     $title = trim($_POST['title'] ?? '');
-    $ingredients = trim($_POST['ingredients'] ?? '');
-    $instructions = trim($_POST['instructions'] ?? '');
+    // Accept ingredients/instructions either as string or as array (from edit modal inputs)
+    if (isset($_POST['ingredients']) && is_array($_POST['ingredients'])) {
+        $ingredients_array = array_filter($_POST['ingredients'], function($item) { return trim($item) !== ''; });
+        $ingredients = implode('|', $ingredients_array);
+    } else {
+        $ingredients = trim($_POST['ingredients'] ?? '');
+    }
+
+    if (isset($_POST['steps']) && is_array($_POST['steps'])) {
+        $steps_array = array_filter($_POST['steps'], function($item) { return trim($item) !== ''; });
+        $instructions = implode('|', $steps_array);
+    } else {
+        // backward compatibility: 'instructions' field
+        $instructions = trim($_POST['instructions'] ?? '');
+    }
     $category = trim($_POST['category'] ?? '');
     $difficulty = trim($_POST['difficulty'] ?? '');
     $time = trim($_POST['time'] ?? '');

@@ -541,9 +541,9 @@ body.modal-open {
 .recipe-category {
     background: rgba(0,0,0,0.28) !important;
     color: #ff7a00 !important;
-    padding: 0.34rem 0.9rem !important;
-    border-radius: 20px !important;
-    font-size: 0.95rem !important;
+    padding: 0.18rem 0.5rem !important;
+    border-radius: 16px !important;
+    font-size: 0.85rem !important;
     font-weight: 700 !important;
     box-shadow: inset 0 -3px 0 rgba(0,0,0,0.18) !important;
 }
@@ -551,9 +551,9 @@ body.modal-open {
 .recipe-category {
     background-color: #334155;
     color: #94a3b8;
-    padding: 0.25rem 0.75rem;
+    padding: 0.16rem 0.5rem;
     border-radius: 999px;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
 }
 
 .meta-right {
