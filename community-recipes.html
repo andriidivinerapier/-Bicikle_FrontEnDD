@@ -82,6 +82,9 @@
                 <!-- recipes will be injected here -->
             </section>
 
+            <!-- Pagination -->
+            <div class="pagination" id="pagination" style="max-width:1200px;margin:1.5rem auto;display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;"></div>
+
             <!-- No Recipes Message -->
             <div id="noRecipesMessage" style="max-width:1200px;margin:2rem auto;display:none;text-align:center;color:#9aa6b6;">
                 <p style="font-size:1.2rem;">😔 Рецептів не знайдено.</p>
@@ -447,59 +450,60 @@
             grid.appendChild(article);
         }
 
-        // Load all recipes
-        function loadRecipes(searchTerm = '', category = '') {
-            console.log('📥 Завантажуємо рецепти від спільноти...');
-            
+        // Paginated load for community recipes (user-added only)
+        const paginationContainer = document.getElementById('pagination');
+        let currentPage = 1;
+        const perPage = 12;
+
+        function buildPagination(pagination) {
+            if (!paginationContainer) return;
+            paginationContainer.innerHTML = '';
+            const total = pagination.total_pages || 1;
+            for (let i = 1; i <= total; i++) {
+                const btn = document.createElement('button');
+                btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+                btn.textContent = i;
+                btn.dataset.page = i;
+                btn.addEventListener('click', () => loadRecipes('', '', Number(btn.dataset.page)));
+                paginationContainer.appendChild(btn);
+            }
+            if (currentPage < total) {
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'page-next';
+                nextBtn.textContent = '→';
+                nextBtn.addEventListener('click', () => loadRecipes('', '', currentPage + 1));
+                paginationContainer.appendChild(nextBtn);
+            }
+        }
+
+        function loadRecipes(searchTerm = '', category = '', page = 1) {
+            console.log('📥 Завантажуємо рецепти від спільноти... page=', page);
+            currentPage = page;
             loadingSpinner.style.display = 'block';
             grid.innerHTML = '';
             noRecipesMsg.style.display = 'none';
-            // build query params: support search and/or category
+
             const params = new URLSearchParams();
+            params.append('page', page);
+            params.append('per_page', perPage);
             if (searchTerm) params.append('search', searchTerm);
             if (category) params.append('category', category);
-            const url = params.toString() ? `backend/get-all-recipes.php?${params.toString()}` : 'backend/get-all-recipes.php';
-            
-            fetch(url)
+
+            fetch('backend/get-all-recipes.php?' + params.toString())
                 .then(response => {
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     return response.json();
                 })
                 .then(data => {
-                    console.log('✅ Відповідь сервера:', data);
                     loadingSpinner.style.display = 'none';
-                    
                     if (data.status === 'success' && Array.isArray(data.recipes) && data.recipes.length > 0) {
                         data.recipes.forEach(recipe => renderRecipe(recipe));
-                        // after rendering recipes, mark liked ones for this user
-                        fetch('backend/get-favorites.php')
-                            .then(r => r.json())
-                            .then(favData => {
-                                if (favData && Array.isArray(favData.favorites)) {
-                                    const favSet = new Set(favData.favorites.map(String));
-                                    document.querySelectorAll('.recipe-like').forEach(btn => {
-                                        const article = btn.closest('.recipe-card');
-                                        const id = btn.dataset.recipeId || article?.dataset.recipeId;
-                                        const source = btn.dataset.source || article?.dataset.source || 'user';
-                                            const key = source + ':' + String(id);
-                                            // match several possible favorite key formats to be resilient
-                                            const altKeyUser = 'user:' + String(id);
-                                            const altKeyAdmin = 'admin:' + String(id);
-                                            const idOnly = String(id);
-                                            if (id && (favSet.has(key) || favSet.has(altKeyUser) || favSet.has(altKeyAdmin) || favSet.has(idOnly))) {
-                                            btn.classList.add('liked');
-                                            btn.style.color = '#ff6b6b';
-                                            btn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
-                                        }
-                                    });
-                                }
-                            })
-                            .catch(err => console.log('Could not load favorites:', err));
+                        buildPagination(data.pagination || { total_pages: 1 });
                         noRecipesMsg.style.display = 'none';
-                        console.log(`✅ Завантажено ${data.recipes.length} рецептів`);
                     } else {
+                        grid.innerHTML = '';
                         noRecipesMsg.style.display = 'block';
-                        console.log('ℹ️ Рецептів не знайдено');
+                        if (paginationContainer) paginationContainer.innerHTML = '';
                     }
                 })
                 .catch(error => {

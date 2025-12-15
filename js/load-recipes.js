@@ -129,6 +129,10 @@ function mapCategory(key) {
         drinks: 'Напої',
         vegan: 'Веганські',
         pastries: 'Тістечка'
+        , season_spring: 'Весняні'
+        , season_summer: 'Літні'
+        , season_autumn: 'Осінні'
+        , season_winter: 'Зимові'
     };
     return map[key] || String(key);
 }
@@ -275,6 +279,43 @@ document.addEventListener('DOMContentLoaded', () => {
                         .forEach(recipe => {
                             dessertCat.appendChild(createRecipeCard(recipe));
                         });
+                }
+
+                // Seasonal categories
+                const springCat = document.getElementById('springCategory');
+                if (springCat) {
+                    springCat.innerHTML = '';
+                    data.data
+                        .filter(r => String(r.category).toLowerCase() === 'season_spring')
+                        .slice(0, 6)
+                        .forEach(recipe => springCat.appendChild(createRecipeCard(recipe)));
+                }
+
+                const summerCat = document.getElementById('summerCategory');
+                if (summerCat) {
+                    summerCat.innerHTML = '';
+                    data.data
+                        .filter(r => String(r.category).toLowerCase() === 'season_summer')
+                        .slice(0, 6)
+                        .forEach(recipe => summerCat.appendChild(createRecipeCard(recipe)));
+                }
+
+                const autumnCat = document.getElementById('autumnCategory');
+                if (autumnCat) {
+                    autumnCat.innerHTML = '';
+                    data.data
+                        .filter(r => String(r.category).toLowerCase() === 'season_autumn')
+                        .slice(0, 6)
+                        .forEach(recipe => autumnCat.appendChild(createRecipeCard(recipe)));
+                }
+
+                const winterCat = document.getElementById('winterCategory');
+                if (winterCat) {
+                    winterCat.innerHTML = '';
+                    data.data
+                        .filter(r => String(r.category).toLowerCase() === 'season_winter')
+                        .slice(0, 6)
+                        .forEach(recipe => winterCat.appendChild(createRecipeCard(recipe)));
                 }
             }
         });

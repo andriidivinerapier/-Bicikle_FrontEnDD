@@ -104,6 +104,8 @@
         </div>
     </section>
 
+    <!-- Seasonal recipes are shown in the modal; per design removed on-page duplicates -->
+
     <!-- Футер -->
     <footer class="footer">
         <div class="footer-content">
@@ -269,12 +271,11 @@
                     <h3 id="seasonModalTitle"></h3>
                     <p id="seasonModalDescription" class="season-description"></p>
                     <div class="season-recipes-grid">
-                        <!-- Recipes populated by JS -->
+                        <!-- Single recipe view (carousel) populated by JS -->
                     </div>
-                    <button class="view-all-button">
-                        <i class="fas fa-arrow-right"></i>
-                        <span>Перeглянути всі</span>
-                    </button>
+                    <button class="season-prev" aria-label="Попередній рецепт">‹</button>
+                    <button class="season-next" aria-label="Наступний рецепт">›</button>
+                    <!-- view-all removed per design -->
                 </div>
             </div>
         </div>

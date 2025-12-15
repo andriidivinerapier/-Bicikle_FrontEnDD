@@ -340,57 +340,245 @@ const seasonalData = {
 };
 
 // Функція для відкриття модального вікна
-function openSeasonalModal(season) {
+async function openSeasonalModal(season) {
     const modal = document.getElementById('seasonModal');
     const modalImage = document.getElementById('seasonModalImage');
     const modalTitle = document.getElementById('seasonModalTitle');
     const modalDescription = document.getElementById('seasonModalDescription');
-    const recipesGrid = document.querySelector('.season-recipes-grid');
-    const viewAllButton = document.querySelector('.view-all-button span');
-    
-    const seasonData = seasonalData[season];
-    
-    // Заповнюємо дані
-    modalImage.src = seasonData.image;
-    modalImage.alt = seasonData.title;
-    modalTitle.textContent = seasonData.title;
-    modalDescription.textContent = seasonData.description;
-    viewAllButton.textContent = `Переглянути всі ${seasonData.title.toLowerCase()}`;
-    
-    // Очищаємо та заповнюємо рецепти
-    recipesGrid.innerHTML = '';
-    seasonData.recipes.forEach(recipe => {
-        recipesGrid.innerHTML += `
-            <div class="season-recipe-card">
-                <div class="season-recipe-image">
-                    <img src="${recipe.image}" alt="${recipe.title}">
-                </div>
-                <div class="season-recipe-info">
-                    <h4>${recipe.title}</h4>
-                    <p>${recipe.description}</p>
-                    <div class="season-recipe-meta">
-                        <span class="season-recipe-time">${recipe.time}</span>
-                        <button class="season-recipe-button" 
-                                data-ingredients="${encodeURIComponent(JSON.stringify(recipe.ingredients || []))}"
-                                data-steps="${encodeURIComponent(JSON.stringify(recipe.steps || []))}"
-                                data-title="${recipe.title}"
-                                data-difficulty="${recipe.difficulty || 'Середня'}"
-                                data-time="${recipe.time}"
-                                data-image="${recipe.image}">
-                            Детальніше
-                        </button>
+    const recipesGrid = modal.querySelector('.season-recipes-grid');
+
+    const seasonData = seasonalData[season] || {};
+
+    // Заповнюємо базові дані (локальні тексти)
+    modalImage.src = seasonData.image || '';
+    modalImage.alt = seasonData.title || '';
+    modalTitle.textContent = seasonData.title || '';
+    modalDescription.textContent = seasonData.description || '';
+
+    // Спробуємо завантажити реальні рецепти з бекенду для цієї сезонної категорії.
+    const categoryKey = `season_${season}`;
+    let recipes = [];
+    try {
+        const resp = await fetch(`backend/get-recipes.php?category=${encodeURIComponent(categoryKey)}&per_page=100`);
+        if (resp.ok) {
+            const json = await resp.json();
+            if (json && Array.isArray(json.data) && json.data.length > 0) {
+                recipes = json.data;
+            }
+        }
+    } catch (e) {
+        console.warn('Season modal: could not fetch recipes from backend', e);
+    }
+
+    // Якщо бекенд не повернув рецепти — використовуємо локальні демо-дані
+    if (!recipes || recipes.length === 0) {
+        recipes = (seasonData.recipes || []).map(r => ({
+            title: r.title,
+            image: r.image,
+            description: r.description,
+            time: r.time,
+            difficulty: r.difficulty,
+            ingredients_array: r.ingredients || [],
+            instructions_array: r.steps || []
+        }));
+    }
+
+    // Carousel state stored on modal
+    modal._seasonRecipes = recipes.slice(0, 50);
+    modal._seasonIndex = 0;
+
+    function renderRecipeAt(index) {
+        const visibleCount = 3;
+        const total = modal._seasonRecipes.length;
+        const maxIndex = Math.max(0, total - visibleCount);
+        // clamp
+        index = Math.max(0, Math.min(index, maxIndex));
+        modal._seasonIndex = index;
+
+        // build track with all cards
+        const trackHtml = modal._seasonRecipes.map(r => {
+            const title = r.title || r.title;
+            const image = r.image || r.image_path || 'images/homepage/placeholder.jpg';
+            const desc = r.description || (r.instructions_array && r.instructions_array[0]) || '';
+            const time = r.time || r.cooking_time || r['time'] || '';
+            const difficulty = r.difficulty || r.level || '';
+            const ingredientsArr = r.ingredients_array || (r.ingredients ? (Array.isArray(r.ingredients) ? r.ingredients : String(r.ingredients).split('|')) : []);
+            const stepsArr = r.instructions_array || (r.instructions ? (Array.isArray(r.instructions) ? r.instructions : String(r.instructions).split('|')) : []);
+
+            return `
+                <div class="season-recipe-card">
+                    <div class="season-recipe-image"><img src="${image}" alt="${escapeHtml(title)}"></div>
+                    <div class="season-recipe-info">
+                        <h4>${escapeHtml(title)}</h4>
+                        <p>${escapeHtml(desc)}</p>
+                        <div class="season-recipe-meta">
+                            <span class="season-recipe-time">${escapeHtml(time)}</span>
+                            <button class="season-recipe-button"
+                                    data-ingredients="${encodeURIComponent(JSON.stringify(ingredientsArr))}"
+                                    data-steps="${encodeURIComponent(JSON.stringify(stepsArr))}"
+                                    data-title="${escapeHtml(title)}"
+                                    data-difficulty="${escapeHtml(difficulty || 'Середня')}"
+                                    data-time="${escapeHtml(time)}"
+                                    data-image="${escapeHtml(image)}">
+                                Детальніше
+                            </button>
+                        </div>
                     </div>
-                </div>
-            </div>
-        `;
+                </div>`;
+        }).join('');
+
+        // create track once and reuse it to allow CSS transform transitions in both directions
+        let track = recipesGrid.querySelector('.season-recipes-track');
+        if (!track) {
+            recipesGrid.innerHTML = '';
+            track = document.createElement('div');
+            track.className = 'season-recipes-track';
+            track.innerHTML = trackHtml;
+            recipesGrid.appendChild(track);
+
+            // delegate detail button clicks (attach once)
+            track.addEventListener('click', (ev) => {
+                const btn = ev.target.closest('.season-recipe-button');
+                if (!btn) return;
+                const recipeModal = document.getElementById('recipeModal');
+                const modalTitleMain = document.getElementById('modalTitle');
+                const modalImageMain = document.getElementById('modalImage');
+                const modalIngredients = document.getElementById('modalIngredients');
+                const modalPreparation = document.getElementById('modalPreparation');
+                const difficultyTag = document.querySelector('.tag.difficulty');
+                const timeTag = document.querySelector('.tag.time');
+
+                modalTitleMain.textContent = btn.dataset.title;
+                modalImageMain.src = btn.dataset.image;
+                modalImageMain.alt = btn.dataset.title;
+                if (difficultyTag) difficultyTag.textContent = btn.dataset.difficulty;
+                if (timeTag) timeTag.textContent = btn.dataset.time;
+
+                const ingredients = JSON.parse(decodeURIComponent(btn.dataset.ingredients || '[]'));
+                modalIngredients.innerHTML = ingredients.length > 0
+                    ? ingredients.map(ingredient => `<li>${escapeHtml(ingredient)}</li>`).join('')
+                    : '<li>Інгредієнти будуть додані незабаром</li>';
+
+                const steps = JSON.parse(decodeURIComponent(btn.dataset.steps || '[]'));
+                modalPreparation.innerHTML = steps.length > 0
+                    ? steps.map(step => `<li>${escapeHtml(step)}</li>`).join('')
+                    : '<li>Кроки приготування будуть додані незабаром</li>';
+
+                closeSeasonalModal();
+                recipeModal.classList.add('open');
+                recipeModal.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('modal-open');
+            });
+        } else {
+            // update cards only if track exists
+            track.innerHTML = trackHtml;
+        }
+
+        const cards = Array.from(track.querySelectorAll('.season-recipe-card'));
+
+        // compute gap in px and measure card width after DOM update
+        const gapStyle = parseFloat(getComputedStyle(track).gap) || 16;
+        const cardWidth = cards[0] ? cards[0].getBoundingClientRect().width : 0;
+        const shift = index * (cardWidth + gapStyle);
+        // force layout then animate transform
+        requestAnimationFrame(() => {
+            track.style.transform = `translateX(-${shift}px)`;
+        });
+
+        // update arrow disabled state
+        const prevBtn = modal.querySelector('.season-prev');
+        const nextBtn = modal.querySelector('.season-next');
+        if (prevBtn) prevBtn.disabled = (index <= 0);
+        if (nextBtn) nextBtn.disabled = (index >= maxIndex);
+
+        // wire detail buttons
+        track.querySelectorAll('.season-recipe-button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const recipeModal = document.getElementById('recipeModal');
+                const modalTitleMain = document.getElementById('modalTitle');
+                const modalImageMain = document.getElementById('modalImage');
+                const modalIngredients = document.getElementById('modalIngredients');
+                const modalPreparation = document.getElementById('modalPreparation');
+                const difficultyTag = document.querySelector('.tag.difficulty');
+                const timeTag = document.querySelector('.tag.time');
+
+                modalTitleMain.textContent = btn.dataset.title;
+                modalImageMain.src = btn.dataset.image;
+                modalImageMain.alt = btn.dataset.title;
+                if (difficultyTag) difficultyTag.textContent = btn.dataset.difficulty;
+                if (timeTag) timeTag.textContent = btn.dataset.time;
+
+                const ingredients = JSON.parse(decodeURIComponent(btn.dataset.ingredients || '[]'));
+                modalIngredients.innerHTML = ingredients.length > 0
+                    ? ingredients.map(ingredient => `<li>${escapeHtml(ingredient)}</li>`).join('')
+                    : '<li>Інгредієнти будуть додані незабаром</li>';
+
+                const steps = JSON.parse(decodeURIComponent(btn.dataset.steps || '[]'));
+                modalPreparation.innerHTML = steps.length > 0
+                    ? steps.map(step => `<li>${escapeHtml(step)}</li>`).join('')
+                    : '<li>Кроки приготування будуть додані незабаром</li>';
+
+                closeSeasonalModal();
+                recipeModal.classList.add('open');
+                recipeModal.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('modal-open');
+            });
+        });
+    }
+
+    // initial render
+    renderRecipeAt(modal._seasonIndex);
+
+    // wire navigation
+    const prevBtn = modal.querySelector('.season-prev');
+    const nextBtn = modal.querySelector('.season-next');
+    const visibleCount = 3;
+    const total = modal._seasonRecipes.length;
+    const maxIndex = Math.max(0, total - visibleCount);
+    if (prevBtn) prevBtn.onclick = () => { if (modal._seasonIndex > 0) { renderRecipeAt(modal._seasonIndex - 1); } };
+    if (nextBtn) nextBtn.onclick = () => { if (modal._seasonIndex < maxIndex) { renderRecipeAt(modal._seasonIndex + 1); } };
+
+    // touch/swipe support
+    let touchStartX = 0;
+    let touchEndX = 0;
+    recipesGrid.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
+    recipesGrid.addEventListener('touchmove', (e) => { touchEndX = e.changedTouches[0].screenX; });
+    recipesGrid.addEventListener('touchend', () => {
+        const diff = touchEndX - touchStartX;
+        const threshold = 40; // px
+        if (diff > threshold && modal._seasonIndex > 0) { // swipe right -> prev
+            renderRecipeAt(modal._seasonIndex - 1);
+        } else if (diff < -threshold && modal._seasonIndex < maxIndex) { // swipe left -> next
+            renderRecipeAt(modal._seasonIndex + 1);
+        }
+        touchStartX = 0; touchEndX = 0;
     });
-    
+
+    // keyboard left/right while modal open
+    function onKey(e) {
+        if (!modal.classList.contains('active')) return;
+        if (e.key === 'ArrowLeft' && modal._seasonIndex > 0) { renderRecipeAt(modal._seasonIndex - 1); }
+        if (e.key === 'ArrowRight' && modal._seasonIndex < maxIndex) { renderRecipeAt(modal._seasonIndex + 1); }
+    }
+    document.addEventListener('keydown', onKey);
+
+    // cleanup when modal closes: remove key listener
+    const originalClose = closeSeasonalModal;
+    // wrap closeSeasonalModal to also remove listener when invoked
+    function wrappedClose() {
+        document.removeEventListener('keydown', onKey);
+        originalClose();
+    }
+    // replace closeSeasonalModal with wrapper in this scope by reassigning global function
+    window._closeSeasonalModalBackup = window._closeSeasonalModalBackup || closeSeasonalModal;
+    window.closeSeasonalModal = wrappedClose;
+
     // Відкриваємо модальне вікно
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 
     // Додаємо обробники для кнопок "Детальніше"
-    const detailButtons = document.querySelectorAll('.season-recipe-button');
+    const detailButtons = modal.querySelectorAll('.season-recipe-button');
     detailButtons.forEach(button => {
         button.addEventListener('click', () => {
             const recipeModal = document.getElementById('recipeModal');
@@ -404,17 +592,17 @@ function openSeasonalModal(season) {
             modalTitle.textContent = button.dataset.title;
             modalImage.src = button.dataset.image;
             modalImage.alt = button.dataset.title;
-            difficultyTag.textContent = button.dataset.difficulty;
-            timeTag.textContent = button.dataset.time;
+            if (difficultyTag) difficultyTag.textContent = button.dataset.difficulty;
+            if (timeTag) timeTag.textContent = button.dataset.time;
 
             const ingredients = JSON.parse(decodeURIComponent(button.dataset.ingredients || '[]'));
             modalIngredients.innerHTML = ingredients.length > 0 
-                ? ingredients.map(ingredient => `<li>${ingredient}</li>`).join('')
+                ? ingredients.map(ingredient => `<li>${escapeHtml(ingredient)}</li>`).join('')
                 : '<li>Інгредієнти будуть додані незабаром</li>';
 
             const steps = JSON.parse(decodeURIComponent(button.dataset.steps || '[]'));
             modalPreparation.innerHTML = steps.length > 0
-                ? steps.map(step => `<li>${step}</li>`).join('')
+                ? steps.map(step => `<li>${escapeHtml(step)}</li>`).join('')
                 : '<li>Кроки приготування будуть додані незабаром</li>';
 
             // Закриваємо сезонне модальне вікно
@@ -426,6 +614,17 @@ function openSeasonalModal(season) {
             document.body.classList.add('modal-open');
         });
     });
+}
+
+// Простий escape для вставки тексту в HTML (мінімізує XSS через дані з бекенду)
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 // Функція для закриття модального вікна
