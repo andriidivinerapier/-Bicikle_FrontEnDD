@@ -945,7 +945,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         <span class="recipe-category">${escapeHtml(mapCategory(recipe.category || ''))}</span>
                                     </div>
                                     <div class="meta-right">
-                                        <button class="recipe-button details-btn">Переглянути</button>
+                                        <button class="recipe-button">Рецепт</button>
                                         <button class="recipe-like liked" aria-label="Видалити з улюблених" data-recipe-id="${recipe.id}">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
@@ -1135,7 +1135,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <p class="recipe-description">${escapeHtml(firstIngredient)}</p>
                                 <div class="recipe-meta">
                                     <div class="meta-left">
-                                        <button class="recipe-button details-btn">Переглянути</button>
+                                        <button class="recipe-button">Рецепт</button>
                                         <span style="color: ${statusColor}; font-weight: 600; font-size: 0.85rem; margin-left: 8px;">${statusText}</span>
                                     </div>
                                     <div class="meta-right">
@@ -1286,9 +1286,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Open Recipe Modal
+    // Open Recipe Modal (react to recipe-button or legacy details-btn)
     document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('details-btn')) {
+        if (e.target.classList.contains('recipe-button') || e.target.classList.contains('details-btn')) {
             const card = e.target.closest('.recipe-card');
             if (card) openRecipeModal(card);
         }

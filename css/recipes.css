@@ -117,11 +117,11 @@ recipe-meta .meta-left { display: flex; align-items: center; gap: 0.35rem; min-w
 .cook-time { color: #ffffff; font-weight:600; flex: 0 0 auto; margin-right: 0.4rem; }
 
 
-.details-btn { background: none; border: 1px solid rgba(255,255,255,0.06); color: var(--accent); padding:0.35rem 0.6rem; border-radius:8px; cursor:pointer; backdrop-filter: blur(2px) }
+.details-btn { background: none; border: 1px solid rgba(255,255,255,0.06); color: var(--accent); padding:0.28rem 0.5rem; border-radius:8px; cursor:pointer; backdrop-filter: blur(2px) }
 .details-btn:hover { background: linear-gradient(90deg, rgba(255,122,0,0.95), rgba(255,122,0,0.85)); color: #111; transform: translateY(-3px) }
 
 /* Ensure details button is vertically centered like soups and has consistent size */
-.details-btn { display: inline-flex; align-items: center; justify-content: center; height: 34px; padding: 0 0.75rem; }
+.details-btn { display: inline-flex; align-items: center; justify-content: center; height: 30px; padding: 0 0.6rem; }
 .recipe-meta .meta-left, .recipe-meta .meta-right { gap: 0.5rem; }
 .cook-time { margin-right: 0.25rem; white-space: nowrap; min-width: 36px; flex-shrink: 0; position: relative; z-index: 2; }
 

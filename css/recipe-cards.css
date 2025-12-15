@@ -213,6 +213,8 @@ input#searchInput.page-search {
     vertical-align: middle;
     line-height: 1.1;
     box-sizing: border-box;
+    margin-left: 0;
+    margin-right: 4px;
 }
 
 /* Force cook time and badges to stay on one line where space allows */
@@ -241,16 +243,24 @@ input#searchInput.page-search {
     color: #ffffff;
     border: none;
     border-radius: 999px;
-    padding: 0.28rem 0.9rem;
-    height: 30px;
+    padding: 0.22rem 0.8rem;
+    height: 28px;
     font-weight: 700;
-    font-size: 0.88rem;
+    font-size: 0.82rem;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     transition: transform 160ms ease, box-shadow 160ms ease;
     box-shadow: 0 3px 8px rgba(255,122,0,0.10);
+}
+
+/* Slightly smaller recipe button specifically on community recipes page */
+.recipes-page .recipe-button {
+    padding: 0.16rem 0.6rem;
+    height: 26px;
+    font-size: 0.78rem;
+    box-shadow: 0 2px 6px rgba(255,122,0,0.08);
 }
 
 .recipe-button:hover {
