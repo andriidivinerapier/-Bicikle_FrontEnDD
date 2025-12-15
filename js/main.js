@@ -79,13 +79,54 @@ window.addEventListener('scroll', () => {
 });
 
 // Анімація для карток при завантаженні сторінки
+// Fetch featured recipe and populate hero area
+function fetchFeaturedRecipe() {
+    fetch('/recepty/backend/get-featured-recipe.php')
+        .then(res => res.json())
+        .then(json => {
+            if (json && json.status === 'success' && json.recipe) {
+                const r = json.recipe;
+                const heroTitleEl = document.querySelector('.hero-content h2');
+                const heroDescEl = document.querySelector('.hero-content p');
+                const heroImgEl = document.querySelector('.hero-image img');
+                const cta = document.querySelector('.cta-button');
+
+                if (heroTitleEl && r.title) heroTitleEl.textContent = r.title;
+                if (heroDescEl) {
+                    // Use first 2 sentences of instructions as description fallback
+                    let desc = '';
+                    if (r.instructions) {
+                        const parts = r.instructions.split('|');
+                        desc = parts.slice(0,2).join(' ').replace(/\|/g, ' ');
+                    }
+                    heroDescEl.textContent = desc || heroDescEl.textContent;
+                }
+                if (heroImgEl && r.image_path) heroImgEl.src = r.image_path;
+                if (cta) {
+                    cta.dataset.ingredients = r.ingredients || '';
+                    cta.dataset.steps = r.instructions || '';
+                    cta.dataset.difficulty = r.difficulty || '';
+                    cta.dataset.time = (r.time ? r.time + ' хв' : '');
+                }
+            }
+        })
+        .catch(err => {
+            console.warn('Failed to load featured recipe', err);
+        });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    // animate cards if present
+    const recipeCards = document.querySelectorAll('.recipe-card');
     recipeCards.forEach((card, index) => {
         setTimeout(() => {
             card.style.opacity = '1';
             card.style.transform = 'translateY(0)';
         }, index * 100);
     });
+
+    // populate hero with featured recipe from backend
+    fetchFeaturedRecipe();
 });
 
 // Плавний скрол для навігаційних посилань (тільки для внутрішніх хеш-посилань)

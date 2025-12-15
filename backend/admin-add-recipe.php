@@ -68,10 +68,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->query("ALTER TABLE recipes ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'approved'");
     }
 
-    // Ensure difficulty and cooking_time columns exist
+    // Ensure difficulty and time columns exist
     $cols = [
         'difficulty' => "VARCHAR(50) DEFAULT ''",
-        'cooking_time' => 'INT DEFAULT 0'
+        'time' => 'INT DEFAULT 0',
+        'is_featured' => 'TINYINT(1) DEFAULT 0'
     ];
     foreach ($cols as $col => $def) {
         $check = $conn->query("SHOW COLUMNS FROM recipes LIKE '$col'");
@@ -81,12 +82,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $status = 'approved';
-    $cooking_time = is_numeric($time) ? intval($time) : 0;
-    $stmt = $conn->prepare('INSERT INTO recipes (user_id, title, ingredients, instructions, category, difficulty, cooking_time, image_path, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())');
-    $stmt->bind_param('isssssiss', $admin_id, $title, $ingredients, $instructions, $category, $difficulty, $cooking_time, $image_path, $status);
+    $time_int = is_numeric($time) ? intval($time) : 0;
+    $is_featured = (isset($_POST['is_featured']) && ($_POST['is_featured'] === '1' || $_POST['is_featured'] === 'on')) ? 1 : 0;
+
+    // If marking featured, unset previous featured
+    if ($is_featured) {
+        $conn->query("UPDATE recipes SET is_featured = 0 WHERE is_featured = 1");
+    }
+
+    $stmt = $conn->prepare('INSERT INTO recipes (user_id, title, ingredients, instructions, category, difficulty, time, image_path, is_featured, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())');
+    $stmt->bind_param('isssssisis', $admin_id, $title, $ingredients, $instructions, $category, $difficulty, $time_int, $image_path, $is_featured, $status);
 
     if ($stmt->execute()) {
-        echo json_encode(['status' => 'success', 'message' => 'Рецепт успішно додано']);
+        $inserted_id = $stmt->insert_id;
+        // If legacy column 'cooking_time' exists, sync it for this row
+        $check_cook = $conn->query("SHOW COLUMNS FROM recipes LIKE 'cooking_time'");
+        if ($check_cook && $check_cook->num_rows > 0) {
+            $conn->query("UPDATE recipes SET cooking_time = " . intval($time_int) . " WHERE id = " . intval($inserted_id));
+        }
+
+        echo json_encode(['status' => 'success', 'message' => 'Рецепт успішно додано', 'id' => $inserted_id]);
     } else {
         echo json_encode(['status' => 'error', 'message' => 'Помилка при додаванні рецепту']);
     }

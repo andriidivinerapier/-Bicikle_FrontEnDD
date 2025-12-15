@@ -80,6 +80,7 @@ $create_sql = "CREATE TABLE IF NOT EXISTS recipes (
     difficulty VARCHAR(50) DEFAULT '',
     time INT DEFAULT 0,
     image_path VARCHAR(255) DEFAULT '',
+    is_featured TINYINT(1) DEFAULT 0,
     status VARCHAR(20) NOT NULL DEFAULT 'approved',
     review_reason TEXT DEFAULT NULL,
     reviewed_by INT DEFAULT NULL,
@@ -97,6 +98,9 @@ $columns_to_add = [
     'difficulty' => "VARCHAR(50) DEFAULT ''",
     'time' => 'INT DEFAULT 0'
 ];
+
+// add is_featured if missing
+$columns_to_add['is_featured'] = 'TINYINT(1) DEFAULT 0';
 
 foreach ($columns_to_add as $col_name => $col_def) {
     $check = $conn->query("SHOW COLUMNS FROM recipes LIKE '$col_name'");
@@ -203,13 +207,32 @@ if ($table === 'user_recipes') {
 
 $time_int = intval($time);
 
+// handle is_featured flag (only admins can set it)
+$is_featured = 0;
+if ($is_admin && isset($_POST['is_featured']) && ($_POST['is_featured'] === '1' || $_POST['is_featured'] === 1 || $_POST['is_featured'] === 'on')) {
+    $is_featured = 1;
+}
+
 // If no image was uploaded, set a placeholder so frontend can display something
 if (empty($image_path)) {
     $image_path = 'images/homepage/salad1.jpg';
 }
 
 $stmt = $conn->prepare("INSERT INTO $table (user_id, title, ingredients, instructions, category, difficulty, time, image_path, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-$stmt->bind_param('isssssiss', $user_id, $title, $ingredients, $instructions, $category, $difficulty, $time_int, $image_path, $status);
+$stmt = null;
+// If tables support is_featured, include it in insert
+$check_feat = $conn->query("SHOW COLUMNS FROM $table LIKE 'is_featured'");
+if ($check_feat && $check_feat->num_rows > 0) {
+    // If admin but set featured, ensure only one featured recipe
+    if ($is_featured && $table === 'recipes') {
+        $conn->query("UPDATE recipes SET is_featured = 0 WHERE is_featured = 1");
+    }
+    $stmt = $conn->prepare("INSERT INTO $table (user_id, title, ingredients, instructions, category, difficulty, time, image_path, is_featured, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param('isssssisis', $user_id, $title, $ingredients, $instructions, $category, $difficulty, $time_int, $image_path, $is_featured, $status);
+} else {
+    $stmt = $conn->prepare("INSERT INTO $table (user_id, title, ingredients, instructions, category, difficulty, time, image_path, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param('isssssiss', $user_id, $title, $ingredients, $instructions, $category, $difficulty, $time_int, $image_path, $status);
+}
 
     if ($stmt->execute()) {
     $inserted_id = $stmt->insert_id;
