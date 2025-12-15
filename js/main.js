@@ -1,11 +1,12 @@
 // Отримуємо необхідні елементи
 const searchInput = document.getElementById('searchInput');
-const recipeCards = document.querySelectorAll('.recipe-card');
+// note: we query `.recipe-card` inside the filter function so newly-loaded cards are included
 
 
 // Функція для фільтрації рецептів
 function filterRecipes(searchTerm) {
     searchTerm = searchTerm.toLowerCase();
+    const recipeCards = document.querySelectorAll('.recipe-card');
 
     recipeCards.forEach(card => {
         const title = card.querySelector('h4').textContent.toLowerCase();
@@ -33,6 +34,23 @@ if (searchInput) {
     searchInput.addEventListener('input', (e) => {
         filterRecipes(e.target.value);
     });
+    // trigger search on Enter
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            filterRecipes(e.target.value);
+        }
+    });
+
+    // search button
+    const searchBtn = document.getElementById('searchBtn');
+    if (searchBtn) {
+        searchBtn.addEventListener('click', () => {
+            filterRecipes(searchInput.value || '');
+            // focus back to input
+            if (typeof searchInput.focus === 'function') searchInput.focus();
+        });
+    }
 }
 
 // Фіксоване меню при прокрутці

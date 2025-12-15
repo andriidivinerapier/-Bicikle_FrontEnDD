@@ -31,15 +31,6 @@
                     <li><a href="contacts.html">Контакти</a></li>
                 </ul>
                 <div class="nav-actions">
-                        <div class="search-container">
-                            <input type="text" id="searchInput" placeholder="Пошук рецептів...">
-                            <button class="search-btn" aria-label="Пошук">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <circle cx="11" cy="11" r="6"></circle>
-                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                                </svg>
-                            </button>
-                        </div>
                     <button class="login-btn" id="loginBtn">Увійти</button>
 
                     <!-- Profile dropdown shown when user is logged in -->
@@ -71,7 +62,7 @@
                 </div>
                 <div class="header-actions">
                     <div style="display: flex; gap: 1rem; align-items: center;">
-                        <input type="text" id="filterInput" placeholder="Пошук за назвою, категорією або автором..." style="padding: 0.75rem 1rem; border: 1px solid #9aa6b6; border-radius: 8px; background: var(--bg-2); color: var(--text-primary); min-width: 300px;">
+                        <input type="text" id="filterInput" class="page-search" placeholder="Пошук рецептів...">
                         <button class="catalog-button" id="filterBtn" aria-label="Пошук">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right:8px; vertical-align:middle;">
                                 <circle cx="11" cy="11" r="6"></circle>
@@ -79,6 +70,9 @@
                             </svg>
                             <span>Пошук</span>
                         </button>
+                        <div style="position:relative; margin-left:6px;">
+                            <button id="catalogBtnCommunity" class="catalog-button" aria-label="Категорії">Категорії</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -127,6 +121,27 @@
                             <!-- steps populated by JS -->
                         </ol>
                     </section>
+                </div>
+            </div>
+        </div>
+
+        <!-- Catalog Modal (community page) -->
+        <div id="catalogModalCommunity" class="modal" aria-hidden="true">
+            <div class="modal-content">
+                <button id="closeCatalogCommunity" class="modal-close" aria-label="Закрити">×</button>
+                <h3>Вибрати категорію</h3>
+                <div class="categories-modal-grid">
+                    <button class="cat-btn" data-category="all">Усі</button>
+                    <button class="cat-btn" data-category="breakfast">Сніданки</button>
+                    <button class="cat-btn" data-category="lunch">Обід</button>
+                    <button class="cat-btn" data-category="dinner">Вечеря</button>
+                    <button class="cat-btn" data-category="soups">Супи</button>
+                    <button class="cat-btn" data-category="salads">Салати</button>
+                    <button class="cat-btn" data-category="desserts">Десерти</button>
+                    <button class="cat-btn" data-category="snacks">Закуски</button>
+                    <button class="cat-btn" data-category="drinks">Напої</button>
+                    <button class="cat-btn" data-category="vegan">Веганські</button>
+                    <button class="cat-btn" data-category="pastries">Тістечка</button>
                 </div>
             </div>
         </div>
@@ -249,6 +264,52 @@
             return div.innerHTML;
         }
 
+        // map stored category keys to human-friendly Ukrainian labels
+        function mapCategory(key) {
+            if (!key) return '';
+            const map = {
+                breakfast: 'Сніданки',
+                lunch: 'Обід',
+                dinner: 'Вечеря',
+                desserts: 'Десерти',
+                salads: 'Салати',
+                soups: 'Супи',
+                snacks: 'Закуски',
+                drinks: 'Напої',
+                vegan: 'Веганські',
+                pastries: 'Тістечка',
+                all: 'Усі'
+            };
+            return map[String(key).toLowerCase()] || String(key);
+        }
+
+        // convert Ukrainian label (or English key) back to category key used by backend
+        function labelToKey(label) {
+            if (!label) return '';
+            const lookup = {
+                'сніданки': 'breakfast',
+                'сніданок': 'breakfast',
+                'обід': 'lunch',
+                'вечеря': 'dinner',
+                'вечеря': 'dinner',
+                'десерти': 'desserts',
+                'салати': 'salads',
+                'супи': 'soups',
+                'закуски': 'snacks',
+                'напої': 'drinks',
+                'веганські': 'vegan',
+                'вегетаріанські': 'vegan',
+                'тістечка': 'pastries',
+                'усі': 'all',
+            };
+            const key = String(label).trim().toLowerCase();
+            if (lookup[key]) return lookup[key];
+            // if user already typed an english key, allow it
+            const englishKeys = Object.keys(lookup).map(k => lookup[k]);
+            if (englishKeys.includes(key)) return key;
+            return '';
+        }
+
         // Render a single recipe card
         function renderRecipe(recipe) {
             const article = document.createElement('article');
@@ -279,7 +340,7 @@
                     <div class="recipe-meta">
                         <div class="meta-left">
                             <span class="cook-time">${escapeHtml(time)}</span>
-                            <span class="recipe-category">${escapeHtml(recipe.category || 'Загальне')}</span>
+                            <span class="recipe-category">${escapeHtml(mapCategory(recipe.category || 'Загальне'))}</span>
                         </div>
                         <div class="meta-right">
                             <button class="recipe-button">Рецепт</button>
@@ -387,16 +448,17 @@
         }
 
         // Load all recipes
-        function loadRecipes(searchTerm = '') {
+        function loadRecipes(searchTerm = '', category = '') {
             console.log('📥 Завантажуємо рецепти від спільноти...');
             
             loadingSpinner.style.display = 'block';
             grid.innerHTML = '';
             noRecipesMsg.style.display = 'none';
-            
-            const url = searchTerm 
-                ? `backend/get-all-recipes.php?search=${encodeURIComponent(searchTerm)}`
-                : 'backend/get-all-recipes.php';
+            // build query params: support search and/or category
+            const params = new URLSearchParams();
+            if (searchTerm) params.append('search', searchTerm);
+            if (category) params.append('category', category);
+            const url = params.toString() ? `backend/get-all-recipes.php?${params.toString()}` : 'backend/get-all-recipes.php';
             
             fetch(url)
                 .then(response => {
@@ -495,14 +557,27 @@
 
         // Event listeners
         filterBtn.addEventListener('click', () => {
-            const searchTerm = filterInput.value.trim();
-            loadRecipes(searchTerm);
+            const inputVal = (filterInput.value || '').trim();
+            const key = labelToKey(inputVal);
+            if (key) {
+                // if matches a known category label -> filter by category key
+                if (key === 'all') loadRecipes();
+                else loadRecipes('', key);
+            } else {
+                loadRecipes(inputVal);
+            }
         });
 
         filterInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                const searchTerm = filterInput.value.trim();
-                loadRecipes(searchTerm);
+                const inputVal = (filterInput.value || '').trim();
+                const key = labelToKey(inputVal);
+                if (key) {
+                    if (key === 'all') loadRecipes();
+                    else loadRecipes('', key);
+                } else {
+                    loadRecipes(inputVal);
+                }
             }
         });
 
@@ -543,6 +618,66 @@
 
         // Initial load
         loadRecipes();
+
+        // Catalog modal for community page — open modal and delegate category clicks
+        const catalogBtnCommunity = document.getElementById('catalogBtnCommunity');
+        const catalogModalCommunity = document.getElementById('catalogModalCommunity');
+        const closeCatalogCommunity = document.getElementById('closeCatalogCommunity');
+        if (catalogBtnCommunity && catalogModalCommunity) {
+            catalogBtnCommunity.setAttribute('aria-haspopup', 'dialog');
+            catalogBtnCommunity.setAttribute('aria-expanded', 'false');
+            catalogBtnCommunity.addEventListener('click', (e) => {
+                e.stopPropagation();
+                catalogModalCommunity.setAttribute('aria-hidden', 'false');
+                catalogModalCommunity.classList.add('show');
+                catalogBtnCommunity.setAttribute('aria-expanded', 'true');
+                const first = catalogModalCommunity.querySelector('.cat-btn');
+                if (first && typeof first.focus === 'function') first.focus();
+            });
+
+            if (closeCatalogCommunity) {
+                closeCatalogCommunity.addEventListener('click', () => {
+                    catalogModalCommunity.setAttribute('aria-hidden', 'true');
+                    catalogModalCommunity.classList.remove('show');
+                    if (catalogBtnCommunity) catalogBtnCommunity.setAttribute('aria-expanded', 'false');
+                    if (catalogBtnCommunity && typeof catalogBtnCommunity.focus === 'function') catalogBtnCommunity.focus();
+                });
+            }
+
+            // click outside modal closes it
+            catalogModalCommunity.addEventListener('click', (ev) => {
+                if (ev.target === catalogModalCommunity) {
+                    catalogModalCommunity.setAttribute('aria-hidden', 'true');
+                    catalogModalCommunity.classList.remove('show');
+                    if (catalogBtnCommunity && typeof catalogBtnCommunity.focus === 'function') catalogBtnCommunity.focus();
+                }
+            });
+
+            // esc closes
+            document.addEventListener('keydown', (ev) => {
+                if (ev.key === 'Escape') {
+                    catalogModalCommunity.setAttribute('aria-hidden', 'true');
+                    catalogModalCommunity.classList.remove('show');
+                    if (catalogBtnCommunity && typeof catalogBtnCommunity.focus === 'function') catalogBtnCommunity.focus();
+                }
+            });
+
+            // delegate category clicks inside modal
+            catalogModalCommunity.addEventListener('click', (e) => {
+                const b = e.target.closest('.cat-btn');
+                if (!b) return;
+                const cat = (b.dataset.category || '').toString().toLowerCase();
+                const label = b.textContent || cat;
+                const fi = document.getElementById('filterInput');
+                if (fi) fi.value = label;
+                catalogModalCommunity.setAttribute('aria-hidden', 'true');
+                catalogModalCommunity.classList.remove('show');
+                if (catalogBtnCommunity) catalogBtnCommunity.setAttribute('aria-expanded', 'false');
+                if (catalogBtnCommunity && typeof catalogBtnCommunity.focus === 'function') catalogBtnCommunity.focus();
+                if (cat && cat !== 'all') loadRecipes('', cat);
+                else loadRecipes();
+            });
+        }
     });
     </script>
 </body>

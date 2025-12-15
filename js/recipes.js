@@ -48,10 +48,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Відкриття/закриття модального каталогу — з перевірками на наявність елементів
     if (catalogBtn) {
+        catalogBtn.setAttribute('aria-haspopup', 'dialog');
+        catalogBtn.setAttribute('aria-expanded', 'false');
         catalogBtn.addEventListener('click', () => {
             if (catalogModal) {
                 catalogModal.setAttribute('aria-hidden', 'false');
                 catalogModal.classList.add('show');
+                catalogBtn.setAttribute('aria-expanded', 'true');
+                // focus first category button for keyboard users
+                const first = catalogModal.querySelector('.cat-btn');
+                if (first && typeof first.focus === 'function') first.focus();
             }
         });
     }
@@ -60,6 +66,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (catalogModal) {
                 catalogModal.setAttribute('aria-hidden', 'true');
                 catalogModal.classList.remove('show');
+                if (catalogBtn) catalogBtn.setAttribute('aria-expanded', 'false');
+                // return focus to the catalog toggle
+                if (catalogBtn && typeof catalogBtn.focus === 'function') catalogBtn.focus();
             }
         });
     }
@@ -77,9 +86,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const btn = e.target.closest && e.target.closest('.cat-btn');
             if (!btn) return;
             const category = btn.dataset.category || 'all';
+            // update pressed state for visual feedback
+            Array.from(catalogModal.querySelectorAll('.cat-btn')).forEach(b => b.setAttribute('aria-pressed', 'false'));
+            btn.setAttribute('aria-pressed', 'true');
             loadRecipesPage(category, 1);
             catalogModal.setAttribute('aria-hidden', 'true');
             catalogModal.classList.remove('show');
+            if (catalogBtn) catalogBtn.setAttribute('aria-expanded', 'false');
+            if (catalogBtn && typeof catalogBtn.focus === 'function') catalogBtn.focus();
         });
     }
 

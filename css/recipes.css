@@ -14,27 +14,48 @@ body {
 .recipes-page h2 {
     color: var(--accent);
     font-size: 2rem;
-    margin: 0 0 1rem 0;
+    margin: 0; /* remove bottom margin so header items align on one row */
 }
 
 .recipes-header {
     max-width: 1200px;
     margin: 0 auto 1.25rem;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     gap: 1rem;
+    width: 100%;
 }
 
+.recipes-header h2 { flex: 0 0 auto; }
+.recipes-header .header-actions { margin-left: auto; display: flex; gap: 0.5rem; align-items: center; }
+
 .catalog-button {
-    background: linear-gradient(180deg, #2a2f3b, var(--bg-2));
-    border: 1px solid rgba(255,255,255,0.06);
-    color: var(--accent);
-    padding: 0.6rem 1rem;
-    border-radius: 8px;
+    background: linear-gradient(90deg, #ff8c1a, #ff7a00);
+    border: none;
+    color: #fff;
+    padding: 0.45rem 1rem;
+    border-radius: 999px;
     cursor: pointer;
-    font-weight: 600;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 10px 26px rgba(255,122,0,0.12);
+    transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+    height: 40px;
+    line-height: 1;
 }
+
+.catalog-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 44px rgba(255,122,0,0.16);
+    filter: brightness(1.02);
+}
+
+.catalog-button:focus { outline: 3px solid rgba(255,122,0,0.12); outline-offset: 3px }
+
+.catalog-button .cat-icon { font-size: 1rem; display:inline-block; color: #fff }
 
 .recipes-grid {
     max-width: 1200px;
@@ -203,27 +224,47 @@ recipe-meta .meta-left { display: flex; align-items: center; gap: 0.35rem; min-w
 
 .categories-modal-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
-    margin-top: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+    margin-top: 1.25rem;
 }
 
 .cat-btn {
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));
-    border: 1px solid rgba(255,255,255,0.04);
-    color: #fff;
-    padding: 0.8rem;
-    border-radius: 8px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    color: #e6eef8;
+    padding: 0.5rem 0.9rem;
+    border-radius: 999px;
     cursor: pointer;
-    font-weight: 500;
-    transition: all 200ms ease;
+    font-weight: 800;
+    transition: transform 140ms ease, background 140ms ease, color 140ms ease, box-shadow 140ms ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-align: center;
 }
 
 .cat-btn:hover {
-    background: var(--accent);
-    border-color: var(--accent);
+    background: linear-gradient(90deg, rgba(255,122,0,0.12), rgba(255,122,0,0.06));
+    border-color: rgba(255,122,0,0.18);
+    color: #fff;
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 0 8px 20px rgba(255,122,0,0.06);
+}
+
+.cat-btn .cat-icon { font-size: 1rem; display:inline-block }
+
+.cat-btn[aria-pressed="true"], .cat-btn.active {
+    background: linear-gradient(90deg, #ff7a00, #ff8c1a);
     color: #111;
+    border-color: transparent;
+    box-shadow: 0 10px 26px rgba(255,122,0,0.14);
     transform: translateY(-2px);
+}
+
+@media (max-width: 780px) {
+    .categories-modal-grid { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.6rem }
 }
 
 
@@ -337,19 +378,21 @@ body.no-scroll{ overflow: hidden; height: 100vh }
     display: inline-block;
     background: #ffffff;
     color: #ff7a00;
-    padding: 0.12rem 0.4rem;
-    border-radius: 14px;
-    font-size: 0.78rem;
-    font-weight: 800;
+    padding: 0.08rem 0.32rem; /* smaller padding to reduce footprint */
+    border-radius: 12px;
+    font-size: 0.72rem; /* slightly smaller text */
+    font-weight: 700;
     border: 1px solid rgba(0,0,0,0.06);
-    box-shadow: 0 6px 18px rgba(2,6,23,0.18);
+    box-shadow: 0 6px 14px rgba(2,6,23,0.12);
     white-space: nowrap;
-    overflow: visible;
+    overflow: hidden; /* prevent overflow */
     text-overflow: ellipsis;
-    max-width: none;
-    flex: 0 0 auto;
+    max-width: 120px; /* limit width so it won't overlap other elements */
     position: relative;
-    left: -6px;
+    left: 0; /* remove negative offset that caused overlap */
+    vertical-align: middle;
+    line-height: 1.2;
+    box-sizing: border-box;
 }
 
 .recipes-page .cook-time { white-space: nowrap; flex: 0 0 auto; margin-right: 0.5rem; min-width: 36px; flex-shrink: 0; position: relative; z-index: 2; display: inline-block; color:#fff; font-size:0.85rem }
@@ -375,6 +418,23 @@ body.no-scroll{ overflow: hidden; height: 100vh }
     .recipes-page .recipe-meta { flex-direction: column; align-items: flex-start; gap: 0.5rem }
     .recipes-page .meta-right { width: 100%; justify-content: space-between; margin-left: 0 }
     .recipes-page .recipe-category { left: 0 }
+}
+
+.recipe-button {
+    background: linear-gradient(90deg, #ff7a00, #ff8c1a);
+    color: #ffffff;
+    border: none;
+    border-radius: 999px;
+    padding: 0.35rem 1.1rem;
+    height: 34px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 160ms ease, box-shadow 160ms ease;
+    box-shadow: 0 4px 10px rgba(255,122,0,0.12);
 }
 
 

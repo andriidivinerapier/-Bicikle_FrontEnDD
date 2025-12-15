@@ -1195,7 +1195,7 @@ document.addEventListener('DOMContentLoaded', () => {
             snacks: 'Закуски',
             drinks: 'Напої',
             vegan: 'Веганські',
-            pastries: '🍪 Печиво й Тістечко'
+            pastries: 'Тістечка'
         };
         return map[key] || String(key);
     }
