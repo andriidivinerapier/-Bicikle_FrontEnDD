@@ -414,7 +414,8 @@ async function openSeasonalModal(season) {
                         <div class="season-recipe-meta">
                             <span class="season-recipe-time">${escapeHtml(time)}</span>
                             <button class="season-like-btn" data-recipe-id="${r.id || ''}" data-source="${r.source || 'admin'}" aria-label="Вподобати" title="Додати у вподобані" style="margin-right:8px;">❤</button>
-                            <button class="season-recipe-button"
+                                <button class="season-recipe-button"
+                                    data-recipe-id="${r.id || ''}"
                                     data-ingredients="${encodeURIComponent(JSON.stringify(ingredientsArr))}"
                                     data-steps="${encodeURIComponent(JSON.stringify(stepsArr))}"
                                     data-title="${escapeHtml(title)}"
@@ -529,6 +530,8 @@ async function openSeasonalModal(season) {
                 recipeModal.classList.add('open');
                 recipeModal.setAttribute('aria-hidden', 'false');
                 document.body.classList.add('modal-open');
+                // initialize comments for this recipe if available
+                try { if (typeof window.initRecipeModalComments === 'function') window.initRecipeModalComments(btn.dataset.recipeId || ''); } catch (e) { console.error('initRecipeModalComments failed', e); }
             });
         } else {
             // update cards only if track exists
@@ -606,6 +609,8 @@ async function openSeasonalModal(season) {
                 recipeModal.classList.add('open');
                 recipeModal.setAttribute('aria-hidden', 'false');
                 document.body.classList.add('modal-open');
+                // initialize comments for this recipe if available
+                try { if (typeof window.initRecipeModalComments === 'function') window.initRecipeModalComments(btn.dataset.recipeId || ''); } catch (e) { console.error('initRecipeModalComments failed', e); }
             });
         });
     }
