@@ -18,6 +18,7 @@
                 <ul>
                     <li><a href="#" class="nav-link active" data-section="recipes">Рецепти</a></li>
                     <li><a href="#" class="nav-link" data-section="user-recipes">Рецепти користувачів</a></li>
+                    <li><a href="#" class="nav-link" data-section="users">Користувачі</a></li>
                     <li><a href="#" class="nav-link" data-section="add-recipe">Додати рецепт</a></li>
                     <li><a href="#" class="nav-link" data-section="settings">Налаштування</a></li>
                 </ul>
@@ -94,6 +95,35 @@
                             <tr><td colspan="8" class="loading-text">Завантаження...</td></tr>
                         </tbody>
                     </table>
+                </div>
+            </section>
+
+            <!-- Секція Користувачі -->
+            <section id="users-section" class="admin-section">
+                <h3>Керування користувачами</h3>
+
+                <div class="recipes-toolbar">
+                    <input type="text" id="search-users" placeholder="Пошук за ніком..." class="search-input">
+                    <button id="refresh-users-btn" class="btn btn-primary">Оновити</button>
+                </div>
+
+                <div id="users-list" class="recipes-table-container">
+                    <table class="recipes-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Нікнейм</th>
+                                <th>Email</th>
+                                <th>Роль</th>
+                                <th>Дата реєстрації</th>
+                                <th>Дії</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody">
+                            <tr><td colspan="6" class="loading-text">Завантаження...</td></tr>
+                        </tbody>
+                    </table>
+                    
                 </div>
             </section>
 

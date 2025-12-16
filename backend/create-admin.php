@@ -39,8 +39,8 @@ $stmt->close();
 // Хешування пароля
 $hashed_password = password_hash($admin_password, PASSWORD_DEFAULT);
 
-// Додавання адмін користувача
-$stmt = $conn->prepare('INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)');
+// Додавання адмін користувача (включаємо created_at)
+$stmt = $conn->prepare('INSERT INTO users (username, email, password, role, created_at) VALUES (?, ?, ?, ?, NOW())');
 $admin_role = 'admin';
 $stmt->bind_param('ssss', $admin_username, $admin_email, $hashed_password, $admin_role);
 

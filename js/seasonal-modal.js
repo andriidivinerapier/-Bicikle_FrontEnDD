@@ -413,6 +413,7 @@ async function openSeasonalModal(season) {
                         <p>${escapeHtml(desc)}</p>
                         <div class="season-recipe-meta">
                             <span class="season-recipe-time">${escapeHtml(time)}</span>
+                            <button class="season-like-btn" data-recipe-id="${r.id || ''}" data-source="${r.source || 'admin'}" aria-label="Вподобати" title="Додати у вподобані" style="margin-right:8px;">❤</button>
                             <button class="season-recipe-button"
                                     data-ingredients="${encodeURIComponent(JSON.stringify(ingredientsArr))}"
                                     data-steps="${encodeURIComponent(JSON.stringify(stepsArr))}"
@@ -435,9 +436,69 @@ async function openSeasonalModal(season) {
             track.className = 'season-recipes-track';
             track.innerHTML = trackHtml;
             recipesGrid.appendChild(track);
-
-            // delegate detail button clicks (attach once)
+            // delegate clicks for detail and like buttons (attach once)
             track.addEventListener('click', (ev) => {
+                const likeBtn = ev.target.closest('.season-like-btn');
+                if (likeBtn) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    // handle like/unlike
+                    const recipeId = likeBtn.dataset.recipeId;
+                    const source = likeBtn.dataset.source || 'admin';
+                    if (!recipeId) return; // nothing to do for demo items without id
+
+                    // optimistic UI
+                    const wasLiked = likeBtn.classList.contains('liked');
+                    likeBtn.classList.toggle('liked');
+                    if (wasLiked) {
+                        likeBtn.style.color = '';
+                    } else {
+                        likeBtn.style.color = '#ff6b6b';
+                    }
+
+                    // check session and call backend
+                    fetch('backend/session.php').then(r => r.json()).then(sess => {
+                        if (!sess || sess.status !== 'logged') {
+                            // revert and open auth
+                            likeBtn.classList.toggle('liked');
+                            if (wasLiked) likeBtn.style.color = '#ff6b6b';
+                            else likeBtn.style.color = '';
+                            if (typeof openAuthModal === 'function') openAuthModal();
+                            return;
+                        }
+
+                        const endpoint = wasLiked ? 'backend/remove-favorite.php' : 'backend/add-favorite.php';
+                        const fd = new FormData();
+                        fd.append('recipe_id', recipeId);
+                        fd.append('source', source);
+
+                        fetch(endpoint, { method: 'POST', body: fd })
+                            .then(res => res.json())
+                            .then(json => {
+                                if (!(json && (json.success || json.status === 'success'))) {
+                                    // revert on failure
+                                    likeBtn.classList.toggle('liked');
+                                    if (wasLiked) likeBtn.style.color = '#ff6b6b';
+                                    else likeBtn.style.color = '';
+                                }
+                            })
+                            .catch(err => {
+                                console.error('Favorite action failed', err);
+                                likeBtn.classList.toggle('liked');
+                                if (wasLiked) likeBtn.style.color = '#ff6b6b';
+                                else likeBtn.style.color = '';
+                            });
+                    }).catch(err => {
+                        console.error('Session check failed', err);
+                        likeBtn.classList.toggle('liked');
+                        if (wasLiked) likeBtn.style.color = '#ff6b6b';
+                        else likeBtn.style.color = '';
+                        if (typeof openAuthModal === 'function') openAuthModal();
+                    });
+
+                    return;
+                }
+
                 const btn = ev.target.closest('.season-recipe-button');
                 if (!btn) return;
                 const recipeModal = document.getElementById('recipeModal');
@@ -473,6 +534,29 @@ async function openSeasonalModal(season) {
             // update cards only if track exists
             track.innerHTML = trackHtml;
         }
+
+        // initialize liked state for visible seasonal recipes
+        (function markSeasonFavorites() {
+            fetch('backend/get-favorites.php')
+                .then(r => r.json())
+                .then(favData => {
+                    if (favData && Array.isArray(favData.favorites)) {
+                        const favSet = new Set(favData.favorites.map(String));
+                        track.querySelectorAll('.season-like-btn').forEach(btn => {
+                            const rid = btn.dataset.recipeId;
+                            const source = btn.dataset.source || 'admin';
+                            const key = source + ':' + String(rid);
+                            const altKeyUser = 'user:' + String(rid);
+                            const altKeyAdmin = 'admin:' + String(rid);
+                            if (rid && (favSet.has(key) || favSet.has(altKeyUser) || favSet.has(altKeyAdmin) || favSet.has(String(rid)))) {
+                                btn.classList.add('liked');
+                                btn.style.color = '#ff6b6b';
+                            }
+                        });
+                    }
+                })
+                .catch(() => {});
+        })();
 
         const cards = Array.from(track.querySelectorAll('.season-recipe-card'));
 
@@ -577,43 +661,7 @@ async function openSeasonalModal(season) {
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 
-    // Додаємо обробники для кнопок "Детальніше"
-    const detailButtons = modal.querySelectorAll('.season-recipe-button');
-    detailButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const recipeModal = document.getElementById('recipeModal');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalImage = document.getElementById('modalImage');
-            const modalIngredients = document.getElementById('modalIngredients');
-            const modalPreparation = document.getElementById('modalPreparation');
-            const difficultyTag = document.querySelector('.tag.difficulty');
-            const timeTag = document.querySelector('.tag.time');
-
-            modalTitle.textContent = button.dataset.title;
-            modalImage.src = button.dataset.image;
-            modalImage.alt = button.dataset.title;
-            if (difficultyTag) difficultyTag.textContent = button.dataset.difficulty;
-            if (timeTag) timeTag.textContent = button.dataset.time;
-
-            const ingredients = JSON.parse(decodeURIComponent(button.dataset.ingredients || '[]'));
-            modalIngredients.innerHTML = ingredients.length > 0 
-                ? ingredients.map(ingredient => `<li>${escapeHtml(ingredient)}</li>`).join('')
-                : '<li>Інгредієнти будуть додані незабаром</li>';
-
-            const steps = JSON.parse(decodeURIComponent(button.dataset.steps || '[]'));
-            modalPreparation.innerHTML = steps.length > 0
-                ? steps.map(step => `<li>${escapeHtml(step)}</li>`).join('')
-                : '<li>Кроки приготування будуть додані незабаром</li>';
-
-            // Закриваємо сезонне модальне вікно
-            closeSeasonalModal();
-
-            // Відкриваємо модальне вікно рецепту
-            recipeModal.classList.add('open');
-            recipeModal.setAttribute('aria-hidden', 'false');
-            document.body.classList.add('modal-open');
-        });
-    });
+    
 }
 
 // Простий escape для вставки тексту в HTML (мінімізує XSS через дані з бекенду)

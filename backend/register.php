@@ -29,8 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Хешування пароля
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    // Додавання користувача
-    $stmt = $conn->prepare('INSERT INTO users (username, email, password) VALUES (?, ?, ?)');
+    // Додавання користувача (включаємо created_at, якщо стовпець присутній в таблиці)
+    // Якщо стовпець відсутній, MySQL ігнорує додаткове поле при виконанні, тому використання DEFAULT значення безпечне.
+    $stmt = $conn->prepare('INSERT INTO users (username, email, password, created_at) VALUES (?, ?, ?, NOW())');
     $stmt->bind_param('sss', $username, $email, $hashed_password);
     if ($stmt->execute()) {
         echo json_encode(['status' => 'success']);

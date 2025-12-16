@@ -175,6 +175,20 @@
     color: #e6eef8;
 }
 
+.season-like-btn {
+    background: transparent;
+    border: none;
+    color: #e6eef8;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    transition: color 0.15s ease;
+}
+.season-like-btn.liked {
+    color: #ff6b6b;
+}
+
 .modal-close {
     position: absolute;
     top: 1rem;

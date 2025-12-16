@@ -1,5 +1,15 @@
 // Profile Page JavaScript
 document.addEventListener('DOMContentLoaded', () => {
+    // Ensure session is valid; if not, redirect to homepage
+    fetch('backend/session.php').then(r => r.json()).then(sess => {
+        if (!sess || sess.status !== 'logged') {
+            // session invalid — redirect to homepage
+            window.location.href = 'index.html';
+            return;
+        }
+    }).catch(err => {
+        console.error('Session check failed:', err);
+    });
     // Elements
     const tabButtons = document.querySelectorAll('.profile-tab-btn');
     const tabPanels = document.querySelectorAll('.profile-tab-panel');

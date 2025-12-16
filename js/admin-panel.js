@@ -85,6 +85,18 @@ function initializeAdminPanel() {
     // Завантаження рецептів користувачів (на модерації)
     if (typeof loadUserRecipes === 'function') loadUserRecipes();
     loadUserSettings();
+    // Users management controls
+    const usersSearchInput = document.getElementById('search-users');
+    const refreshUsersBtn = document.getElementById('refresh-users-btn');
+    if (usersSearchInput) {
+        usersSearchInput.addEventListener('input', () => {
+            loadUsers({ q: usersSearchInput.value });
+        });
+    }
+    if (refreshUsersBtn) refreshUsersBtn.addEventListener('click', () => loadUsers());
+
+    // load users list initially (if section exists)
+    loadUsers();
     
     // Setup user recipes tab filtering
     const userRecipesTabs = document.querySelectorAll('.user-recipes-tab');
@@ -964,6 +976,94 @@ function mapCategory(key) {
         pastries: 'Тістечка'
     };
     return map[key] || String(key);
+}
+
+// Users management: load and display users list in admin panel
+function loadUsers(opts = {}) {
+    const q = opts.q || '';
+    const tbody = document.getElementById('users-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="6" class="loading-text">Завантаження...</td></tr>';
+    // Verify admin session first to avoid silent access-denied responses
+    fetch('backend/session.php').then(r => r.json()).then(sess => {
+        if (!sess || sess.status !== 'logged' || sess.role !== 'admin') {
+            tbody.innerHTML = '<tr><td colspan="6" class="loading-text">Потрібна авторизація адміністратора</td></tr>';
+            console.warn('loadUsers: not admin session', sess);
+            return;
+        }
+
+        const params = new URLSearchParams();
+        if (q) params.set('q', q);
+
+        fetch('backend/get-users.php?' + params.toString())
+            .then(r => r.json())
+            .then(data => {
+                // response received
+                if (data.status === 'success' && Array.isArray(data.users)) {
+                    displayUsers(data.users);
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="6" class="loading-text">Помилка: ${data.message || 'Невідома помилка'}</td></tr>`;
+                    if (data && data.message) showToast(data.message, 'error');
+                }
+            })
+            .catch(err => {
+                console.error('Load users error:', err);
+                tbody.innerHTML = '<tr><td colspan="6" class="loading-text">Помилка завантаження</td></tr>';
+                showToast('Помилка при завантаженні списку користувачів', 'error');
+            });
+    }).catch(err => {
+        console.error('Session check failed before loading users:', err);
+        tbody.innerHTML = '<tr><td colspan="6" class="loading-text">Помилка перевірки сесії</td></tr>';
+    });
+}
+
+function displayUsers(users) {
+    const tbody = document.getElementById('users-tbody');
+    if (!tbody) return;
+    if (!users || users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="loading-text">Користувачів не знайдено</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = '';
+    users.forEach(u => {
+        const tr = document.createElement('tr');
+        const created = u.created_at ? new Date(u.created_at).toLocaleString('uk-UA') : '-';
+        tr.innerHTML = `
+            <td>${u.id}</td>
+            <td>${escapeHtml(u.username || '-')}</td>
+            <td>${escapeHtml(u.email || '-')}</td>
+            <td>${escapeHtml(u.role || 'user')}</td>
+            <td>${created}</td>
+            <td>
+                <button class="btn-delete" data-user-id="${u.id}">Видалити</button>
+            </td>
+        `;
+        const delBtn = tr.querySelector('button[data-user-id]');
+        if (delBtn) {
+            delBtn.addEventListener('click', (e) => {
+                const uid = Number(delBtn.getAttribute('data-user-id'));
+                if (!uid) return;
+                if (!confirm('Ви впевнені, що хочете видалити цього користувача? Цю дію не можна скасувати.')) return;
+                const fd = new FormData(); fd.append('user_id', uid);
+                fetch('backend/delete-user.php', { method: 'POST', body: fd })
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res && res.status === 'success') {
+                            showToast('Користувача видалено', 'success');
+                            loadUsers();
+                        } else {
+                            showToast(res.message || 'Помилка при видаленні', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Delete user error:', err);
+                        showToast('Помилка при видаленні користувача', 'error');
+                    });
+            });
+        }
+        tbody.appendChild(tr);
+    });
 }
 
 // Initialize ingredients list for edit modal
