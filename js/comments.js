@@ -337,8 +337,8 @@
                 if (form.dataset.posting === '1') return;
                 form.dataset.posting = '1';
                 btn.disabled = true;
-                // resolve recipe id robustly: event detail, overlay attribute, list dataset, or form closest overlay
-                let rid = recipeId || overlay.getAttribute('data-recipe-id') || (list && list.dataset.recipeId) || '';
+                // resolve recipe id robustly: prefer current DOM attributes (overlay/list) over the captured event detail
+                let rid = overlay.getAttribute('data-recipe-id') || (list && list.dataset.recipeId) || recipeId || '';
                 if (!rid) {
                     // try to find nearest overlay for dynamic modals
                     const near = form.closest('.recipe-modal-overlay') || form.closest('#recipeModal');

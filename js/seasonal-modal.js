@@ -530,9 +530,22 @@ async function openSeasonalModal(season) {
 
                 // close seasonal modal once
                 closeSeasonalModal();
-                try { recipeModal.setAttribute('data-recipe-id', btn.dataset.recipeId || btn.dataset.id || btn.dataset.recipeId || btn.getAttribute('data-recipe-id') || ''); } catch (e) {}
+                try { recipeModal.setAttribute('data-recipe-id', btn.dataset.recipeId || btn.dataset.id || btn.getAttribute('data-recipe-id') || ''); } catch (e) {}
                 // dispatch recipe id from the button's data-recipe-id (or dataset.id)
                 const rid = btn.getAttribute('data-recipe-id') || btn.dataset.recipeId || btn.dataset.id || '';
+                // Ensure comments list is tied to the correct recipe id (or cleared for demo items)
+                const commentsList = document.getElementById('modalCommentsList');
+                const commentForm = document.getElementById('modalCommentForm');
+                if (!rid) {
+                    if (commentsList) {
+                        commentsList.dataset.recipeId = '';
+                        commentsList.innerHTML = '<div class="comment-empty">Коментарі недоступні для цього перегляду.</div>';
+                    }
+                    if (commentForm) commentForm.style.display = 'none';
+                } else {
+                    if (commentsList) commentsList.dataset.recipeId = rid;
+                    if (commentForm) commentForm.style.display = '';
+                }
                 document.dispatchEvent(new CustomEvent('recipeModalOpen', { detail: { recipeId: rid } }));
                 recipeModal.classList.add('open');
                 recipeModal.setAttribute('aria-hidden', 'false');
@@ -613,6 +626,18 @@ async function openSeasonalModal(season) {
                 closeSeasonalModal();
                 try { recipeModal.setAttribute('data-recipe-id', btn.dataset.recipeId || btn.dataset.id || btn.getAttribute('data-recipe-id') || ''); } catch (e) {}
                 const rid2 = btn.getAttribute('data-recipe-id') || btn.dataset.recipeId || btn.dataset.id || '';
+                const commentsList2 = document.getElementById('modalCommentsList');
+                const commentForm2 = document.getElementById('modalCommentForm');
+                if (!rid2) {
+                    if (commentsList2) {
+                        commentsList2.dataset.recipeId = '';
+                        commentsList2.innerHTML = '<div class="comment-empty">Коментарі недоступні для цього перегляду.</div>';
+                    }
+                    if (commentForm2) commentForm2.style.display = 'none';
+                } else {
+                    if (commentsList2) commentsList2.dataset.recipeId = rid2;
+                    if (commentForm2) commentForm2.style.display = '';
+                }
                 document.dispatchEvent(new CustomEvent('recipeModalOpen', { detail: { recipeId: rid2 } }));
                 recipeModal.classList.add('open');
                 recipeModal.setAttribute('aria-hidden', 'false');
