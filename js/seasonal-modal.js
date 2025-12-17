@@ -341,6 +341,8 @@ const seasonalData = {
 
 // Функція для відкриття модального вікна
 async function openSeasonalModal(season) {
+    // ensure any recipe modal is closed so seasonal modal appears on top
+    if (typeof window.closeRecipeModal === 'function') try { window.closeRecipeModal(); } catch (e) { /* ignore */ }
     const modal = document.getElementById('seasonModal');
     const modalImage = document.getElementById('seasonModalImage');
     const modalTitle = document.getElementById('seasonModalTitle');
@@ -526,12 +528,15 @@ async function openSeasonalModal(season) {
                     ? steps.map(step => `<li>${escapeHtml(step)}</li>`).join('')
                     : '<li>Кроки приготування будуть додані незабаром</li>';
 
+                // close seasonal modal once
                 closeSeasonalModal();
+                try { recipeModal.setAttribute('data-recipe-id', btn.dataset.recipeId || btn.dataset.id || btn.dataset.recipeId || btn.getAttribute('data-recipe-id') || ''); } catch (e) {}
+                // dispatch recipe id from the button's data-recipe-id (or dataset.id)
+                const rid = btn.getAttribute('data-recipe-id') || btn.dataset.recipeId || btn.dataset.id || '';
+                document.dispatchEvent(new CustomEvent('recipeModalOpen', { detail: { recipeId: rid } }));
                 recipeModal.classList.add('open');
                 recipeModal.setAttribute('aria-hidden', 'false');
                 document.body.classList.add('modal-open');
-                // initialize comments for this recipe if available
-                try { if (typeof window.initRecipeModalComments === 'function') window.initRecipeModalComments(btn.dataset.recipeId || ''); } catch (e) { console.error('initRecipeModalComments failed', e); }
             });
         } else {
             // update cards only if track exists
@@ -606,11 +611,12 @@ async function openSeasonalModal(season) {
                     : '<li>Кроки приготування будуть додані незабаром</li>';
 
                 closeSeasonalModal();
+                try { recipeModal.setAttribute('data-recipe-id', btn.dataset.recipeId || btn.dataset.id || btn.getAttribute('data-recipe-id') || ''); } catch (e) {}
+                const rid2 = btn.getAttribute('data-recipe-id') || btn.dataset.recipeId || btn.dataset.id || '';
+                document.dispatchEvent(new CustomEvent('recipeModalOpen', { detail: { recipeId: rid2 } }));
                 recipeModal.classList.add('open');
                 recipeModal.setAttribute('aria-hidden', 'false');
                 document.body.classList.add('modal-open');
-                // initialize comments for this recipe if available
-                try { if (typeof window.initRecipeModalComments === 'function') window.initRecipeModalComments(btn.dataset.recipeId || ''); } catch (e) { console.error('initRecipeModalComments failed', e); }
             });
         });
     }

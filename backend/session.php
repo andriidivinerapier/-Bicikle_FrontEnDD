@@ -19,6 +19,7 @@ if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
                 $stmt->fetch();
                 echo json_encode([
                     'status' => 'logged',
+                    'id' => intval($dbId ?? $uid),
                     'username' => $dbUsername ?? ($user['username'] ?? ''),
                     'role' => $dbRole ?? ($user['role'] ?? 'user')
                 ]);

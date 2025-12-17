@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="css/modal.css">
     <link rel="stylesheet" href="css/auth-modal.css">
     <link rel="stylesheet" href="css/auth-toast.css">
+    <link rel="stylesheet" href="css/comments.css">
 </head>
 <body>
     <div class="fade-page visible">
@@ -124,16 +125,16 @@
                             <!-- steps populated by JS -->
                         </ol>
                     </section>
-                    <section class="modal-section comments-section">
-                        <h4>Коментарі</h4>
-                        <div id="modalCommentsList" class="comments-list">Завантаження...</div>
-                        <form id="modalCommentForm" class="comment-form">
-                            <textarea id="modalCommentContent" name="content" placeholder="Напишіть коментар..." required></textarea>
-                            <div class="comment-actions">
-                                <button type="submit" class="btn btn-primary">Відправити</button>
+                        <section class="comments-section" aria-labelledby="commentsTitle">
+                            <h4 id="commentsTitle">Коментарі</h4>
+                            <div class="comments-list" id="modalCommentsList">
+                                <!-- comments loaded by JS -->
                             </div>
-                        </form>
-                    </section>
+                            <form id="modalCommentForm" class="comment-form">
+                                <textarea name="comment" placeholder="Напишіть коментар..." required></textarea>
+                                <button type="submit">Надіслати</button>
+                            </form>
+                        </section>
                 </div>
             </div>
         </div>
@@ -258,6 +259,7 @@
     <!-- Scripts -->
     <script src="js/transition.js"></script>
     <script src="js/auth-modal.js"></script>
+    <script src="js/comments.js"></script>
     <script>
     // Community Recipes Page
     document.addEventListener('DOMContentLoaded', () => {
@@ -510,28 +512,35 @@
                         data.recipes.forEach(recipe => renderRecipe(recipe));
                         buildPagination(data.pagination || { total_pages: 1 });
                         noRecipesMsg.style.display = 'none';
-                        // mark favorites for current user so liked hearts persist after reload
+                        // Mark favorites robustly: support keys like "user:ID", "admin:ID" or plain "ID"
                         fetch('backend/get-favorites.php')
                             .then(r => r.json())
                             .then(favData => {
                                 if (favData && Array.isArray(favData.favorites)) {
                                     const favSet = new Set(favData.favorites.map(String));
-                                    grid.querySelectorAll('.recipe-card').forEach(card => {
-                                        const id = card.dataset.recipeId;
-                                        const source = card.dataset.source || 'user';
-                                        const likeBtn = card.querySelector('.recipe-like');
-                                        const key = source + ':' + String(id);
-                                        const altUser = 'user:' + String(id);
-                                        const altAdmin = 'admin:' + String(id);
-                                        if (id && likeBtn && (favSet.has(key) || favSet.has(altUser) || favSet.has(altAdmin) || favSet.has(String(id)))) {
-                                            likeBtn.classList.add('liked');
-                                            likeBtn.style.color = '#ff6b6b';
-                                            likeBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+                                    document.querySelectorAll('.recipe-like').forEach(btn => {
+                                        const article = btn.closest('.recipe-card');
+                                        const id = (btn.dataset.recipeId || article?.dataset.recipeId || '').toString();
+                                        const source = (btn.dataset.source || article?.dataset.source || 'user').toString();
+                                        if (!id) return;
+                                        const possibleKeys = [
+                                            `${source}:${id}`,
+                                            `user:${id}`,
+                                            `admin:${id}`,
+                                            `${id}`
+                                        ];
+                                        for (const key of possibleKeys) {
+                                            if (favSet.has(key)) {
+                                                btn.classList.add('liked');
+                                                btn.style.color = '#ff6b6b';
+                                                btn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+                                                break;
+                                            }
                                         }
                                     });
                                 }
                             })
-                            .catch(err => { console.log('Could not load favorites:', err); });
+                            .catch(err => { console.log('Could not load favorites for community page:', err); });
                     } else {
                         grid.innerHTML = '';
                         noRecipesMsg.style.display = 'block';
@@ -579,101 +588,12 @@
                 }
             });
             
+            // mark current recipe id on modal and notify listeners
+            try { modal.setAttribute('data-recipe-id', recipe.id || recipe.recipe_id || ''); } catch (e) {}
+            document.dispatchEvent(new CustomEvent('recipeModalOpen', { detail: { recipeId: recipe.id || recipe.recipe_id || '' } }));
             modal.classList.add('open');
             modal.setAttribute('aria-hidden', 'false');
             document.body.classList.add('modal-open');
-
-            // Comments handling
-            const commentsList = document.getElementById('modalCommentsList');
-            let commentForm = document.getElementById('modalCommentForm');
-            const commentContent = document.getElementById('modalCommentContent');
-            const recipeId = recipe.id || recipe.recipe_id || '';
-
-            function escapeHtml(str) {
-                if (!str) return '';
-                return String(str).replace(/[&<>\"']/g, function (m) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]); });
-            }
-
-            function renderComments(items) {
-                if (!commentsList) return;
-                if (!items || items.length === 0) {
-                    commentsList.innerHTML = '<div class="comment-empty">Поки що немає коментарів.</div>';
-                    return;
-                }
-                commentsList.innerHTML = items.map(c => {
-                    const time = new Date(c.created_at).toLocaleString('uk-UA');
-                    const user = c.username || 'Гість';
-                    const escaped = escapeHtml(c.content);
-                    return `\n<div class="comment-item"><div class="comment-header"><strong>${escapeHtml(user)}</strong> <span class="comment-time">${time}</span></div><div class="comment-body">${escaped}</div></div>`;
-                }).join('');
-            }
-
-            function loadComments() {
-                if (!recipeId) { if (commentsList) commentsList.innerHTML = '<div class="comment-empty">Коментарі недоступні</div>'; return; }
-                fetch(`backend/get-comments.php?recipe_id=${encodeURIComponent(recipeId)}`)
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data && data.status === 'success') renderComments(data.comments || []);
-                        else if (commentsList) commentsList.innerHTML = '<div class="comment-empty">Не вдалось завантажити коментарі</div>';
-                    })
-                    .catch(err => {
-                        console.error('Load comments error', err);
-                        if (commentsList) commentsList.innerHTML = '<div class="comment-empty">Помилка мережі</div>';
-                    });
-            }
-
-            // Remove existing submit listeners by cloning form, but only if user logged in
-            if (commentForm) {
-                fetch('backend/session.php').then(r => r.json()).then(sess => {
-                    if (sess && sess.status === 'logged') {
-                        const newForm = commentForm.cloneNode(true);
-                        commentForm.parentNode.replaceChild(newForm, commentForm);
-                        commentForm = newForm;
-                        commentForm.addEventListener('submit', (ev) => {
-                            ev.preventDefault();
-                            const textEl = document.getElementById('modalCommentContent');
-                            const text = (textEl && textEl.value || '').trim();
-                            if (!text) return alert('Напишіть коментар');
-                            const fd = new FormData(); fd.append('recipe_id', recipeId); fd.append('content', text);
-                            fetch('backend/add-comment.php', { method: 'POST', body: fd })
-                                .then(r => r.json())
-                                .then(resp => {
-                                    if (resp && resp.status === 'success' && resp.comment) {
-                                        const time = new Date(resp.comment.created_at).toLocaleString('uk-UA');
-                                        const user = escapeHtml(resp.comment.username || 'Я');
-                                        const escaped = escapeHtml(resp.comment.content);
-                                        const html = `\n<div class="comment-item"><div class="comment-header"><strong>${user}</strong> <span class="comment-time">${time}</span></div><div class="comment-body">${escaped}</div></div>`;
-                                        if (!commentsList || !commentsList.innerHTML.trim() || commentsList.innerHTML.indexOf('comment-item') === -1) commentsList.innerHTML = html; else commentsList.insertAdjacentHTML('afterbegin', html);
-                                        if (textEl) textEl.value = '';
-                                    } else if (resp && resp.status === 'auth_required') {
-                                        if (typeof openAuthModal === 'function') openAuthModal(); else alert('Потрібно увійти щоб додати коментар');
-                                    } else {
-                                        alert((resp && resp.message) || 'Не вдалося додати коментар');
-                                    }
-                                })
-                                .catch(err => { console.error('Add comment err', err); alert('Помилка мережі'); });
-                        });
-                    } else {
-                        const prompt = document.createElement('div');
-                        prompt.className = 'comment-guest-prompt';
-                        prompt.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                            <div style="color:var(--muted);">Щоб залишити коментар, будь ласка, увійдіть в акаунт.</div>
-                            <div><button class="btn btn-primary guestLogin">Увійти</button></div>
-                        </div>`;
-                        commentForm.parentNode.replaceChild(prompt, commentForm);
-                        prompt.querySelector('.guestLogin')?.addEventListener('click', () => {
-                            try {
-                                const overlay = prompt.closest('.recipe-modal-overlay.dynamic') || document.querySelector('.recipe-modal-overlay.dynamic');
-                                if (overlay) overlay.remove();
-                            } catch (e) {}
-                            if (typeof window.closeRecipeModal === 'function') window.closeRecipeModal();
-                            if (typeof openAuthModal === 'function') openAuthModal();
-                        });
-                    }
-                }).catch(err => { console.error('Session check failed', err); });
-            }
-
-            loadComments();
         }
 
         // Close modal

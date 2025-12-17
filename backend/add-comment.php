@@ -1,10 +1,12 @@
 <?php
+// backend/add-comment.php — додає коментар для рецепту
 header('Content-Type: application/json; charset=utf-8');
 session_start();
 require_once 'db.php';
 
+// Only accept POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['status' => 'error', 'message' => 'Невірний метод']);
+    echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
     exit;
 }
 
@@ -12,64 +14,64 @@ $recipe_id = intval($_POST['recipe_id'] ?? 0);
 $content = trim($_POST['content'] ?? '');
 
 if (!$recipe_id || $content === '') {
-    echo json_encode(['status' => 'error', 'message' => 'Невірні параметри']);
+    // log for debugging
+    error_log('[add-comment] missing parameters recipe_id=' . var_export($_POST['recipe_id'] ?? null, true) . ' content=' . var_export($_POST['content'] ?? null, true));
+    echo json_encode(['status' => 'error', 'message' => 'Missing parameters', 'debug' => ['received_recipe_id' => $_POST['recipe_id'] ?? null, 'received_content' => $_POST['content'] ?? null]]);
     exit;
 }
 
-// Ensure comments table exists
-$create_sql = "CREATE TABLE IF NOT EXISTS comments (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    recipe_id INT NOT NULL,
-    user_id INT DEFAULT NULL,
-    username VARCHAR(255) DEFAULT NULL,
-    content TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
-@$conn->query($create_sql);
-
-// require user to be logged in to post comments
-$user_id = null;
-$username = null;
-if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
-    $user_id = intval($_SESSION['user']['id'] ?? 0) ?: null;
-    $username = $_SESSION['user']['username'] ?? null;
-}
-if (!$user_id) {
-    echo json_encode(['status' => 'auth_required', 'message' => 'Потрібно увійти, щоб додавати коментарі']);
-    $conn->close();
+if (!isset($_SESSION['user']) || !is_array($_SESSION['user'])) {
+    error_log('[add-comment] not logged in; session=' . var_export($_SESSION, true));
+    echo json_encode(['status' => 'error', 'message' => 'Not logged in', 'debug' => ['session' => $_SESSION]]);
     exit;
 }
 
-$stmt = $conn->prepare('INSERT INTO comments (recipe_id, user_id, username, content) VALUES (?, ?, ?, ?)');
+$user_id = intval($_SESSION['user']['id'] ?? 0);
+$username = $_SESSION['user']['username'] ?? 'User';
+
+// Insert comment
+$stmt = $conn->prepare('INSERT INTO comments (recipe_id, user_id, username, content, created_at) VALUES (?, ?, ?, ?, NOW())');
 if (!$stmt) {
-    echo json_encode(['status' => 'error', 'message' => 'Помилка підготовки запиту']);
+    error_log('[add-comment] prepare failed: ' . $conn->error);
+    echo json_encode(['status' => 'error', 'message' => 'DB prepare failed', 'debug' => ['db_error' => $conn->error]]);
     exit;
 }
 $stmt->bind_param('iiss', $recipe_id, $user_id, $username, $content);
-if (!$stmt->execute()) {
-    echo json_encode(['status' => 'error', 'message' => 'Помилка при збереженні коментаря']);
+$ok = $stmt->execute();
+if ($ok) {
+    $inserted_id = $stmt->insert_id;
     $stmt->close();
+    // Fetch the inserted row to return
+    $stmt2 = $conn->prepare('SELECT id, recipe_id, user_id, username, content, created_at FROM comments WHERE id = ? LIMIT 1');
+    if ($stmt2) {
+        $stmt2->bind_param('i', $inserted_id);
+        $stmt2->execute();
+        $stmt2->bind_result($id, $r, $u, $un, $c, $created_at);
+        if ($stmt2->fetch()) {
+            error_log('[add-comment] inserted id=' . intval($id) . ' recipe=' . intval($r) . ' user=' . intval($u));
+            echo json_encode(['status' => 'success', 'comment' => [
+                'id' => intval($id),
+                'recipe_id' => intval($r),
+                'user_id' => intval($u),
+                'username' => $un,
+                'content' => $c,
+                'created_at' => $created_at
+            ]]);
+            $stmt2->close();
+            $conn->close();
+            exit;
+        }
+        $stmt2->close();
+    }
+    echo json_encode(['status' => 'success', 'comment' => null]);
+    $conn->close();
+    exit;
+} else {
+    $err = $stmt->error;
+    $stmt->close();
+    error_log('[add-comment] execute failed: ' . $err);
+    echo json_encode(['status' => 'error', 'message' => 'Insert failed: ' . $err, 'debug' => ['db_error' => $err]]);
+    $conn->close();
     exit;
 }
-$inserted_id = $stmt->insert_id;
-$stmt->close();
-
-// Return the inserted comment
-$stmt = $conn->prepare('SELECT id, recipe_id, user_id, username, content, created_at FROM comments WHERE id = ? LIMIT 1');
-if ($stmt) {
-    $stmt->bind_param('i', $inserted_id);
-    $stmt->execute();
-    $stmt->bind_result($id, $r_id, $u_id, $u_name, $c_text, $created_at);
-    if ($stmt->fetch()) {
-        echo json_encode(['status' => 'success', 'comment' => ['id'=>$id,'recipe_id'=>$r_id,'user_id'=>$u_id,'username'=>$u_name,'content'=>$c_text,'created_at'=>$created_at]]);
-        $stmt->close();
-        $conn->close();
-        exit;
-    }
-    $stmt->close();
-}
-
-echo json_encode(['status' => 'error', 'message' => 'Не вдалося отримати коментар']);
-$conn->close();
-exit;
 ?>

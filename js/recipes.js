@@ -14,9 +14,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Функція для завантаження рецептів з backend
     async function loadRecipesPage(category = 'all', page = 1) {
+        // If the recipes grid is not present on this page, abort to avoid
+        // reading properties of null (e.g. recipesGrid.id).
+        if (!recipesGrid) {
+            console.warn('recipesGrid element not found — skipping loadRecipesPage');
+            return;
+        }
+
         currentPage = page;
         activeCategory = category;
-        
+
         const data = await loadRecipes(recipesGrid.id, {
             category,
             page,
@@ -102,8 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Обробка кнопки "Рецепт" — використовуємо closest(), щоб спрацьовувало при кліку на SVG або внутрішні елементи
         const recipeBtn = e.target.closest && e.target.closest('.recipe-button');
         if (recipeBtn) {
-            // If the page already includes a static recipe modal (#recipeModal), prefer that handler (main.js)
-            if (document.getElementById('recipeModal')) return;
             const card = recipeBtn.closest('.recipe-card');
             openRecipeModal(card);
             return;
@@ -179,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Створюємо модальне вікно
         const modalHtml = `
-            <div class="recipe-modal-overlay dynamic">
+            <div class="recipe-modal-overlay">
                 <div class="recipe-modal">
                     <button class="modal-close">×</button>
                     <div class="modal-image-wrap">
@@ -209,28 +214,34 @@ document.addEventListener('DOMContentLoaded', () => {
                                     .join('')}
                             </ol>
                         </div>
-                        <div class="comments-section">
-                            <h4>Коментарі</h4>
-                            <div id="modalCommentsList" class="comments-list">Завантаження...</div>
+                        <section class="comments-section" aria-labelledby="commentsTitle">
+                            <h4 id="commentsTitle">Коментарі</h4>
+                            <div class="comments-list" id="modalCommentsList"></div>
                             <form id="modalCommentForm" class="comment-form">
-                                <textarea id="modalCommentContent" name="content" placeholder="Напишіть коментар..." required></textarea>
-                                <div class="comment-actions">
-                                    <button type="submit" class="btn btn-primary">Відправити</button>
-                                </div>
+                                <textarea name="comment" placeholder="Напишіть коментар..." required></textarea>
+                                <button type="submit">Надіслати</button>
                             </form>
-                        </div>
+                        </section>
                     </div>
                 </div>
             </div>`;
 
-        // Видаляємо будь-які існуючі динамічні модальні вікна рецепту щоб уникнути дублювання
-        document.querySelectorAll('.recipe-modal-overlay.dynamic').forEach(m => m.remove());
+        // Close any existing recipe modal overlays to avoid duplication.
+        // Do not remove the static `#recipeModal` element (it is used elsewhere).
+        document.querySelectorAll('.recipe-modal-overlay').forEach(m => {
+            if (m.id === 'recipeModal') {
+                m.classList.remove('open');
+                try { m.setAttribute('aria-hidden', 'true'); } catch (e) {}
+            } else {
+                m.remove();
+            }
+        });
 
         // Додаємо модал до body
         document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-        // Отримуємо посилання на останній доданий динамічний modal
-        const modals = document.querySelectorAll('.recipe-modal-overlay.dynamic');
+        // Отримуємо посилання на останній доданий modal (щоб не конфліктувати зі статичними модалами на index.html)
+        const modals = document.querySelectorAll('.recipe-modal-overlay');
         const modal = modals[modals.length - 1];
         const closeBtn = modal.querySelector('.modal-close');
 
@@ -241,96 +252,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Add common modal class so other scripts/styles remain consistent
             document.body.classList.add('modal-open');
             document.body.classList.add('no-scroll');
+            // set recipe id for comments loader and notify
+            try { modal.setAttribute('data-recipe-id', card.dataset.recipeId || card.dataset.recipe_id || ''); } catch (e) {}
+            document.dispatchEvent(new CustomEvent('recipeModalOpen', { detail: { recipeId: card.dataset.recipeId || card.dataset.recipe_id || '' } }));
         });
-
-        // Comments wiring for dynamically created modal
-        const commentsListEl = modal.querySelector('#modalCommentsList');
-        let commentFormEl = modal.querySelector('#modalCommentForm');
-        let commentContentEl = modal.querySelector('#modalCommentContent');
-        const recipeId = card.dataset.recipeId || '';
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return String(str).replace(/[&<>"']/g, function (m) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]); });
-        }
-
-        function renderComments(items) {
-            if (!commentsListEl) return;
-            if (!items || items.length === 0) { commentsListEl.innerHTML = '<div class="comment-empty">Поки що немає коментарів.</div>'; return; }
-            commentsListEl.innerHTML = items.map(c => {
-                const time = new Date(c.created_at).toLocaleString('uk-UA');
-                const user = c.username || 'Гість';
-                const escaped = escapeHtml(c.content);
-                return `\n<div class="comment-item"><div class="comment-header"><strong>${escapeHtml(user)}</strong> <span class="comment-time">${time}</span></div><div class="comment-body">${escaped}</div></div>`;
-            }).join('');
-        }
-
-        function loadComments() {
-            if (!recipeId) { if (commentsListEl) commentsListEl.innerHTML = '<div class="comment-empty">Коментарі недоступні</div>'; return; }
-            fetch(`backend/get-comments.php?recipe_id=${encodeURIComponent(recipeId)}`)
-                .then(r => r.json())
-                .then(data => { if (data && data.status === 'success') renderComments(data.comments || []); else if (commentsListEl) commentsListEl.innerHTML = '<div class="comment-empty">Не вдалось завантажити коментарі</div>'; })
-                .catch(err => { console.error('Load comments error', err); if (commentsListEl) commentsListEl.innerHTML = '<div class="comment-empty">Помилка мережі</div>'; });
-        }
-
-        if (commentFormEl) {
-            // check session first
-            fetch('backend/session.php').then(r => r.json()).then(sess => {
-                if (sess && sess.status === 'logged') {
-                    // remove previous listeners by cloning
-                    const newForm = commentFormEl.cloneNode(true);
-                    commentFormEl.parentNode.replaceChild(newForm, commentFormEl);
-                    // reselect textarea from the new form
-                    commentFormEl = newForm;
-                    commentContentEl = commentFormEl.querySelector('#modalCommentContent') || commentFormEl.querySelector('textarea[name="content"]');
-                    commentFormEl.addEventListener('submit', (ev) => {
-                        ev.preventDefault();
-                        // reselect textarea value at submit time to ensure we read the live element
-                        const textarea = commentFormEl.querySelector('#modalCommentContent') || commentFormEl.querySelector('textarea[name="content"]');
-                        const text = (textarea && textarea.value || '').trim();
-                        if (!text) return alert('Напишіть коментар');
-                        const fd = new FormData(); fd.append('recipe_id', recipeId); fd.append('content', text);
-                        fetch('backend/add-comment.php', { method: 'POST', body: fd })
-                            .then(r => r.json())
-                            .then(resp => {
-                                if (resp && resp.status === 'success' && resp.comment) {
-                                    const time = new Date(resp.comment.created_at).toLocaleString('uk-UA');
-                                    const user = escapeHtml(resp.comment.username || 'Я');
-                                    const escaped = escapeHtml(resp.comment.content);
-                                    const html = `\n<div class="comment-item"><div class="comment-header"><strong>${user}</strong> <span class="comment-time">${time}</span></div><div class="comment-body">${escaped}</div></div>`;
-                                    if (!commentsListEl || !commentsListEl.innerHTML.trim() || commentsListEl.innerHTML.indexOf('comment-item') === -1) commentsListEl.innerHTML = html; else commentsListEl.insertAdjacentHTML('afterbegin', html);
-                                    if (textarea) textarea.value = '';
-                                } else if (resp && resp.status === 'auth_required') {
-                                    if (typeof openAuthModal === 'function') openAuthModal(); else alert('Потрібно увійти щоб додати коментар');
-                                } else {
-                                    alert((resp && resp.message) || 'Не вдалося додати коментар');
-                                }
-                            })
-                            .catch(err => { console.error('Add comment err', err); alert('Помилка мережі'); });
-                    });
-                } else {
-                    // replace form with login prompt
-                    const prompt = document.createElement('div');
-                    prompt.className = 'comment-guest-prompt';
-                    prompt.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                        <div style="color:var(--muted);">Щоб залишити коментар, будь ласка, увійдіть в акаунт.</div>
-                        <div><button class="btn btn-primary guestLogin">Увійти</button></div>
-                    </div>`;
-                    commentFormEl.parentNode.replaceChild(prompt, commentFormEl);
-                    prompt.querySelector('.guestLogin')?.addEventListener('click', () => {
-                        // remove nearest modal overlay (dynamic) if present
-                        try {
-                            const overlay = prompt.closest('.recipe-modal-overlay.dynamic') || document.querySelector('.recipe-modal-overlay.dynamic');
-                            if (overlay) overlay.remove();
-                        } catch (e) {}
-                        if (typeof window.closeRecipeModal === 'function') window.closeRecipeModal();
-                        if (typeof openAuthModal === 'function') openAuthModal();
-                    });
-                }
-            }).catch(err => { console.error('Session check failed', err); });
-        }
-
-        loadComments();
 
         // Обробники закриття
         const closeModal = () => {
@@ -363,15 +288,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function closeAllModals() {
-        const modal = document.querySelector('.recipe-modal-overlay.dynamic');
-        if (modal) {
-            modal.classList.remove('open');
+        const modals = document.querySelectorAll('.recipe-modal-overlay');
+        if (modals && modals.length) {
+            modals.forEach(modal => {
+                // If this is the static inline modal, just close it instead of removing from DOM
+                if (modal.id === 'recipeModal') {
+                    modal.classList.remove('open');
+                    try { modal.setAttribute('aria-hidden', 'true'); } catch (e) {}
+                } else {
+                    try { modal.remove(); } catch (e) { setTimeout(() => modal.remove(), 300); }
+                }
+            });
             // restore scrolling and remove modal-related classes
             document.body.style.overflow = '';
             document.body.style.height = '';
             document.body.classList.remove('modal-open');
             document.body.classList.remove('no-scroll');
-            try { modal.remove(); } catch (e) { setTimeout(() => modal.remove(), 300); }
         }
         if (catalogModal) {
             catalogModal.setAttribute('aria-hidden', 'true');
@@ -379,10 +311,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // expose a small global helper so other modules can close recipe modals
+    try { window.closeRecipeModal = closeAllModals; } catch (e) { /* ignore in restricted envs */ }
+
     document.addEventListener('keydown', (e) => { 
         if (e.key === 'Escape') closeAllModals(); 
     });
 
-    // Ініціалізуємо завантаження рецептів
-    loadRecipesPage('all', 1);
+    // Ініціалізуємо завантаження рецептів (тільки якщо є контейнер для карток)
+    if (recipesGrid) {
+        loadRecipesPage('all', 1);
+    } else {
+        console.info('No recipesGrid on this page — skipping initial recipes load');
+    }
 });

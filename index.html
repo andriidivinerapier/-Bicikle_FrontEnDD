@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="css/auth-modal.css">
     <link rel="stylesheet" href="css/auth-toast.css">
     <link rel="stylesheet" href="css/seasonal-modal.css">
+    <link rel="stylesheet" href="css/comments.css">
 </head>
 <body>
     <div class="fade-page">
@@ -256,16 +257,17 @@
                             <!-- steps populated by JS -->
                         </ol>
                     </section>
-                    <section class="modal-section comments-section">
-                        <h4>Коментарі</h4>
-                        <div id="modalCommentsList" class="comments-list">Завантаження...</div>
-                        <form id="modalCommentForm" class="comment-form">
-                            <textarea id="modalCommentContent" name="content" placeholder="Напишіть коментар..." required></textarea>
-                            <div class="comment-actions">
-                                <button type="submit" class="btn btn-primary">Відправити</button>
+
+                        <section class="comments-section" aria-labelledby="commentsTitle">
+                            <h4 id="commentsTitle">Коментарі</h4>
+                            <div class="comments-list" id="modalCommentsList">
+                                <!-- comments loaded by JS -->
                             </div>
-                        </form>
-                    </section>
+                            <form id="modalCommentForm" class="comment-form">
+                                <textarea name="comment" placeholder="Напишіть коментар..." required></textarea>
+                                <button type="submit">Надіслати</button>
+                            </form>
+                        </section>
                 </div>
             </div>
         </div>
@@ -295,6 +297,7 @@
         <script src="js/load-recipes.js"></script>
         <script src="js/main.js"></script>
         <script src="js/recipes.js"></script>
+        <script src="js/comments.js"></script>
         <script src="js/seasonal-modal.js"></script>
         <script src="js/transition.js"></script>
         <script src="js/auth-modal.js"></script>

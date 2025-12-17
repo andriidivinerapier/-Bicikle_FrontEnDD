@@ -1316,7 +1316,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Create modal HTML
         const modalHtml = `
-            <div class="recipe-modal-overlay dynamic">
+            <div class="recipe-modal-overlay">
                 <div class="recipe-modal">
                     <button class="modal-close">×</button>
                     <div class="modal-image-wrap">
@@ -1346,16 +1346,16 @@ document.addEventListener('DOMContentLoaded', () => {
                                     .join('')}
                             </ol>
                         </div>
-                        <div class="comments-section">
-                            <h4>💬 Коментарі</h4>
-                            <div id="commentsList" class="comments-list">Завантаження...</div>
-                            <form id="commentForm" class="comment-form">
-                                <textarea id="commentContent" name="content" placeholder="Напишіть коментар..." required></textarea>
-                                <div class="comment-actions">
-                                    <button type="submit" class="btn btn-primary">Відправити</button>
-                                </div>
+                        <section class="comments-section" aria-labelledby="commentsTitle">
+                            <h4 id="commentsTitle">Коментарі</h4>
+                            <div class="comments-list" id="modalCommentsList">
+                                <!-- comments loaded by JS -->
+                            </div>
+                            <form id="modalCommentForm" class="comment-form">
+                                <textarea name="comment" placeholder="Напишіть коментар..." required></textarea>
+                                <button type="submit">Надіслати</button>
                             </form>
-                        </div>
+                        </section>
                     </div>
                 </div>
             </div>`;
@@ -1364,7 +1364,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.insertAdjacentHTML('beforeend', modalHtml);
         
         // Get references to new elements
-        const modal = document.querySelector('.recipe-modal-overlay.dynamic');
+        const modal = document.querySelector('.recipe-modal-overlay');
         const closeBtn = modal.querySelector('.modal-close');
 
         // Open modal with animation
@@ -1372,6 +1372,10 @@ document.addEventListener('DOMContentLoaded', () => {
             modal.classList.add('open');
             document.body.style.overflow = 'hidden';
         });
+
+        // set recipe id on modal and fire event for comments loader
+        try { modal.setAttribute('data-recipe-id', card.dataset.recipeId || card.dataset.recipe_id || ''); } catch (e) {}
+        document.dispatchEvent(new CustomEvent('recipeModalOpen', { detail: { recipeId: card.dataset.recipeId || card.dataset.recipe_id || '' } }));
 
 
         // Close handlers
@@ -1388,78 +1392,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeModal();
         });
-
-        // Load and render comments
-        const recipeId = card.dataset.recipeId || card.dataset.recipeid || card.dataset.id || '';
-        const commentsList = modal.querySelector('#commentsList');
-        const commentForm = modal.querySelector('#commentForm');
-        const commentContent = modal.querySelector('#commentContent');
-
-        function renderComments(items) {
-            if (!commentsList) return;
-            if (!items || items.length === 0) {
-                commentsList.innerHTML = '<div class="comment-empty">Поки що немає коментарів. Будьте першим!</div>';
-                return;
-            }
-            commentsList.innerHTML = items.map(c => {
-                const time = new Date(c.created_at).toLocaleString('uk-UA');
-                const user = c.username || 'Гість';
-                const escaped = escapeHtml(c.content);
-                return `
-                    <div class="comment-item">
-                        <div class="comment-header"><strong>${escapeHtml(user)}</strong> <span class="comment-time">${time}</span></div>
-                        <div class="comment-body">${escaped}</div>
-                    </div>`;
-            }).join('');
-        }
-
-        function loadComments() {
-            if (!recipeId) { if (commentsList) commentsList.innerHTML = '<div class="comment-empty">Коментарі недоступні</div>'; return; }
-            fetch(`backend/get-comments.php?recipe_id=${encodeURIComponent(recipeId)}`)
-                .then(r => r.json())
-                .then(data => {
-                    if (data && data.status === 'success') {
-                        renderComments(data.comments || []);
-                    } else {
-                        if (commentsList) commentsList.innerHTML = '<div class="comment-empty">Не вдалось завантажити коментарі</div>';
-                    }
-                })
-                .catch(err => {
-                    console.error('Load comments error', err);
-                    if (commentsList) commentsList.innerHTML = '<div class="comment-empty">Помилка мережі</div>';
-                });
-        }
-
-        if (commentForm) {
-            commentForm.addEventListener('submit', (ev) => {
-                ev.preventDefault();
-                if (!recipeId) { showToast('Неможливо додати коментар', 'error'); return; }
-                const text = commentContent.value.trim();
-                if (!text) { showToast('Напишіть коментар', 'error'); return; }
-                const fd = new FormData(); fd.append('recipe_id', recipeId); fd.append('content', text);
-                fetch('backend/add-comment.php', { method: 'POST', body: fd })
-                    .then(r => r.json())
-                    .then(resp => {
-                        if (resp && resp.status === 'success' && resp.comment) {
-                            // prepend comment
-                            const existing = commentsList.innerHTML.trim();
-                            const time = new Date(resp.comment.created_at).toLocaleString('uk-UA');
-                            const user = escapeHtml(resp.comment.username || 'Я');
-                            const escaped = escapeHtml(resp.comment.content);
-                            const html = `\n<div class="comment-item"><div class="comment-header"><strong>${user}</strong> <span class="comment-time">${time}</span></div><div class="comment-body">${escaped}</div></div>`;
-                            if (!existing || existing.indexOf('comment-item') === -1) commentsList.innerHTML = html; else commentsList.insertAdjacentHTML('afterbegin', html);
-                            commentContent.value = '';
-                            showToast('Коментар додано', 'success');
-                        } else {
-                            showToast((resp && resp.message) || 'Не вдалося додати коментар', 'error');
-                        }
-                    })
-                    .catch(err => { console.error('Add comment err', err); showToast('Помилка мережі', 'error'); });
-            });
-        }
-
-        // Initial load
-        loadComments();
     }
 
     // ---------- User edit modal handling ----------
