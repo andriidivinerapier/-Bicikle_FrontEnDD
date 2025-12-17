@@ -1121,3 +1121,878 @@
 [Level 2] SERVER -> CLIENT: 221 2.0.0 closing connection 2adb3069b0e04-598f3199a23sm5462551e87.95 - gsmtp
 
 [Level 3] Connection: closed
+[Level 3] Connection: opening to smtp.gmail.com:587, timeout=300, options=array()
+[Level 3] Connection: opened
+[Level 4] SMTP INBOUND: "220 smtp.gmail.com ESMTP 38308e7fff4ca-38113711226sm419451fa.35 - gsmtp"
+[Level 2] SERVER -> CLIENT: 220 smtp.gmail.com ESMTP 38308e7fff4ca-38113711226sm419451fa.35 - gsmtp
+
+[Level 1] CLIENT -> SERVER: EHLO localhost
+
+[Level 4] SMTP INBOUND: "250-smtp.gmail.com at your service, [31.42.181.96]"
+[Level 4] SMTP INBOUND: "250-SIZE 35882577"
+[Level 4] SMTP INBOUND: "250-8BITMIME"
+[Level 4] SMTP INBOUND: "250-STARTTLS"
+[Level 4] SMTP INBOUND: "250-ENHANCEDSTATUSCODES"
+[Level 4] SMTP INBOUND: "250-PIPELINING"
+[Level 4] SMTP INBOUND: "250-CHUNKING"
+[Level 4] SMTP INBOUND: "250 SMTPUTF8"
+[Level 2] SERVER -> CLIENT: 250-smtp.gmail.com at your service, [31.42.181.96]
+250-SIZE 35882577
+250-8BITMIME
+250-STARTTLS
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+
+[Level 1] CLIENT -> SERVER: STARTTLS
+
+[Level 4] SMTP INBOUND: "220 2.0.0 Ready to start TLS"
+[Level 2] SERVER -> CLIENT: 220 2.0.0 Ready to start TLS
+
+[Level 1] CLIENT -> SERVER: EHLO localhost
+
+[Level 4] SMTP INBOUND: "250-smtp.gmail.com at your service, [31.42.181.96]"
+[Level 4] SMTP INBOUND: "250-SIZE 35882577"
+[Level 4] SMTP INBOUND: "250-8BITMIME"
+[Level 4] SMTP INBOUND: "250-AUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH"
+[Level 4] SMTP INBOUND: "250-ENHANCEDSTATUSCODES"
+[Level 4] SMTP INBOUND: "250-PIPELINING"
+[Level 4] SMTP INBOUND: "250-CHUNKING"
+[Level 4] SMTP INBOUND: "250 SMTPUTF8"
+[Level 2] SERVER -> CLIENT: 250-smtp.gmail.com at your service, [31.42.181.96]
+250-SIZE 35882577
+250-8BITMIME
+250-AUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+
+[Level 4] Auth method requested: UNSPECIFIED
+[Level 4] Auth methods available on the server: LOGIN,PLAIN,XOAUTH2,PLAIN-CLIENTTOKEN,OAUTHBEARER,XOAUTH
+[Level 4] Requested auth method not available: 
+[Level 4] Auth method selected: LOGIN
+[Level 1] CLIENT -> SERVER: AUTH LOGIN
+
+[Level 4] SMTP INBOUND: "334 VXNlcm5hbWU6"
+[Level 2] SERVER -> CLIENT: 334 VXNlcm5hbWU6
+
+[Level 1] CLIENT -> SERVER: aWh0cDEwM0BnbWFpbC5jb20=
+
+[Level 4] SMTP INBOUND: "334 UGFzc3dvcmQ6"
+[Level 2] SERVER -> CLIENT: 334 UGFzc3dvcmQ6
+
+[Level 1] CLIENT -> SERVER: b3hvZm9xaGx1aXJramRpcg==
+
+[Level 4] SMTP INBOUND: "235 2.7.0 Accepted"
+[Level 2] SERVER -> CLIENT: 235 2.7.0 Accepted
+
+[Level 1] CLIENT -> SERVER: MAIL FROM:<ihtp103@gmail.com>
+
+[Level 4] SMTP INBOUND: "250 2.1.0 OK 38308e7fff4ca-38113711226sm419451fa.35 - gsmtp"
+[Level 2] SERVER -> CLIENT: 250 2.1.0 OK 38308e7fff4ca-38113711226sm419451fa.35 - gsmtp
+
+[Level 1] CLIENT -> SERVER: RCPT TO:<andriy.yakubjak@kpk-lp.com.ua>
+
+[Level 4] SMTP INBOUND: "250 2.1.5 OK 38308e7fff4ca-38113711226sm419451fa.35 - gsmtp"
+[Level 2] SERVER -> CLIENT: 250 2.1.5 OK 38308e7fff4ca-38113711226sm419451fa.35 - gsmtp
+
+[Level 1] CLIENT -> SERVER: DATA
+
+[Level 4] SMTP INBOUND: "354 Go ahead 38308e7fff4ca-38113711226sm419451fa.35 - gsmtp"
+[Level 2] SERVER -> CLIENT: 354 Go ahead 38308e7fff4ca-38113711226sm419451fa.35 - gsmtp
+
+[Level 1] CLIENT -> SERVER: Date: Wed, 17 Dec 2025 19:19:24 +0100
+
+[Level 1] CLIENT -> SERVER: To: andriy.yakubjak@kpk-lp.com.ua
+
+[Level 1] CLIENT -> SERVER: From: CookBook <ihtp103@gmail.com>
+
+[Level 1] CLIENT -> SERVER: Reply-To: =?UTF-8?B?0JDQvdC00YDRltC5?= <andriy.yakubjak@kpk-lp.com.ua>
+
+[Level 1] CLIENT -> SERVER: Subject: [Contact] 123213
+
+[Level 1] CLIENT -> SERVER: Message-ID: <hEgmo2DmRnhz1MsEZc4kOmVybja9GrZYVPIpVd83K4@localhost>
+
+[Level 1] CLIENT -> SERVER: X-Mailer: PHPMailer 7.0.1 (https://github.com/PHPMailer/PHPMailer)
+
+[Level 1] CLIENT -> SERVER: MIME-Version: 1.0
+
+[Level 1] CLIENT -> SERVER: Content-Type: text/plain; charset=UTF-8
+
+[Level 1] CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+[Level 1] CLIENT -> SERVER: 
+
+[Level 1] CLIENT -> SERVER: від користувача: Андрій (andriy.yakubjak@kpk-lp.com.ua)
+
+[Level 1] CLIENT -> SERVER: 
+
+[Level 1] CLIENT -> SERVER: повідомлення:
+
+[Level 1] CLIENT -> SERVER: 123213
+
+[Level 1] CLIENT -> SERVER: 
+
+[Level 1] CLIENT -> SERVER: .
+
+[Level 4] SMTP INBOUND: "250 2.0.0 OK  1765995567 38308e7fff4ca-38113711226sm419451fa.35 - gsmtp"
+[Level 2] SERVER -> CLIENT: 250 2.0.0 OK  1765995567 38308e7fff4ca-38113711226sm419451fa.35 - gsmtp
+
+[Level 1] CLIENT -> SERVER: QUIT
+
+[Level 4] SMTP INBOUND: "221 2.0.0 closing connection 38308e7fff4ca-38113711226sm419451fa.35 - gsmtp"
+[Level 2] SERVER -> CLIENT: 221 2.0.0 closing connection 38308e7fff4ca-38113711226sm419451fa.35 - gsmtp
+
+[Level 3] Connection: closed
+[Level 3] Connection: opening to smtp.gmail.com:587, timeout=300, options=array()
+[Level 3] Connection: opened
+[Level 4] SMTP INBOUND: "220 smtp.gmail.com ESMTP 38308e7fff4ca-381134f4d2dsm483341fa.17 - gsmtp"
+[Level 2] SERVER -> CLIENT: 220 smtp.gmail.com ESMTP 38308e7fff4ca-381134f4d2dsm483341fa.17 - gsmtp
+
+[Level 1] CLIENT -> SERVER: EHLO localhost
+
+[Level 4] SMTP INBOUND: "250-smtp.gmail.com at your service, [31.42.181.96]"
+[Level 4] SMTP INBOUND: "250-SIZE 35882577"
+[Level 4] SMTP INBOUND: "250-8BITMIME"
+[Level 4] SMTP INBOUND: "250-STARTTLS"
+[Level 4] SMTP INBOUND: "250-ENHANCEDSTATUSCODES"
+[Level 4] SMTP INBOUND: "250-PIPELINING"
+[Level 4] SMTP INBOUND: "250-CHUNKING"
+[Level 4] SMTP INBOUND: "250 SMTPUTF8"
+[Level 2] SERVER -> CLIENT: 250-smtp.gmail.com at your service, [31.42.181.96]
+250-SIZE 35882577
+250-8BITMIME
+250-STARTTLS
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+
+[Level 1] CLIENT -> SERVER: STARTTLS
+
+[Level 4] SMTP INBOUND: "220 2.0.0 Ready to start TLS"
+[Level 2] SERVER -> CLIENT: 220 2.0.0 Ready to start TLS
+
+[Level 1] CLIENT -> SERVER: EHLO localhost
+
+[Level 4] SMTP INBOUND: "250-smtp.gmail.com at your service, [31.42.181.96]"
+[Level 4] SMTP INBOUND: "250-SIZE 35882577"
+[Level 4] SMTP INBOUND: "250-8BITMIME"
+[Level 4] SMTP INBOUND: "250-AUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH"
+[Level 4] SMTP INBOUND: "250-ENHANCEDSTATUSCODES"
+[Level 4] SMTP INBOUND: "250-PIPELINING"
+[Level 4] SMTP INBOUND: "250-CHUNKING"
+[Level 4] SMTP INBOUND: "250 SMTPUTF8"
+[Level 2] SERVER -> CLIENT: 250-smtp.gmail.com at your service, [31.42.181.96]
+250-SIZE 35882577
+250-8BITMIME
+250-AUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+
+[Level 4] Auth method requested: UNSPECIFIED
+[Level 4] Auth methods available on the server: LOGIN,PLAIN,XOAUTH2,PLAIN-CLIENTTOKEN,OAUTHBEARER,XOAUTH
+[Level 4] Requested auth method not available: 
+[Level 4] Auth method selected: LOGIN
+[Level 1] CLIENT -> SERVER: AUTH LOGIN
+
+[Level 4] SMTP INBOUND: "334 VXNlcm5hbWU6"
+[Level 2] SERVER -> CLIENT: 334 VXNlcm5hbWU6
+
+[Level 1] CLIENT -> SERVER: aWh0cDEwM0BnbWFpbC5jb20=
+
+[Level 4] SMTP INBOUND: "334 UGFzc3dvcmQ6"
+[Level 2] SERVER -> CLIENT: 334 UGFzc3dvcmQ6
+
+[Level 1] CLIENT -> SERVER: b3hvZm9xaGx1aXJramRpcg==
+
+[Level 4] SMTP INBOUND: "235 2.7.0 Accepted"
+[Level 2] SERVER -> CLIENT: 235 2.7.0 Accepted
+
+[Level 1] CLIENT -> SERVER: MAIL FROM:<ihtp103@gmail.com>
+
+[Level 4] SMTP INBOUND: "250 2.1.0 OK 38308e7fff4ca-381134f4d2dsm483341fa.17 - gsmtp"
+[Level 2] SERVER -> CLIENT: 250 2.1.0 OK 38308e7fff4ca-381134f4d2dsm483341fa.17 - gsmtp
+
+[Level 1] CLIENT -> SERVER: RCPT TO:<andriy.yakubjak@kpk-lp.com.ua>
+
+[Level 4] SMTP INBOUND: "250 2.1.5 OK 38308e7fff4ca-381134f4d2dsm483341fa.17 - gsmtp"
+[Level 2] SERVER -> CLIENT: 250 2.1.5 OK 38308e7fff4ca-381134f4d2dsm483341fa.17 - gsmtp
+
+[Level 1] CLIENT -> SERVER: DATA
+
+[Level 4] SMTP INBOUND: "354 Go ahead 38308e7fff4ca-381134f4d2dsm483341fa.17 - gsmtp"
+[Level 2] SERVER -> CLIENT: 354 Go ahead 38308e7fff4ca-381134f4d2dsm483341fa.17 - gsmtp
+
+[Level 1] CLIENT -> SERVER: Date: Wed, 17 Dec 2025 19:22:52 +0100
+
+[Level 1] CLIENT -> SERVER: To: andriy.yakubjak@kpk-lp.com.ua
+
+[Level 1] CLIENT -> SERVER: From: CookBook <ihtp103@gmail.com>
+
+[Level 1] CLIENT -> SERVER: Reply-To: =?UTF-8?B?0JDQvdC00YDRltC5?= <andriy.yakubjak@kpk-lp.com.ua>
+
+[Level 1] CLIENT -> SERVER: Subject: [Contact] 123213
+
+[Level 1] CLIENT -> SERVER: Message-ID: <d1X2sWnOeGjpfOTUXGRz20jFJFUVlGuuvlzofJT2DM@localhost>
+
+[Level 1] CLIENT -> SERVER: X-Mailer: PHPMailer 7.0.1 (https://github.com/PHPMailer/PHPMailer)
+
+[Level 1] CLIENT -> SERVER: MIME-Version: 1.0
+
+[Level 1] CLIENT -> SERVER: Content-Type: text/plain; charset=UTF-8
+
+[Level 1] CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+[Level 1] CLIENT -> SERVER: 
+
+[Level 1] CLIENT -> SERVER: від користувача: Андрій (andriy.yakubjak@kpk-lp.com.ua)
+
+[Level 1] CLIENT -> SERVER: 
+
+[Level 1] CLIENT -> SERVER: повідомлення:
+
+[Level 1] CLIENT -> SERVER: 123213
+
+[Level 1] CLIENT -> SERVER: 
+
+[Level 1] CLIENT -> SERVER: .
+
+[Level 4] SMTP INBOUND: "250 2.0.0 OK  1765995775 38308e7fff4ca-381134f4d2dsm483341fa.17 - gsmtp"
+[Level 2] SERVER -> CLIENT: 250 2.0.0 OK  1765995775 38308e7fff4ca-381134f4d2dsm483341fa.17 - gsmtp
+
+[Level 1] CLIENT -> SERVER: QUIT
+
+[Level 4] SMTP INBOUND: "221 2.0.0 closing connection 38308e7fff4ca-381134f4d2dsm483341fa.17 - gsmtp"
+[Level 2] SERVER -> CLIENT: 221 2.0.0 closing connection 38308e7fff4ca-381134f4d2dsm483341fa.17 - gsmtp
+
+[Level 3] Connection: closed
+[Level 3] Connection: opening to smtp.gmail.com:587, timeout=300, options=array()
+[Level 3] Connection: opened
+[Level 4] SMTP INBOUND: "220 smtp.gmail.com ESMTP 38308e7fff4ca-381134b553esm523261fa.1 - gsmtp"
+[Level 2] SERVER -> CLIENT: 220 smtp.gmail.com ESMTP 38308e7fff4ca-381134b553esm523261fa.1 - gsmtp
+
+[Level 1] CLIENT -> SERVER: EHLO localhost
+
+[Level 4] SMTP INBOUND: "250-smtp.gmail.com at your service, [31.42.181.96]"
+[Level 4] SMTP INBOUND: "250-SIZE 35882577"
+[Level 4] SMTP INBOUND: "250-8BITMIME"
+[Level 4] SMTP INBOUND: "250-STARTTLS"
+[Level 4] SMTP INBOUND: "250-ENHANCEDSTATUSCODES"
+[Level 4] SMTP INBOUND: "250-PIPELINING"
+[Level 4] SMTP INBOUND: "250-CHUNKING"
+[Level 4] SMTP INBOUND: "250 SMTPUTF8"
+[Level 2] SERVER -> CLIENT: 250-smtp.gmail.com at your service, [31.42.181.96]
+250-SIZE 35882577
+250-8BITMIME
+250-STARTTLS
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+
+[Level 1] CLIENT -> SERVER: STARTTLS
+
+[Level 4] SMTP INBOUND: "220 2.0.0 Ready to start TLS"
+[Level 2] SERVER -> CLIENT: 220 2.0.0 Ready to start TLS
+
+[Level 1] CLIENT -> SERVER: EHLO localhost
+
+[Level 4] SMTP INBOUND: "250-smtp.gmail.com at your service, [31.42.181.96]"
+[Level 4] SMTP INBOUND: "250-SIZE 35882577"
+[Level 4] SMTP INBOUND: "250-8BITMIME"
+[Level 4] SMTP INBOUND: "250-AUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH"
+[Level 4] SMTP INBOUND: "250-ENHANCEDSTATUSCODES"
+[Level 4] SMTP INBOUND: "250-PIPELINING"
+[Level 4] SMTP INBOUND: "250-CHUNKING"
+[Level 4] SMTP INBOUND: "250 SMTPUTF8"
+[Level 2] SERVER -> CLIENT: 250-smtp.gmail.com at your service, [31.42.181.96]
+250-SIZE 35882577
+250-8BITMIME
+250-AUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+
+[Level 4] Auth method requested: UNSPECIFIED
+[Level 4] Auth methods available on the server: LOGIN,PLAIN,XOAUTH2,PLAIN-CLIENTTOKEN,OAUTHBEARER,XOAUTH
+[Level 4] Requested auth method not available: 
+[Level 4] Auth method selected: LOGIN
+[Level 1] CLIENT -> SERVER: AUTH LOGIN
+
+[Level 4] SMTP INBOUND: "334 VXNlcm5hbWU6"
+[Level 2] SERVER -> CLIENT: 334 VXNlcm5hbWU6
+
+[Level 1] CLIENT -> SERVER: aWh0cDEwM0BnbWFpbC5jb20=
+
+[Level 4] SMTP INBOUND: "334 UGFzc3dvcmQ6"
+[Level 2] SERVER -> CLIENT: 334 UGFzc3dvcmQ6
+
+[Level 1] CLIENT -> SERVER: b3hvZm9xaGx1aXJramRpcg==
+
+[Level 4] SMTP INBOUND: "235 2.7.0 Accepted"
+[Level 2] SERVER -> CLIENT: 235 2.7.0 Accepted
+
+[Level 1] CLIENT -> SERVER: MAIL FROM:<ihtp103@gmail.com>
+
+[Level 4] SMTP INBOUND: "250 2.1.0 OK 38308e7fff4ca-381134b553esm523261fa.1 - gsmtp"
+[Level 2] SERVER -> CLIENT: 250 2.1.0 OK 38308e7fff4ca-381134b553esm523261fa.1 - gsmtp
+
+[Level 1] CLIENT -> SERVER: RCPT TO:<andriy.yakubjak@kpk-lp.com.ua>
+
+[Level 4] SMTP INBOUND: "250 2.1.5 OK 38308e7fff4ca-381134b553esm523261fa.1 - gsmtp"
+[Level 2] SERVER -> CLIENT: 250 2.1.5 OK 38308e7fff4ca-381134b553esm523261fa.1 - gsmtp
+
+[Level 1] CLIENT -> SERVER: DATA
+
+[Level 4] SMTP INBOUND: "354 Go ahead 38308e7fff4ca-381134b553esm523261fa.1 - gsmtp"
+[Level 2] SERVER -> CLIENT: 354 Go ahead 38308e7fff4ca-381134b553esm523261fa.1 - gsmtp
+
+[Level 1] CLIENT -> SERVER: Date: Wed, 17 Dec 2025 19:23:52 +0100
+
+[Level 1] CLIENT -> SERVER: To: andriy.yakubjak@kpk-lp.com.ua
+
+[Level 1] CLIENT -> SERVER: From: CookBook <ihtp103@gmail.com>
+
+[Level 1] CLIENT -> SERVER: Reply-To: =?UTF-8?B?0JDQvdC00YDRltC5?= <andriy.yakubjak@kpk-lp.com.ua>
+
+[Level 1] CLIENT -> SERVER: Subject: [Contact] 333
+
+[Level 1] CLIENT -> SERVER: Message-ID: <noKY1Atohnbx3zXCVa1lrK9QGPQGmjyLIYtR5poeM@localhost>
+
+[Level 1] CLIENT -> SERVER: X-Mailer: PHPMailer 7.0.1 (https://github.com/PHPMailer/PHPMailer)
+
+[Level 1] CLIENT -> SERVER: MIME-Version: 1.0
+
+[Level 1] CLIENT -> SERVER: Content-Type: text/plain; charset=UTF-8
+
+[Level 1] CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+[Level 1] CLIENT -> SERVER: 
+
+[Level 1] CLIENT -> SERVER: від користувача: Андрій (andriy.yakubjak@kpk-lp.com.ua)
+
+[Level 1] CLIENT -> SERVER: 
+
+[Level 1] CLIENT -> SERVER: повідомлення:
+
+[Level 1] CLIENT -> SERVER: 1313
+
+[Level 1] CLIENT -> SERVER: 
+
+[Level 1] CLIENT -> SERVER: .
+
+[Level 4] SMTP INBOUND: "250 2.0.0 OK  1765995833 38308e7fff4ca-381134b553esm523261fa.1 - gsmtp"
+[Level 2] SERVER -> CLIENT: 250 2.0.0 OK  1765995833 38308e7fff4ca-381134b553esm523261fa.1 - gsmtp
+
+[Level 1] CLIENT -> SERVER: QUIT
+
+[Level 4] SMTP INBOUND: "221 2.0.0 closing connection 38308e7fff4ca-381134b553esm523261fa.1 - gsmtp"
+[Level 2] SERVER -> CLIENT: 221 2.0.0 closing connection 38308e7fff4ca-381134b553esm523261fa.1 - gsmtp
+
+[Level 3] Connection: closed
+[Level 3] Connection: opening to smtp.gmail.com:587, timeout=300, options=array()
+[Level 3] Connection: opened
+[Level 4] SMTP INBOUND: "220 smtp.gmail.com ESMTP 38308e7fff4ca-381134b5004sm607911fa.2 - gsmtp"
+[Level 2] SERVER -> CLIENT: 220 smtp.gmail.com ESMTP 38308e7fff4ca-381134b5004sm607911fa.2 - gsmtp
+
+[Level 1] CLIENT -> SERVER: EHLO localhost
+
+[Level 4] SMTP INBOUND: "250-smtp.gmail.com at your service, [31.42.181.96]"
+[Level 4] SMTP INBOUND: "250-SIZE 35882577"
+[Level 4] SMTP INBOUND: "250-8BITMIME"
+[Level 4] SMTP INBOUND: "250-STARTTLS"
+[Level 4] SMTP INBOUND: "250-ENHANCEDSTATUSCODES"
+[Level 4] SMTP INBOUND: "250-PIPELINING"
+[Level 4] SMTP INBOUND: "250-CHUNKING"
+[Level 4] SMTP INBOUND: "250 SMTPUTF8"
+[Level 2] SERVER -> CLIENT: 250-smtp.gmail.com at your service, [31.42.181.96]
+250-SIZE 35882577
+250-8BITMIME
+250-STARTTLS
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+
+[Level 1] CLIENT -> SERVER: STARTTLS
+
+[Level 4] SMTP INBOUND: "220 2.0.0 Ready to start TLS"
+[Level 2] SERVER -> CLIENT: 220 2.0.0 Ready to start TLS
+
+[Level 1] CLIENT -> SERVER: EHLO localhost
+
+[Level 4] SMTP INBOUND: "250-smtp.gmail.com at your service, [31.42.181.96]"
+[Level 4] SMTP INBOUND: "250-SIZE 35882577"
+[Level 4] SMTP INBOUND: "250-8BITMIME"
+[Level 4] SMTP INBOUND: "250-AUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH"
+[Level 4] SMTP INBOUND: "250-ENHANCEDSTATUSCODES"
+[Level 4] SMTP INBOUND: "250-PIPELINING"
+[Level 4] SMTP INBOUND: "250-CHUNKING"
+[Level 4] SMTP INBOUND: "250 SMTPUTF8"
+[Level 2] SERVER -> CLIENT: 250-smtp.gmail.com at your service, [31.42.181.96]
+250-SIZE 35882577
+250-8BITMIME
+250-AUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+
+[Level 4] Auth method requested: UNSPECIFIED
+[Level 4] Auth methods available on the server: LOGIN,PLAIN,XOAUTH2,PLAIN-CLIENTTOKEN,OAUTHBEARER,XOAUTH
+[Level 4] Requested auth method not available: 
+[Level 4] Auth method selected: LOGIN
+[Level 1] CLIENT -> SERVER: AUTH LOGIN
+
+[Level 4] SMTP INBOUND: "334 VXNlcm5hbWU6"
+[Level 2] SERVER -> CLIENT: 334 VXNlcm5hbWU6
+
+[Level 1] CLIENT -> SERVER: aWh0cDEwM0BnbWFpbC5jb20=
+
+[Level 4] SMTP INBOUND: "334 UGFzc3dvcmQ6"
+[Level 2] SERVER -> CLIENT: 334 UGFzc3dvcmQ6
+
+[Level 1] CLIENT -> SERVER: b3hvZm9xaGx1aXJramRpcg==
+
+[Level 4] SMTP INBOUND: "235 2.7.0 Accepted"
+[Level 2] SERVER -> CLIENT: 235 2.7.0 Accepted
+
+[Level 1] CLIENT -> SERVER: MAIL FROM:<ihtp103@gmail.com>
+
+[Level 4] SMTP INBOUND: "250 2.1.0 OK 38308e7fff4ca-381134b5004sm607911fa.2 - gsmtp"
+[Level 2] SERVER -> CLIENT: 250 2.1.0 OK 38308e7fff4ca-381134b5004sm607911fa.2 - gsmtp
+
+[Level 1] CLIENT -> SERVER: RCPT TO:<andriy.yakubjak@kpk-lp.com.ua>
+
+[Level 4] SMTP INBOUND: "250 2.1.5 OK 38308e7fff4ca-381134b5004sm607911fa.2 - gsmtp"
+[Level 2] SERVER -> CLIENT: 250 2.1.5 OK 38308e7fff4ca-381134b5004sm607911fa.2 - gsmtp
+
+[Level 1] CLIENT -> SERVER: DATA
+
+[Level 4] SMTP INBOUND: "354 Go ahead 38308e7fff4ca-381134b5004sm607911fa.2 - gsmtp"
+[Level 2] SERVER -> CLIENT: 354 Go ahead 38308e7fff4ca-381134b5004sm607911fa.2 - gsmtp
+
+[Level 1] CLIENT -> SERVER: Date: Wed, 17 Dec 2025 19:29:42 +0100
+
+[Level 1] CLIENT -> SERVER: To: andriy.yakubjak@kpk-lp.com.ua
+
+[Level 1] CLIENT -> SERVER: From: CookBook <ihtp103@gmail.com>
+
+[Level 1] CLIENT -> SERVER: Reply-To: 123123 <andriy.yakubjak@kpk-lp.com.ua>
+
+[Level 1] CLIENT -> SERVER: Subject: [Contact] 212121
+
+[Level 1] CLIENT -> SERVER: Message-ID: <lauDgGuLdtZIdgEwbj1xnhaMxSJ4n6ZA3S27vJ4ik@localhost>
+
+[Level 1] CLIENT -> SERVER: X-Mailer: PHPMailer 7.0.1 (https://github.com/PHPMailer/PHPMailer)
+
+[Level 1] CLIENT -> SERVER: MIME-Version: 1.0
+
+[Level 1] CLIENT -> SERVER: Content-Type: text/plain; charset=UTF-8
+
+[Level 1] CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+[Level 1] CLIENT -> SERVER: 
+
+[Level 1] CLIENT -> SERVER: від користувача: 123123 (andriy.yakubjak@kpk-lp.com.ua)
+
+[Level 1] CLIENT -> SERVER: 
+
+[Level 1] CLIENT -> SERVER: повідомлення:
+
+[Level 1] CLIENT -> SERVER: 123213
+
+[Level 1] CLIENT -> SERVER: 
+
+[Level 1] CLIENT -> SERVER: .
+
+[Level 4] SMTP INBOUND: "250 2.0.0 OK  1765996184 38308e7fff4ca-381134b5004sm607911fa.2 - gsmtp"
+[Level 2] SERVER -> CLIENT: 250 2.0.0 OK  1765996184 38308e7fff4ca-381134b5004sm607911fa.2 - gsmtp
+
+[Level 1] CLIENT -> SERVER: QUIT
+
+[Level 4] SMTP INBOUND: "221 2.0.0 closing connection 38308e7fff4ca-381134b5004sm607911fa.2 - gsmtp"
+[Level 2] SERVER -> CLIENT: 221 2.0.0 closing connection 38308e7fff4ca-381134b5004sm607911fa.2 - gsmtp
+
+[Level 3] Connection: closed
+[Level 3] Connection: opening to smtp.gmail.com:587, timeout=300, options=array()
+[Level 3] Connection: opened
+[Level 4] SMTP INBOUND: "220 smtp.gmail.com ESMTP 2adb3069b0e04-59a134fe881sm17255e87.69 - gsmtp"
+[Level 2] SERVER -> CLIENT: 220 smtp.gmail.com ESMTP 2adb3069b0e04-59a134fe881sm17255e87.69 - gsmtp
+
+[Level 1] CLIENT -> SERVER: EHLO localhost
+
+[Level 4] SMTP INBOUND: "250-smtp.gmail.com at your service, [31.42.181.96]"
+[Level 4] SMTP INBOUND: "250-SIZE 35882577"
+[Level 4] SMTP INBOUND: "250-8BITMIME"
+[Level 4] SMTP INBOUND: "250-STARTTLS"
+[Level 4] SMTP INBOUND: "250-ENHANCEDSTATUSCODES"
+[Level 4] SMTP INBOUND: "250-PIPELINING"
+[Level 4] SMTP INBOUND: "250-CHUNKING"
+[Level 4] SMTP INBOUND: "250 SMTPUTF8"
+[Level 2] SERVER -> CLIENT: 250-smtp.gmail.com at your service, [31.42.181.96]
+250-SIZE 35882577
+250-8BITMIME
+250-STARTTLS
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+
+[Level 1] CLIENT -> SERVER: STARTTLS
+
+[Level 4] SMTP INBOUND: "220 2.0.0 Ready to start TLS"
+[Level 2] SERVER -> CLIENT: 220 2.0.0 Ready to start TLS
+
+[Level 1] CLIENT -> SERVER: EHLO localhost
+
+[Level 4] SMTP INBOUND: "250-smtp.gmail.com at your service, [31.42.181.96]"
+[Level 4] SMTP INBOUND: "250-SIZE 35882577"
+[Level 4] SMTP INBOUND: "250-8BITMIME"
+[Level 4] SMTP INBOUND: "250-AUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH"
+[Level 4] SMTP INBOUND: "250-ENHANCEDSTATUSCODES"
+[Level 4] SMTP INBOUND: "250-PIPELINING"
+[Level 4] SMTP INBOUND: "250-CHUNKING"
+[Level 4] SMTP INBOUND: "250 SMTPUTF8"
+[Level 2] SERVER -> CLIENT: 250-smtp.gmail.com at your service, [31.42.181.96]
+250-SIZE 35882577
+250-8BITMIME
+250-AUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+
+[Level 4] Auth method requested: UNSPECIFIED
+[Level 4] Auth methods available on the server: LOGIN,PLAIN,XOAUTH2,PLAIN-CLIENTTOKEN,OAUTHBEARER,XOAUTH
+[Level 4] Requested auth method not available: 
+[Level 4] Auth method selected: LOGIN
+[Level 1] CLIENT -> SERVER: AUTH LOGIN
+
+[Level 4] SMTP INBOUND: "334 VXNlcm5hbWU6"
+[Level 2] SERVER -> CLIENT: 334 VXNlcm5hbWU6
+
+[Level 1] CLIENT -> SERVER: aWh0cDEwM0BnbWFpbC5jb20=
+
+[Level 4] SMTP INBOUND: "334 UGFzc3dvcmQ6"
+[Level 2] SERVER -> CLIENT: 334 UGFzc3dvcmQ6
+
+[Level 1] CLIENT -> SERVER: b3hvZm9xaGx1aXJramRpcg==
+
+[Level 4] SMTP INBOUND: "235 2.7.0 Accepted"
+[Level 2] SERVER -> CLIENT: 235 2.7.0 Accepted
+
+[Level 1] CLIENT -> SERVER: MAIL FROM:<ihtp103@gmail.com>
+
+[Level 4] SMTP INBOUND: "250 2.1.0 OK 2adb3069b0e04-59a134fe881sm17255e87.69 - gsmtp"
+[Level 2] SERVER -> CLIENT: 250 2.1.0 OK 2adb3069b0e04-59a134fe881sm17255e87.69 - gsmtp
+
+[Level 1] CLIENT -> SERVER: RCPT TO:<andriy.yakubjak@kpk-lp.com.ua>
+
+[Level 4] SMTP INBOUND: "250 2.1.5 OK 2adb3069b0e04-59a134fe881sm17255e87.69 - gsmtp"
+[Level 2] SERVER -> CLIENT: 250 2.1.5 OK 2adb3069b0e04-59a134fe881sm17255e87.69 - gsmtp
+
+[Level 1] CLIENT -> SERVER: DATA
+
+[Level 4] SMTP INBOUND: "354 Go ahead 2adb3069b0e04-59a134fe881sm17255e87.69 - gsmtp"
+[Level 2] SERVER -> CLIENT: 354 Go ahead 2adb3069b0e04-59a134fe881sm17255e87.69 - gsmtp
+
+[Level 1] CLIENT -> SERVER: Date: Wed, 17 Dec 2025 19:48:33 +0100
+
+[Level 1] CLIENT -> SERVER: To: andriy.yakubjak@kpk-lp.com.ua
+
+[Level 1] CLIENT -> SERVER: From: CookBook <ihtp103@gmail.com>
+
+[Level 1] CLIENT -> SERVER: Reply-To: =?UTF-8?B?0JDQvdC00YDRltC5?= <oleksandr.kostyuk@kpk-lp.com.ua>
+
+[Level 1] CLIENT -> SERVER: Subject: [Contact] 123213
+
+[Level 1] CLIENT -> SERVER: Message-ID: <AuL0MmtVbFbBLrYr7mQ8fqDYG3qY15J74Q801ui8BA@localhost>
+
+[Level 1] CLIENT -> SERVER: X-Mailer: PHPMailer 7.0.1 (https://github.com/PHPMailer/PHPMailer)
+
+[Level 1] CLIENT -> SERVER: MIME-Version: 1.0
+
+[Level 1] CLIENT -> SERVER: Content-Type: text/plain; charset=UTF-8
+
+[Level 1] CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+[Level 1] CLIENT -> SERVER: 
+
+[Level 1] CLIENT -> SERVER: від користувача: Андрій (oleksandr.kostyuk@kpk-lp.com.ua)
+
+[Level 1] CLIENT -> SERVER: 
+
+[Level 1] CLIENT -> SERVER: повідомлення:
+
+[Level 1] CLIENT -> SERVER: здоров
+
+[Level 1] CLIENT -> SERVER: 
+
+[Level 1] CLIENT -> SERVER: .
+
+[Level 4] SMTP INBOUND: "250 2.0.0 OK  1765997315 2adb3069b0e04-59a134fe881sm17255e87.69 - gsmtp"
+[Level 2] SERVER -> CLIENT: 250 2.0.0 OK  1765997315 2adb3069b0e04-59a134fe881sm17255e87.69 - gsmtp
+
+[Level 1] CLIENT -> SERVER: QUIT
+
+[Level 4] SMTP INBOUND: "221 2.0.0 closing connection 2adb3069b0e04-59a134fe881sm17255e87.69 - gsmtp"
+[Level 2] SERVER -> CLIENT: 221 2.0.0 closing connection 2adb3069b0e04-59a134fe881sm17255e87.69 - gsmtp
+
+[Level 3] Connection: closed
+[Level 3] Connection: opening to smtp.gmail.com:587, timeout=300, options=array()
+[Level 3] Connection: opened
+[Level 4] SMTP INBOUND: "220 smtp.gmail.com ESMTP 2adb3069b0e04-59a13405dd7sm18942e87.66 - gsmtp"
+[Level 2] SERVER -> CLIENT: 220 smtp.gmail.com ESMTP 2adb3069b0e04-59a13405dd7sm18942e87.66 - gsmtp
+
+[Level 1] CLIENT -> SERVER: EHLO localhost
+
+[Level 4] SMTP INBOUND: "250-smtp.gmail.com at your service, [31.42.181.96]"
+[Level 4] SMTP INBOUND: "250-SIZE 35882577"
+[Level 4] SMTP INBOUND: "250-8BITMIME"
+[Level 4] SMTP INBOUND: "250-STARTTLS"
+[Level 4] SMTP INBOUND: "250-ENHANCEDSTATUSCODES"
+[Level 4] SMTP INBOUND: "250-PIPELINING"
+[Level 4] SMTP INBOUND: "250-CHUNKING"
+[Level 4] SMTP INBOUND: "250 SMTPUTF8"
+[Level 2] SERVER -> CLIENT: 250-smtp.gmail.com at your service, [31.42.181.96]
+250-SIZE 35882577
+250-8BITMIME
+250-STARTTLS
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+
+[Level 1] CLIENT -> SERVER: STARTTLS
+
+[Level 4] SMTP INBOUND: "220 2.0.0 Ready to start TLS"
+[Level 2] SERVER -> CLIENT: 220 2.0.0 Ready to start TLS
+
+[Level 1] CLIENT -> SERVER: EHLO localhost
+
+[Level 4] SMTP INBOUND: "250-smtp.gmail.com at your service, [31.42.181.96]"
+[Level 4] SMTP INBOUND: "250-SIZE 35882577"
+[Level 4] SMTP INBOUND: "250-8BITMIME"
+[Level 4] SMTP INBOUND: "250-AUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH"
+[Level 4] SMTP INBOUND: "250-ENHANCEDSTATUSCODES"
+[Level 4] SMTP INBOUND: "250-PIPELINING"
+[Level 4] SMTP INBOUND: "250-CHUNKING"
+[Level 4] SMTP INBOUND: "250 SMTPUTF8"
+[Level 2] SERVER -> CLIENT: 250-smtp.gmail.com at your service, [31.42.181.96]
+250-SIZE 35882577
+250-8BITMIME
+250-AUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+
+[Level 4] Auth method requested: UNSPECIFIED
+[Level 4] Auth methods available on the server: LOGIN,PLAIN,XOAUTH2,PLAIN-CLIENTTOKEN,OAUTHBEARER,XOAUTH
+[Level 4] Requested auth method not available: 
+[Level 4] Auth method selected: LOGIN
+[Level 1] CLIENT -> SERVER: AUTH LOGIN
+
+[Level 4] SMTP INBOUND: "334 VXNlcm5hbWU6"
+[Level 2] SERVER -> CLIENT: 334 VXNlcm5hbWU6
+
+[Level 1] CLIENT -> SERVER: aWh0cDEwM0BnbWFpbC5jb20=
+
+[Level 4] SMTP INBOUND: "334 UGFzc3dvcmQ6"
+[Level 2] SERVER -> CLIENT: 334 UGFzc3dvcmQ6
+
+[Level 1] CLIENT -> SERVER: b3hvZm9xaGx1aXJramRpcg==
+
+[Level 4] SMTP INBOUND: "235 2.7.0 Accepted"
+[Level 2] SERVER -> CLIENT: 235 2.7.0 Accepted
+
+[Level 1] CLIENT -> SERVER: MAIL FROM:<ihtp103@gmail.com>
+
+[Level 4] SMTP INBOUND: "250 2.1.0 OK 2adb3069b0e04-59a13405dd7sm18942e87.66 - gsmtp"
+[Level 2] SERVER -> CLIENT: 250 2.1.0 OK 2adb3069b0e04-59a13405dd7sm18942e87.66 - gsmtp
+
+[Level 1] CLIENT -> SERVER: RCPT TO:<andriy.yakubjak@kpk-lp.com.ua>
+
+[Level 4] SMTP INBOUND: "250 2.1.5 OK 2adb3069b0e04-59a13405dd7sm18942e87.66 - gsmtp"
+[Level 2] SERVER -> CLIENT: 250 2.1.5 OK 2adb3069b0e04-59a13405dd7sm18942e87.66 - gsmtp
+
+[Level 1] CLIENT -> SERVER: DATA
+
+[Level 4] SMTP INBOUND: "354 Go ahead 2adb3069b0e04-59a13405dd7sm18942e87.66 - gsmtp"
+[Level 2] SERVER -> CLIENT: 354 Go ahead 2adb3069b0e04-59a13405dd7sm18942e87.66 - gsmtp
+
+[Level 1] CLIENT -> SERVER: Date: Wed, 17 Dec 2025 19:49:40 +0100
+
+[Level 1] CLIENT -> SERVER: To: andriy.yakubjak@kpk-lp.com.ua
+
+[Level 1] CLIENT -> SERVER: From: CookBook <ihtp103@gmail.com>
+
+[Level 1] CLIENT -> SERVER: Reply-To: =?UTF-8?B?0JDQvdC00YDRltC5?= <andriy.yakubjak@kpk-lp.com.ua>
+
+[Level 1] CLIENT -> SERVER: Subject: [Contact] 123213
+
+[Level 1] CLIENT -> SERVER: Message-ID: <viKdMJbVCmwPKDXjQhwCZr4dQpsBVu7BQ7g4BfvW3aI@localhost>
+
+[Level 1] CLIENT -> SERVER: X-Mailer: PHPMailer 7.0.1 (https://github.com/PHPMailer/PHPMailer)
+
+[Level 1] CLIENT -> SERVER: MIME-Version: 1.0
+
+[Level 1] CLIENT -> SERVER: Content-Type: text/plain; charset=UTF-8
+
+[Level 1] CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+[Level 1] CLIENT -> SERVER: 
+
+[Level 1] CLIENT -> SERVER: від користувача: Андрій (andriy.yakubjak@kpk-lp.com.ua)
+
+[Level 1] CLIENT -> SERVER: 
+
+[Level 1] CLIENT -> SERVER: повідомлення:
+
+[Level 1] CLIENT -> SERVER: 213213
+
+[Level 1] CLIENT -> SERVER: 
+
+[Level 1] CLIENT -> SERVER: .
+
+[Level 4] SMTP INBOUND: "250 2.0.0 OK  1765997382 2adb3069b0e04-59a13405dd7sm18942e87.66 - gsmtp"
+[Level 2] SERVER -> CLIENT: 250 2.0.0 OK  1765997382 2adb3069b0e04-59a13405dd7sm18942e87.66 - gsmtp
+
+[Level 1] CLIENT -> SERVER: QUIT
+
+[Level 4] SMTP INBOUND: "221 2.0.0 closing connection 2adb3069b0e04-59a13405dd7sm18942e87.66 - gsmtp"
+[Level 2] SERVER -> CLIENT: 221 2.0.0 closing connection 2adb3069b0e04-59a13405dd7sm18942e87.66 - gsmtp
+
+[Level 3] Connection: closed
+[Level 3] Connection: opening to smtp.gmail.com:587, timeout=300, options=array()
+[Level 3] Connection: opened
+[Level 4] SMTP INBOUND: "220 smtp.gmail.com ESMTP 2adb3069b0e04-59a13405914sm22731e87.51 - gsmtp"
+[Level 2] SERVER -> CLIENT: 220 smtp.gmail.com ESMTP 2adb3069b0e04-59a13405914sm22731e87.51 - gsmtp
+
+[Level 1] CLIENT -> SERVER: EHLO localhost
+
+[Level 4] SMTP INBOUND: "250-smtp.gmail.com at your service, [31.42.181.96]"
+[Level 4] SMTP INBOUND: "250-SIZE 35882577"
+[Level 4] SMTP INBOUND: "250-8BITMIME"
+[Level 4] SMTP INBOUND: "250-STARTTLS"
+[Level 4] SMTP INBOUND: "250-ENHANCEDSTATUSCODES"
+[Level 4] SMTP INBOUND: "250-PIPELINING"
+[Level 4] SMTP INBOUND: "250-CHUNKING"
+[Level 4] SMTP INBOUND: "250 SMTPUTF8"
+[Level 2] SERVER -> CLIENT: 250-smtp.gmail.com at your service, [31.42.181.96]
+250-SIZE 35882577
+250-8BITMIME
+250-STARTTLS
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+
+[Level 1] CLIENT -> SERVER: STARTTLS
+
+[Level 4] SMTP INBOUND: "220 2.0.0 Ready to start TLS"
+[Level 2] SERVER -> CLIENT: 220 2.0.0 Ready to start TLS
+
+[Level 1] CLIENT -> SERVER: EHLO localhost
+
+[Level 4] SMTP INBOUND: "250-smtp.gmail.com at your service, [31.42.181.96]"
+[Level 4] SMTP INBOUND: "250-SIZE 35882577"
+[Level 4] SMTP INBOUND: "250-8BITMIME"
+[Level 4] SMTP INBOUND: "250-AUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH"
+[Level 4] SMTP INBOUND: "250-ENHANCEDSTATUSCODES"
+[Level 4] SMTP INBOUND: "250-PIPELINING"
+[Level 4] SMTP INBOUND: "250-CHUNKING"
+[Level 4] SMTP INBOUND: "250 SMTPUTF8"
+[Level 2] SERVER -> CLIENT: 250-smtp.gmail.com at your service, [31.42.181.96]
+250-SIZE 35882577
+250-8BITMIME
+250-AUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+
+[Level 4] Auth method requested: UNSPECIFIED
+[Level 4] Auth methods available on the server: LOGIN,PLAIN,XOAUTH2,PLAIN-CLIENTTOKEN,OAUTHBEARER,XOAUTH
+[Level 4] Requested auth method not available: 
+[Level 4] Auth method selected: LOGIN
+[Level 1] CLIENT -> SERVER: AUTH LOGIN
+
+[Level 4] SMTP INBOUND: "334 VXNlcm5hbWU6"
+[Level 2] SERVER -> CLIENT: 334 VXNlcm5hbWU6
+
+[Level 1] CLIENT -> SERVER: aWh0cDEwM0BnbWFpbC5jb20=
+
+[Level 4] SMTP INBOUND: "334 UGFzc3dvcmQ6"
+[Level 2] SERVER -> CLIENT: 334 UGFzc3dvcmQ6
+
+[Level 1] CLIENT -> SERVER: b3hvZm9xaGx1aXJramRpcg==
+
+[Level 4] SMTP INBOUND: "235 2.7.0 Accepted"
+[Level 2] SERVER -> CLIENT: 235 2.7.0 Accepted
+
+[Level 1] CLIENT -> SERVER: MAIL FROM:<ihtp103@gmail.com>
+
+[Level 4] SMTP INBOUND: "250 2.1.0 OK 2adb3069b0e04-59a13405914sm22731e87.51 - gsmtp"
+[Level 2] SERVER -> CLIENT: 250 2.1.0 OK 2adb3069b0e04-59a13405914sm22731e87.51 - gsmtp
+
+[Level 1] CLIENT -> SERVER: RCPT TO:<andriy.yakubjak@kpk-lp.com.ua>
+
+[Level 4] SMTP INBOUND: "250 2.1.5 OK 2adb3069b0e04-59a13405914sm22731e87.51 - gsmtp"
+[Level 2] SERVER -> CLIENT: 250 2.1.5 OK 2adb3069b0e04-59a13405914sm22731e87.51 - gsmtp
+
+[Level 1] CLIENT -> SERVER: DATA
+
+[Level 4] SMTP INBOUND: "354 Go ahead 2adb3069b0e04-59a13405914sm22731e87.51 - gsmtp"
+[Level 2] SERVER -> CLIENT: 354 Go ahead 2adb3069b0e04-59a13405914sm22731e87.51 - gsmtp
+
+[Level 1] CLIENT -> SERVER: Date: Wed, 17 Dec 2025 19:55:27 +0100
+
+[Level 1] CLIENT -> SERVER: To: andriy.yakubjak@kpk-lp.com.ua
+
+[Level 1] CLIENT -> SERVER: From: CookBook <ihtp103@gmail.com>
+
+[Level 1] CLIENT -> SERVER: Reply-To: =?UTF-8?B?0JDQvdC00YDRltC5?= <andriy.yakubjak@kpk-lp.com.ua>
+
+[Level 1] CLIENT -> SERVER: Subject: [Contact] 123213
+
+[Level 1] CLIENT -> SERVER: Message-ID: <oEgX4vc1VwRPwg8c2OboFbpdfvD6jVaWaMOkRZc@localhost>
+
+[Level 1] CLIENT -> SERVER: X-Mailer: PHPMailer 7.0.1 (https://github.com/PHPMailer/PHPMailer)
+
+[Level 1] CLIENT -> SERVER: MIME-Version: 1.0
+
+[Level 1] CLIENT -> SERVER: Content-Type: text/plain; charset=UTF-8
+
+[Level 1] CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+
+[Level 1] CLIENT -> SERVER: 
+
+[Level 1] CLIENT -> SERVER: від користувача: Андрій (andriy.yakubjak@kpk-lp.com.ua)
+
+[Level 1] CLIENT -> SERVER: 
+
+[Level 1] CLIENT -> SERVER: повідомлення:
+
+[Level 1] CLIENT -> SERVER: 123213
+
+[Level 1] CLIENT -> SERVER: 
+
+[Level 1] CLIENT -> SERVER: .
+
+[Level 4] SMTP INBOUND: "250 2.0.0 OK  1765997729 2adb3069b0e04-59a13405914sm22731e87.51 - gsmtp"
+[Level 2] SERVER -> CLIENT: 250 2.0.0 OK  1765997729 2adb3069b0e04-59a13405914sm22731e87.51 - gsmtp
+
+[Level 1] CLIENT -> SERVER: QUIT
+
+[Level 4] SMTP INBOUND: "221 2.0.0 closing connection 2adb3069b0e04-59a13405914sm22731e87.51 - gsmtp"
+[Level 2] SERVER -> CLIENT: 221 2.0.0 closing connection 2adb3069b0e04-59a13405914sm22731e87.51 - gsmtp
+
+[Level 3] Connection: closed

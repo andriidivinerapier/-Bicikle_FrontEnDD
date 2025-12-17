@@ -338,12 +338,18 @@ function viewRecipe(recipeId) {
                         ${ingredientsHtml}
                         ${instructionsHtml}
                     </div>
+                    <div class="view-section view-comments">
+                        <h4>Коментарі</h4>
+                        <div id="admin-comments-container" class="comments-container">Завантаження...</div>
+                    </div>
                 </div>
             `;
 
             modal.classList.add('show');
             // ensure photo is displayed on top for viewing
             modal.classList.add('view-top-image');
+            // load comments for this recipe
+            loadCommentsForRecipe(recipe.id);
         })
         .catch(err => {
             console.error('Помилка завантаження рецепту:', err);
@@ -766,11 +772,17 @@ function viewUserRecipe(id) {
                 ${instructionsHtml}
             </div>
             ${actionButtons}
+            <div class="view-section view-comments">
+                <h4>Коментарі</h4>
+                <div id="admin-comments-container" class="comments-container">Завантаження...</div>
+            </div>
         </div>
     `;
     modal.classList.add('show');
     // show image above content for easier reading
     modal.classList.add('view-top-image');
+    // load comments for this recipe
+    loadCommentsForRecipe(r.id);
 }
 
 // cleanup view modal content and restore edit form when modal closes
@@ -1141,5 +1153,200 @@ function updateDeleteVisibility(container, itemSelector) {
     items.forEach(item => {
         const deleteBtn = item.querySelector('.delete-btn');
         if (deleteBtn) deleteBtn.style.display = items.length > 1 ? 'flex' : 'none';
+    });
+}
+
+/**
+ * Завантажити коментарі для рецепту та відобразити їх в модалі
+ */
+function loadCommentsForRecipe(recipeId) {
+    const container = document.getElementById('admin-comments-container');
+    if (!container) return;
+    container.innerHTML = 'Завантаження...';
+
+    fetch('backend/get-comments.php?recipe_id=' + encodeURIComponent(recipeId) + '&limit=200')
+        .then(r => r.json())
+        .then(data => {
+            if (!data || data.status !== 'success') {
+                container.innerHTML = '<div class="loading-text">Помилка завантаження коментарів</div>';
+                return;
+            }
+            renderCommentsList(container, data.comments || [], recipeId);
+        })
+        .catch(err => {
+            console.error('loadCommentsForRecipe error:', err);
+            container.innerHTML = '<div class="loading-text">Помилка мережі</div>';
+        });
+}
+
+function renderCommentsList(container, comments, recipeId) {
+    const pageSize = 5;
+    if (!comments || comments.length === 0) {
+        container.innerHTML = '<div class="loading-text">Коментарів не знайдено</div>';
+        return;
+    }
+
+    // prepare pagination state
+    let currentPage = 1;
+    const totalPages = Math.max(1, Math.ceil(comments.length / pageSize));
+
+    // root list container
+    const listRoot = document.createElement('div');
+    listRoot.className = 'admin-comments-list-root';
+
+    const list = document.createElement('div');
+    list.className = 'admin-comments-list';
+
+    const pagination = document.createElement('div');
+    pagination.className = 'comments-pagination';
+
+    function renderPage(page) {
+        page = Math.max(1, Math.min(totalPages, page));
+        currentPage = page;
+        list.innerHTML = '';
+        const start = (page - 1) * pageSize;
+        const slice = comments.slice(start, start + pageSize);
+
+        slice.forEach(c => {
+            const item = document.createElement('div');
+            item.className = 'admin-comment-item';
+            const date = c.created_at ? new Date(c.created_at).toLocaleString('uk-UA') : '';
+            item.innerHTML = `
+                <div class="comment-main">
+                    <div class="comment-header"><strong>${escapeHtml(c.username || 'Користувач')}</strong> <span class="comment-date">${escapeHtml(date)}</span></div>
+                    <div class="comment-body">${escapeHtml(c.content)}</div>
+                </div>
+                <div class="comment-actions">
+                    <button class="btn-small btn-delete" data-comment-id="${c.id}">Видалити</button>
+                </div>
+            `;
+
+            const delBtn = item.querySelector('button[data-comment-id]');
+            if (delBtn) {
+                delBtn.addEventListener('click', () => {
+                    deleteComment(c.id, recipeId);
+                });
+            }
+
+            list.appendChild(item);
+        });
+
+        // render pagination buttons
+        pagination.innerHTML = '';
+        if (totalPages > 1) {
+            const prev = document.createElement('button');
+            prev.className = 'page-btn';
+            prev.textContent = '<';
+            prev.disabled = page === 1;
+            prev.addEventListener('click', () => renderPage(currentPage - 1));
+            pagination.appendChild(prev);
+
+            // show up to 7 page buttons (compact)
+            const startPage = Math.max(1, Math.min(page - 3, totalPages - 6));
+            const endPage = Math.min(totalPages, startPage + 6);
+            for (let p = startPage; p <= endPage; p++) {
+                const btn = document.createElement('button');
+                btn.className = 'page-btn' + (p === page ? ' active' : '');
+                btn.textContent = String(p);
+                btn.addEventListener('click', () => renderPage(p));
+                pagination.appendChild(btn);
+            }
+
+            const next = document.createElement('button');
+            next.className = 'page-btn';
+            next.textContent = '>';
+            next.disabled = page === totalPages;
+            next.addEventListener('click', () => renderPage(currentPage + 1));
+            pagination.appendChild(next);
+        }
+    }
+
+    listRoot.appendChild(list);
+    listRoot.appendChild(pagination);
+    container.innerHTML = '';
+    container.appendChild(listRoot);
+
+    // initial render
+    renderPage(1);
+}
+
+/**
+ * Видалити коментар (адмінська дія)
+ */
+function deleteComment(commentId, recipeId) {
+    // show admin confirm modal (uses markup in admin.html #confirm-delete-modal)
+    showAdminConfirm('Ви впевнені, що хочете видалити цей коментар?', { showReason: false })
+        .then(result => {
+            if (!result || !result.confirmed) return;
+            const fd = new FormData(); fd.append('comment_id', commentId);
+            fetch('backend/delete-comment.php', { method: 'POST', body: fd })
+                .then(r => r.json())
+                .then(res => {
+                    if (res && res.status === 'success') {
+                        showToast('Коментар видалено', 'success');
+                        if (typeof loadCommentsForRecipe === 'function') loadCommentsForRecipe(recipeId);
+                    } else {
+                        showToast(res.message || 'Помилка при видаленні коментаря', 'error');
+                        console.error('deleteComment failed', res);
+                    }
+                })
+                .catch(err => {
+                    console.error('deleteComment error:', err);
+                    showToast('Помилка мережі', 'error');
+                });
+        })
+        .catch(err => { console.error('confirm modal error', err); });
+}
+
+// Admin confirm modal helper: returns Promise<{confirmed: boolean, reason?: string}>
+function showAdminConfirm(message, opts = { showReason: false, title: 'Підтвердження' }) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('confirm-delete-modal');
+        if (!modal) {
+            // fallback to native confirm
+            const ok = window.confirm(message);
+            return resolve({ confirmed: ok, reason: '' });
+        }
+
+        const titleEl = modal.querySelector('#confirm-delete-title');
+        const msgEl = modal.querySelector('#confirm-delete-message');
+        const reasonWrap = modal.querySelector('#confirm-delete-reason-wrap');
+        const reasonInput = modal.querySelector('#confirm-delete-reason');
+        const btnCancel = modal.querySelector('#confirm-delete-cancel');
+        const btnYes = modal.querySelector('#confirm-delete-yes');
+        const btnClose = modal.querySelector('.confirm-close');
+
+        if (titleEl) titleEl.textContent = opts.title || 'Підтвердження';
+        if (msgEl) msgEl.textContent = message || '';
+        if (reasonWrap) reasonWrap.style.display = opts.showReason ? 'block' : 'none';
+        if (reasonInput) reasonInput.value = '';
+
+        modal.setAttribute('aria-hidden', 'false');
+        modal.classList.add('open');
+        document.body.classList.add('modal-open');
+        document.body.style.overflow = 'hidden';
+
+        function cleanUp() {
+            btnCancel.removeEventListener('click', onCancel);
+            btnYes.removeEventListener('click', onYes);
+            if (btnClose) btnClose.removeEventListener('click', onCancel);
+            document.removeEventListener('keydown', onKey);
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+        }
+
+        function onCancel(e) { e && e.preventDefault(); cleanUp(); resolve({ confirmed: false }); }
+        function onYes(e) { e && e.preventDefault(); const reason = reasonInput ? reasonInput.value.trim() : ''; cleanUp(); resolve({ confirmed: true, reason }); }
+        function onKey(e) { if (e.key === 'Escape' || e.key === 'Esc') { e.preventDefault(); onCancel(); } }
+
+        btnCancel.addEventListener('click', onCancel);
+        btnYes.addEventListener('click', onYes);
+        if (btnClose) btnClose.addEventListener('click', onCancel);
+        document.addEventListener('keydown', onKey);
+
+        // focus yes button for accessibility
+        setTimeout(() => { if (btnYes) btnYes.focus(); }, 50);
     });
 }

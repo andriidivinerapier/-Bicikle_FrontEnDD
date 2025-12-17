@@ -2,6 +2,8 @@
 error_reporting(E_ALL);
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/send-contact.log');
+// Do not output PHP errors to the HTTP response (prevents HTML error pages breaking JSON)
+ini_set('display_errors', 0);
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -37,6 +39,18 @@ if (!file_exists($autoload)) {
 
 require $autoload;
 
+// If PHPMailer classes are not available, return a JSON error instead of letting a fatal error occur
+// If PHPMailer classes are not available, fall back to saving message locally
+$phPMailerAvailable = class_exists('PHPMailer\\PHPMailer\\PHPMailer');
+if (!$phPMailerAvailable) {
+    // save message for later (local fallback)
+    $logLine = sprintf("[%s] %s <%s> | %s\n%s\n---\n", date('c'), $name, $email, $subject, $message);
+    file_put_contents(__DIR__ . '/contact-fallback.log', $logLine, FILE_APPEND);
+    http_response_code(200);
+    echo json_encode(['status' => 'ok', 'message' => 'Повідомлення збережено локально (PHPMailer не встановлено)']);
+    exit;
+}
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -53,11 +67,15 @@ try {
     // Load SMTP credentials from environment variables (do NOT hard-code credentials)
     // Default SMTP user (do NOT include passwords here). Change via env var.
     $smtpUser = getenv('SMTP_USER') ?: 'ihtp103@gmail.com';
-    $smtpPass = getenv('SMTP_PASS') ?: getenv('GMAIL_APP_PASSWORD');
+    // Try several sources for the SMTP password: environment, server variables, apache env
+    $smtpPass = getenv('SMTP_PASS') ?: getenv('GMAIL_APP_PASSWORD') ?: (isset($_SERVER['SMTP_PASS']) ? $_SERVER['SMTP_PASS'] : null) ?: (function_exists('apache_getenv') ? apache_getenv('SMTP_PASS') : null);
 
     if (empty($smtpPass)) {
-        http_response_code(500);
-        echo json_encode(['status' => 'error', 'message' => 'SMTP password not configured (set SMTP_PASS or GMAIL_APP_PASSWORD)']);
+        // SMTP not configured — save locally as fallback
+        $logLine = sprintf("[%s] %s <%s> | %s\n%s\n---\n", date('c'), $name, $email, $subject, $message);
+        file_put_contents(__DIR__ . '/contact-fallback.log', $logLine, FILE_APPEND);
+        http_response_code(200);
+        echo json_encode(['status' => 'ok', 'message' => 'Повідомлення збережено локально (SMTP не налаштовано)']);
         exit;
     }
 
