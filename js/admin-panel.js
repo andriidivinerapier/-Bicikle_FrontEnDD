@@ -23,6 +23,14 @@ function initializeAdminPanel() {
         });
     });
 
+    // Ensure any leftover settings nav link is removed (safety for older templates)
+    const legacySettingsLink = document.querySelector('.nav-link[data-section="settings"]');
+    if (legacySettingsLink) {
+        const li = legacySettingsLink.closest('li');
+        if (li) li.remove();
+        else legacySettingsLink.remove();
+    }
+
     // Event listeners для рецептів
     document.getElementById('add-recipe-form').addEventListener('submit', handleAddRecipe);
     document.getElementById('refresh-recipes-btn').addEventListener('click', loadRecipes);
@@ -84,7 +92,6 @@ function initializeAdminPanel() {
     loadRecipes();
     // Завантаження рецептів користувачів (на модерації)
     if (typeof loadUserRecipes === 'function') loadUserRecipes();
-    loadUserSettings();
     // Users management controls
     const usersSearchInput = document.getElementById('search-users');
     const refreshUsersBtn = document.getElementById('refresh-users-btn');
@@ -191,8 +198,7 @@ function switchSection(sectionName) {
     const titles = {
         'recipes': 'Рецепти',
         'user-recipes': 'Рецепти користувачів',
-        'add-recipe': 'Додати рецепт',
-        'settings': 'Налаштування'
+        'add-recipe': 'Додати рецепт'
     };
     document.getElementById('section-title').textContent = titles[sectionName] || 'Адмін Панель';
 }
