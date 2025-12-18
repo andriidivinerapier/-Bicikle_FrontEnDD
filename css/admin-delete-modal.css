@@ -1,0 +1,22 @@
+/* Admin modal styles for delete recipe/comment (distinct from existing confirm-delete-modal.css) */
+:root{
+    --adm-modal-bg: #ffffff;
+    --adm-modal-text: #0f1724;
+    --adm-overlay: rgba(2,6,23,0.6);
+    --adm-accent: #ff6b35;
+}
+.adm-modal-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--adm-overlay);z-index:12000;opacity:0;visibility:hidden;pointer-events:none;transition:opacity 180ms ease,visibility 180ms ease}
+.adm-modal-overlay.open{opacity:1;visibility:visible;pointer-events:auto}
+.adm-modal-box{background:var(--adm-modal-bg);color:var(--adm-modal-text);border-radius:10px;padding:18px;max-width:540px;width:94%;box-shadow:0 30px 80px rgba(2,6,23,0.35);transform:translateY(8px) scale(0.995);transition:transform 220ms cubic-bezier(.2,.9,.2,1),opacity 200ms ease;opacity:0}
+.adm-modal-overlay.open .adm-modal-box{transform:translateY(0) scale(1);opacity:1}
+.adm-modal-header{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.adm-modal-title{font-weight:700;font-size:1.05rem}
+.adm-modal-desc{color:#54606b;margin-bottom:12px;line-height:1.45}
+.adm-modal-reason{margin-top:8px}
+.adm-modal-reason textarea{width:100%;min-height:90px;padding:10px;border-radius:8px;border:1px solid rgba(0,0,0,0.08);resize:vertical}
+.adm-modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
+.adm-btn{padding:8px 12px;border-radius:8px;font-weight:600;border:1px solid rgba(0,0,0,0.06);cursor:pointer;background:transparent}
+.adm-btn.cancel{background:transparent}
+.adm-btn.confirm{background:linear-gradient(90deg,var(--adm-accent),#ff9a3b);color:#fff;border:none;box-shadow:0 8px 18px rgba(255,107,53,0.12)}
+.adm-btn:focus{outline: none; box-shadow:0 6px 18px rgba(0,0,0,0.08)}
+@media (max-width:480px){.adm-modal-box{padding:12px}.adm-modal-actions .adm-btn{min-width:88px}}

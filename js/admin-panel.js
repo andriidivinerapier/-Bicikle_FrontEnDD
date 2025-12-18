@@ -522,30 +522,38 @@ function handleEditRecipe(e) {
  * Видалення рецепту
  */
 function deleteRecipe(recipeId) {
-    if (!confirm('Ви впевнені, що хочете видалити цей рецепт?')) {
-        return;
+    // Use admin modal with confirmation
+    if (typeof showAdminModal === 'function') {
+        showAdminModal({ title: 'Видалити рецепт?', message: 'Ви дійсно хочете видалити цей рецепт? Цю дію неможливо відмінити.', showReason: false })
+            .then(res => {
+                if (!res || !res.confirmed) return;
+                const formData = new FormData();
+                formData.append('recipe_id', recipeId);
+                fetch('backend/admin-delete-recipe.php', { method: 'POST', body: formData })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            showToast('Рецепт успішно видалено', 'success');
+                            loadRecipes();
+                        } else {
+                            showToast(data.message || 'Помилка при видаленні рецепту', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Помилка:', error);
+                        showToast('Помилка при запиті до сервера', 'error');
+                    });
+            })
+            .catch(err => console.error('confirm modal error', err));
+    } else {
+        // fallback to native confirm
+        if (!confirm('Ви впевнені, що хочете видалити цей рецепт?')) return;
+        const formData = new FormData(); formData.append('recipe_id', recipeId);
+        fetch('backend/admin-delete-recipe.php', { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(data => { if (data.status === 'success') { showToast('Рецепт успішно видалено','success'); loadRecipes(); } else showToast(data.message||'Помилка при видаленні рецепту','error'); })
+            .catch(err => { console.error(err); showToast('Помилка при запиті до сервера','error'); });
     }
-
-    const formData = new FormData();
-    formData.append('recipe_id', recipeId);
-
-    fetch('backend/admin-delete-recipe.php', {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                showToast('Рецепт успішно видалено', 'success');
-                loadRecipes();
-            } else {
-                showToast(data.message || 'Помилка при видаленні рецепту', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Помилка:', error);
-            showToast('Помилка при запиті до сервера', 'error');
-        });
 }
 
 /**
@@ -838,18 +846,24 @@ function rejectUserRecipe(id) {
         .catch(err => { console.error(err); showToast('Помилка мережі', 'error'); });
 }
 function deleteUserRecipe(id) {
-    if (!confirm('Ви впевнені, що хочете видалити цей рецепт?')) return;
-    const fd = new FormData(); fd.append('recipe_id', id);
-    fetch('backend/admin-delete-recipe.php', { method: 'POST', body: fd })
-        .then(r => r.json())
-        .then(res => {
-            if (res.status === 'success') {
-                showToast('Рецепт видалено', 'success');
-                loadUserRecipes();
-                loadRecipes();
-            } else showToast(res.message || 'Помилка при видаленні', 'error');
-        })
-        .catch(err => { console.error(err); showToast('Помилка мережі', 'error'); });
+    // require admin modal with reason when deleting user-submitted recipe
+    const modalFn = (typeof showAdminModal === 'function') ? showAdminModal : null;
+    const promptPromise = modalFn ? modalFn({ title: 'Видалити рецепт користувача?', message: 'Ви дійсно хочете видалити цей рецепт від користувача? Причина буде надіслана користувачу.', showReason: true }) : Promise.resolve({ confirmed: confirm('Ви впевнені, що хочете видалити цей рецепт?'), reason: '' });
+    promptPromise.then(result => {
+        if (!result || !result.confirmed) return;
+        const fd = new FormData(); fd.append('recipe_id', id);
+        if (result.reason) fd.append('reason', result.reason);
+        fetch('backend/admin-delete-recipe.php', { method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(res => {
+                if (res.status === 'success') {
+                    showToast('Рецепт видалено', 'success');
+                    loadUserRecipes();
+                    loadRecipes();
+                } else showToast(res.message || 'Помилка при видаленні', 'error');
+            })
+            .catch(err => { console.error(err); showToast('Помилка мережі', 'error'); });
+    }).catch(err => { console.error('confirm modal error', err); });
 }
 
 /**
@@ -1280,28 +1294,29 @@ function renderCommentsList(container, comments, recipeId) {
  * Видалити коментар (адмінська дія)
  */
 function deleteComment(commentId, recipeId) {
-    // show admin confirm modal (uses markup in admin.html #confirm-delete-modal)
-    showAdminConfirm('Ви впевнені, що хочете видалити цей коментар?', { showReason: false })
-        .then(result => {
-            if (!result || !result.confirmed) return;
-            const fd = new FormData(); fd.append('comment_id', commentId);
-            fetch('backend/delete-comment.php', { method: 'POST', body: fd })
-                .then(r => r.json())
-                .then(res => {
-                    if (res && res.status === 'success') {
-                        showToast('Коментар видалено', 'success');
-                        if (typeof loadCommentsForRecipe === 'function') loadCommentsForRecipe(recipeId);
-                    } else {
-                        showToast(res.message || 'Помилка при видаленні коментаря', 'error');
-                        console.error('deleteComment failed', res);
-                    }
-                })
-                .catch(err => {
-                    console.error('deleteComment error:', err);
-                    showToast('Помилка мережі', 'error');
-                });
-        })
-        .catch(err => { console.error('confirm modal error', err); });
+    // show admin confirm modal (uses new admin modal helper if available)
+    const modalFn = (typeof showAdminModal === 'function') ? showAdminModal : null;
+    const promise = modalFn ? modalFn({ title: 'Видалити коментар?', message: 'Ви дійсно хочете видалити цей коментар? Цю дію неможливо відмінити.', showReason: true }) : Promise.resolve({ confirmed: confirm('Ви впевнені, що хочете видалити цей коментар?') });
+    promise.then(result => {
+        if (!result || !result.confirmed) return;
+        const fd = new FormData(); fd.append('comment_id', commentId);
+        if (result.reason) fd.append('reason', result.reason);
+        fetch('backend/delete-comment.php', { method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(res => {
+                if (res && res.status === 'success') {
+                    showToast('Коментар видалено', 'success');
+                    if (typeof loadCommentsForRecipe === 'function') loadCommentsForRecipe(recipeId);
+                } else {
+                    showToast(res.message || 'Помилка при видаленні коментаря', 'error');
+                    console.error('deleteComment failed', res);
+                }
+            })
+            .catch(err => {
+                console.error('deleteComment error:', err);
+                showToast('Помилка мережі', 'error');
+            });
+    }).catch(err => { console.error('confirm modal error', err); });
 }
 
 // Admin confirm modal helper: returns Promise<{confirmed: boolean, reason?: string}>

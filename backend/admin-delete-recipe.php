@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Try to get from user_recipes first (for user-submitted recipes)
-    $stmt = $conn->prepare('SELECT image_path FROM user_recipes WHERE id = ?');
+    $stmt = $conn->prepare('SELECT image_path, user_id, title FROM user_recipes WHERE id = ?');
     $stmt->bind_param('i', $recipe_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -103,6 +103,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param('i', $recipe_id);
 
     if ($stmt->execute()) {
+        // If this was a user-submitted recipe and a reason was provided, create notification for user
+        $reason = trim($_POST['reason'] ?? '');
+        if ($isUserRecipe && !empty($reason)) {
+            // Ensure notifications table exists
+            $checkN = $conn->query("SHOW TABLES LIKE 'notifications'");
+            if ($checkN && $checkN->num_rows == 0) {
+                $createN = "CREATE TABLE notifications (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    message TEXT NOT NULL,
+                    is_read TINYINT(1) DEFAULT 0,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
+                $conn->query($createN);
+            }
+
+            $user_id = intval($recipe['user_id'] ?? 0);
+            $title = $conn->real_escape_string($recipe['title'] ?? '');
+            if ($user_id) {
+                $msg = "Ваш рецепт \"" . $title . "\" був видалений адміністратором.";
+                $msg .= " Причина: " . $conn->real_escape_string($reason);
+                $ins = $conn->prepare('INSERT INTO notifications (user_id, message) VALUES (?, ?)');
+                if ($ins) {
+                    $ins->bind_param('is', $user_id, $msg);
+                    $ins->execute();
+                    $ins->close();
+                }
+            }
+        }
+
         echo json_encode(['status' => 'success', 'message' => 'Рецепт успішно видалено']);
     } else {
         echo json_encode(['status' => 'error', 'message' => 'Помилка при видаленні рецепту']);
