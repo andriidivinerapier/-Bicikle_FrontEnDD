@@ -20,7 +20,7 @@
                     <li><a href="#" class="nav-link" data-section="user-recipes">Рецепти користувачів</a></li>
                     <li><a href="#" class="nav-link" data-section="users">Користувачі</a></li>
                     <li><a href="#" class="nav-link" data-section="add-recipe">Додати рецепт</a></li>
-                    <li><a href="#" class="nav-link" data-section="settings">Налаштування</a></li>
+                   
                 </ul>
             </nav>
             <div class="admin-user-info">
@@ -223,19 +223,7 @@
                 </form>
             </section>
 
-            <!-- Секція Налаштування -->
-            <section id="settings-section" class="admin-section">
-                <h3>Налаштування</h3>
-                <div class="settings-card">
-                    <h4>Інформація адміна</h4>
-                    <p><strong>Ім'я користувача:</strong> <span id="settings-username">-</span></p>
-                    <p><strong>Email:</strong> <span id="settings-email">-</span></p>
-                </div>
-                <div class="settings-card">
-                    <h4>Безпека</h4>
-                    <button class="btn btn-warning">Змінити пароль</button>
-                </div>
-            </section>
+            <!-- Секція Налаштування видалена для адмін-панелі -->
         </main>
     </div>
 
@@ -320,6 +308,24 @@
 
     <!-- Toast Notification -->
     <div id="toast" class="toast"></div>
+
+    <!-- Confirm Delete Modal -->
+    <div id="confirm-delete-modal" class="confirm-delete-modal" aria-hidden="true">
+        <div class="confirm-delete-content" role="dialog" aria-modal="true" aria-labelledby="confirm-delete-title">
+            <button class="confirm-close" aria-label="Закрити">&times;</button>
+            <div class="confirm-icon">🗑️</div>
+            <h3 id="confirm-delete-title">Видалити рецепт?</h3>
+            <p id="confirm-delete-message">Цю дію неможливо відмінити. Ви впевнені, що хочете видалити рецепт?</p>
+            <div id="confirm-delete-reason-wrap" style="display:none; margin-top:12px; text-align:left;">
+                <label for="confirm-delete-reason" style="display:block; margin-bottom:6px; color:var(--primary-color); font-weight:600;">Причина видалення (опціонально)</label>
+                <textarea id="confirm-delete-reason" rows="4" placeholder="Напишіть причину видалення коментаря, яка буде надіслана користувачу" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px; resize:vertical;"></textarea>
+            </div>
+            <div class="confirm-actions">
+                <button id="confirm-delete-cancel" class="btn-small">Скасувати</button>
+                <button id="confirm-delete-yes" class="btn-small btn-delete">Так, видалити</button>
+            </div>
+        </div>
+    </div>
 
     <script src="js/admin-panel.js"></script>
 </body>
