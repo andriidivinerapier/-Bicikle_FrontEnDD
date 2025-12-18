@@ -1219,7 +1219,11 @@ document.addEventListener('DOMContentLoaded', () => {
             drinks: 'Напої',
             vegan: 'Веганські',
             pastries: 'Тістечка'
-        };
+            , season_spring: 'Весняні'
+            , season_summer: 'Літні'
+            , season_autumn: 'Осінні'
+            , season_winter: 'Зимові'
+            };
         return map[key] || String(key);
     }
 

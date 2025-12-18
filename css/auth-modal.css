@@ -356,3 +356,32 @@
 }
 
 @keyframes amspin { to { transform: rotate(360deg); } }
+
+/* Password toggle styles */
+.pw-wrapper {
+    position: relative;
+}
+.pw-wrapper input[type="password"],
+.pw-wrapper input[type="text"] {
+    padding-right: 44px;
+}
+.pw-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+}
+.pw-toggle:focus {
+    outline: 2px solid rgba(255,122,61,0.22);
+}
+.pw-toggle i { pointer-events: none; }

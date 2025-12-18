@@ -343,4 +343,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 .catch(() => showAuthToast('Помилка зʼєднання з сервером', 'error'));
         });
     }
+
+    // Password show/hide toggle for all password inputs
+    function initPasswordToggles(root = document) {
+        const pwInputs = root.querySelectorAll('input[type="password"]');
+        pwInputs.forEach(input => {
+            if (input.closest('.pw-wrapper')) return; // already processed
+            const wrapper = document.createElement('div');
+            wrapper.className = 'pw-wrapper';
+            input.parentNode.insertBefore(wrapper, input);
+            wrapper.appendChild(input);
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'pw-toggle';
+            btn.setAttribute('aria-label', 'Показати пароль');
+            btn.innerHTML = '<i class="fas fa-eye"></i>';
+            wrapper.appendChild(btn);
+            btn.addEventListener('click', () => {
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                    btn.setAttribute('aria-label', 'Сховати пароль');
+                } else {
+                    input.type = 'password';
+                    btn.innerHTML = '<i class="fas fa-eye"></i>';
+                    btn.setAttribute('aria-label', 'Показати пароль');
+                }
+                input.focus();
+            });
+        });
+    }
+
+    initPasswordToggles();
 });
