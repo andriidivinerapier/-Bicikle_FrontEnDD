@@ -204,7 +204,11 @@
 
                     <div class="form-group">
                         <label for="recipe-image">Зображення рецепту</label>
-                        <input type="file" id="recipe-image" name="image" accept="image/*">
+                        <div class="custom-file-input" style="display:flex;align-items:center;gap:10px;">
+                            <input type="file" id="recipe-image" name="image" accept="image/*" style="position:absolute;left:-9999px;" aria-hidden="true">
+                            <button type="button" id="recipe-image-btn" class="btn">Виберіть файл</button>
+                            <span id="recipe-image-filename" class="file-name">Файл не обраний</span>
+                        </div>
                         <small>Приймаються формати: JPG, PNG, GIF, WebP (макс. 5MB)</small>
                         <div id="add-image-preview" class="current-image" aria-hidden="true"></div>
                     </div>
@@ -310,23 +314,7 @@
     <!-- Toast Notification -->
     <div id="toast" class="toast"></div>
 
-    <!-- Confirm Delete Modal -->
-    <div id="confirm-delete-modal" class="confirm-delete-modal" aria-hidden="true">
-        <div class="confirm-delete-content" role="dialog" aria-modal="true" aria-labelledby="confirm-delete-title">
-            <button class="confirm-close" aria-label="Закрити">&times;</button>
-            <div class="confirm-icon">🗑️</div>
-            <h3 id="confirm-delete-title">Видалити рецепт?</h3>
-            <p id="confirm-delete-message">Цю дію неможливо відмінити. Ви впевнені, що хочете видалити рецепт?</p>
-            <div id="confirm-delete-reason-wrap" style="display:none; margin-top:12px; text-align:left;">
-                <label for="confirm-delete-reason" style="display:block; margin-bottom:6px; color:var(--primary-color); font-weight:600;">Причина видалення (опціонально)</label>
-                <textarea id="confirm-delete-reason" rows="4" placeholder="Напишіть причину видалення коментаря, яка буде надіслана користувачу" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px; resize:vertical;"></textarea>
-            </div>
-            <div class="confirm-actions">
-                <button id="confirm-delete-cancel" class="btn-small">Скасувати</button>
-                <button id="confirm-delete-yes" class="btn-small btn-delete">Так, видалити</button>
-            </div>
-        </div>
-    </div>
+  
 
     <script src="js/admin-delete-modal.js"></script>
     <script src="js/admin-panel.js"></script>

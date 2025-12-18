@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // If not found in user_recipes, try recipes table
     if (!$recipe) {
-        $stmt = $conn->prepare('SELECT image_path FROM recipes WHERE id = ?');
+        $stmt = $conn->prepare('SELECT image_path, title FROM recipes WHERE id = ?');
         $stmt->bind_param('i', $recipe_id);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -92,6 +92,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (Exception $e) {
         // non-fatal — log and continue
         error_log('Error deleting favorites for recipe ' . $recipe_id . ': ' . $e->getMessage());
+    }
+
+    // Повідомити авторів коментарів, що їх коментарі видалено через видалення рецепту
+    try {
+        $commenters = [];
+        $cstmt = $conn->prepare('SELECT DISTINCT user_id FROM comments WHERE recipe_id = ?');
+        if ($cstmt) {
+            $cstmt->bind_param('i', $recipe_id);
+            $cstmt->execute();
+            $cres = $cstmt->get_result();
+            while ($crow = $cres->fetch_assoc()) {
+                $uid = intval($crow['user_id'] ?? 0);
+                if ($uid > 0) $commenters[$uid] = true;
+            }
+            $cstmt->close();
+        }
+
+        // Prepare recipe title for message
+        $recipe_title = '';
+        if (!empty($recipe['title'])) $recipe_title = $recipe['title'];
+        if (empty($recipe_title)) $recipe_title = '';
+
+        // Ensure notifications table exists
+        $checkN = $conn->query("SHOW TABLES LIKE 'notifications'");
+        if ($checkN && $checkN->num_rows == 0) {
+            $createN = "CREATE TABLE notifications (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NOT NULL,
+                message TEXT NOT NULL,
+                is_read TINYINT(1) DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
+            $conn->query($createN);
+        }
+
+        $adminId = intval($_SESSION['user']['id'] ?? 0);
+        foreach (array_keys($commenters) as $uid) {
+            if ($uid === $adminId) continue;
+            $titlePart = '';
+            if (!empty($recipe_title)) {
+                $titlePart = ' до рецепту "' . $conn->real_escape_string($recipe_title) . '"';
+            } else {
+                $titlePart = ' до рецепту #' . intval($recipe_id);
+            }
+            $msg = 'Ваш коментар' . $titlePart . ' був видалений через видалення рецепту.';
+            $ins = $conn->prepare('INSERT INTO notifications (user_id, message) VALUES (?, ?)');
+            if ($ins) {
+                $ins->bind_param('is', $uid, $msg);
+                $ins->execute();
+                $ins->close();
+            }
+        }
+    } catch (Exception $e) {
+        error_log('Error notifying commenters for recipe ' . $recipe_id . ': ' . $e->getMessage());
+    }
+
+    // Видалити коментарі, пов'язані з цим рецептом
+    try {
+        $delComments = $conn->prepare('DELETE FROM comments WHERE recipe_id = ?');
+        if ($delComments) {
+            $delComments->bind_param('i', $recipe_id);
+            $delComments->execute();
+            $delComments->close();
+        }
+    } catch (Exception $e) {
+        error_log('Error deleting comments for recipe ' . $recipe_id . ': ' . $e->getMessage());
     }
 
     // Видалення рецепту з відповідної таблиці

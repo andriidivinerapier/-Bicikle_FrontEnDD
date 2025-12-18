@@ -276,6 +276,22 @@
     window.showMyComments = function(page){ if(!listEl) return; listEl.style.display = ''; var initialPage = 1; try { const u = new URL(window.location.href); initialPage = Number(page || u.searchParams.get('page') || 1) || 1; } catch(e) { initialPage = Number(page) || 1; } loadMyComments(initialPage); };
     window.hideMyComments = function(){ if(!listEl) return; listEl.style.display = 'none'; };
 
+    // Refresh comments when a notification indicates a comment was deleted
+    document.addEventListener('notificationsUpdated', (ev) => {
+        try {
+            const notes = ev && ev.detail ? ev.detail : [];
+            if (!Array.isArray(notes) || notes.length === 0) return;
+            for (const n of notes) {
+                if (!n || !n.message) continue;
+                const m = String(n.message);
+                if (m.indexOf('Ваш коментар') !== -1 && /видал/i.test(m)) {
+                    try { loadMyComments(currentPage); } catch (e) { console.error('reload my comments failed', e); }
+                    break;
+                }
+            }
+        } catch (e) { console.error('notificationsUpdated handler error', e); }
+    });
+
     // Auto-load when page param requests comments
     document.addEventListener('DOMContentLoaded', ()=>{
         try{

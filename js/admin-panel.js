@@ -57,6 +57,25 @@ function initializeAdminPanel() {
         if (addForm) addForm.addEventListener('reset', () => { if (addImagePreview) addImagePreview.innerHTML = ''; });
     }
 
+    // Wire custom file button and filename text (Ukrainian)
+    const imageBtn = document.getElementById('recipe-image-btn');
+    const imageFilename = document.getElementById('recipe-image-filename');
+    if (imageBtn && addImageInput) {
+        imageBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            addImageInput.click();
+        });
+    }
+    if (addImageInput && imageFilename) {
+        addImageInput.addEventListener('change', (e) => {
+            const f = e.target.files && e.target.files[0];
+            if (f) imageFilename.textContent = f.name;
+            else imageFilename.textContent = 'Файл не обраний';
+        });
+        // also ensure reset clears filename
+        if (typeof addForm !== 'undefined' && addForm) addForm.addEventListener('reset', () => { if (imageFilename) imageFilename.textContent = 'Файл не обраний'; });
+    }
+
     // no subcategory handling (removed)
     // user recipes controls (moderation)
     const refreshUserBtn = document.getElementById('refresh-user-recipes-btn');
@@ -368,6 +387,23 @@ function viewRecipe(recipeId) {
  */
 function handleAddRecipe(e) {
     e.preventDefault();
+
+    // Validate image is selected and acceptable
+    const imageInput = document.getElementById('recipe-image');
+    if (!imageInput || !imageInput.files || imageInput.files.length === 0) {
+        showToast('Виберіть фото рецепту!', 'error');
+        return;
+    }
+    const file = imageInput.files[0];
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+        showToast('Дозволені формати: JPG, PNG, GIF, WebP', 'error');
+        return;
+    }
+    if (file.size > 5 * 1024 * 1024) { // 5MB max per form note
+        showToast('Фото не повинна перевищувати 5MB', 'error');
+        return;
+    }
 
     const formData = new FormData(document.getElementById('add-recipe-form'));
 

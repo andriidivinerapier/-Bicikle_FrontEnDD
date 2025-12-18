@@ -116,6 +116,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (clearAllBtn) { clearAllBtn.disabled = false; clearAllBtn.classList.remove('disabled'); }
             if (markAllReadBtn) { markAllReadBtn.disabled = true; markAllReadBtn.classList.add('disabled'); }
         }
+        // Notify other modules that notifications were updated (used to refresh UI like My Comments)
+        try { document.dispatchEvent(new CustomEvent('notificationsUpdated', { detail: notes })); } catch (e) { console.error('dispatch notificationsUpdated failed', e); }
     }
 
     function markNotificationRead(id, itemEl) {
@@ -546,9 +548,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     imageFileNameText.textContent = `${fileName} (${fileSize} MB)`;
                     imageFileInfo.style.display = 'block';
                     console.log('✅ Файл вибрано:', fileName);
+                    // also update the visible custom filename element if present
+                    const profileNameEl = document.getElementById('profileImageFileName');
+                    if (profileNameEl) profileNameEl.textContent = fileName;
                 } else {
                     imageFileInfo.style.display = 'none';
+                    const profileNameEl = document.getElementById('profileImageFileName');
+                    if (profileNameEl) profileNameEl.textContent = 'Файл не обраний';
                 }
+            });
+        }
+
+        // Wire custom button for choosing file (Ukrainian UI)
+        const profileImageBtn = document.getElementById('profileRecipeImageBtn');
+        const profileImageFileName = document.getElementById('profileImageFileName');
+        if (profileImageBtn && fileInput) {
+            profileImageBtn.addEventListener('click', (ev) => { ev.preventDefault(); fileInput.click(); });
+        }
+        // Ensure visible filename clears on form reset
+        if (createForm) {
+            createForm.addEventListener('reset', () => {
+                if (profileImageFileName) profileImageFileName.textContent = 'Файл не обраний';
             });
         }
         
