@@ -13,8 +13,11 @@
     <link rel="stylesheet" href="css/auth-modal.css">
     <link rel="stylesheet" href="css/auth-toast.css">
     <link rel="stylesheet" href="css/profile.css">
+        <link rel="stylesheet" href="css/my.comments.css">
     <link rel="stylesheet" href="css/modal.css">
     <link rel="stylesheet" href="css/comments.css">
+    <link rel="stylesheet" href="css/confirm-delete-modal.css">
+    <link rel="stylesheet" href="css/settings-profile.css?v=3">
 </head>
 <body>
     <div class="fade-page visible">
@@ -31,7 +34,7 @@
             </ul>
             <div class="nav-actions">
                 <button class="login-btn" id="loginBtn">Увійти</button>
-                <div class="profile-container" id="profileContainer" style="display: none;">
+            <!-- Tab: My Recipes -->
                     <button class="profile-btn" id="profileBtn" aria-haspopup="true" aria-expanded="false">
                         <span class="profile-avatar">👤</span>
                         <span class="profile-name" id="profileName">Профіль</span>
@@ -181,57 +184,15 @@
                 </div>
             </div>
 
-            <!-- Tab: Comments -->
+            <!-- Tab: Мої коментарі -->
             <div class="profile-tab-panel" id="tab-comments">
                 <h2>Мої коментарі</h2>
-                <div class="comments-list">
-                    <div class="comment-item">
-                        <div class="comment-header">
-                            <div>
-                                <h4>На рецепту: Паста Карбонара</h4>
-                                <span class="comment-date">10 листопада 2025</span>
-                            </div>
-                            <button class="btn-icon" title="Видалити"><i class="fas fa-trash-alt"></i></button>
-                        </div>
-                        <p class="comment-text">Чудовий рецепт! Дуже смачна паста. Подравляю! Спробував робити вдома — всім сподобалось.</p>
-                        <div class="comment-stats">
-                            <span>👍 5 лайків</span>
-                            <span>💬 2 відповіді</span>
-                        </div>
-                    </div>
-
-                    <div class="comment-item">
-                        <div class="comment-header">
-                            <div>
-                                <h4>На рецепту: Будда-боул</h4>
-                                <span class="comment-date">8 листопада 2025</span>
-                            </div>
-                            <button class="btn-icon" title="Видалити"><i class="fas fa-trash-alt"></i></button>
-                        </div>
-                        <p class="comment-text">Дуже корисно і смачно. Часто готую цей рецепт. Можна додавати різні топпінги за бажанням.</p>
-                        <div class="comment-stats">
-                            <span>👍 12 лайків</span>
-                            <span>💬 8 відповідей</span>
-                        </div>
-                    </div>
-
-                    <div class="comment-item">
-                        <div class="comment-header">
-                            <div>
-                                <h4>На рецепту: Грецький салат</h4>
-                                <span class="comment-date">5 листопада 2025</span>
-                            </div>
-                            <button class="btn-icon" title="Видалити"><i class="fas fa-trash-alt"></i></button>
-                        </div>
-                        <p class="comment-text">Класичний рецепт, ніколи не розчаровує. Головне — вибрати якісну фету.</p>
-                        <div class="comment-stats">
-                            <span>👍 8 лайків</span>
-                            <span>💬 3 відповіді</span>
-                        </div>
-                    </div>
+                <div id="myCommentsList" class="my-comments-list">
+                    <div class="my-comments-empty">Завантаження коментарів…</div>
                 </div>
             </div>
 
+         
             <!-- Tab: My Recipes -->
             <div class="profile-tab-panel" id="tab-recipes">
                 <div class="recipes-header">
@@ -280,63 +241,98 @@
                 </div>
             </div>
 
-            <!-- Tab: Settings -->
             <div class="profile-tab-panel" id="tab-settings">
-                <h2>Налаштування</h2>
+                <h2>Налаштування профілю</h2>
 
-                <div class="settings-sections">
-                    <!-- Account Settings -->
-                    <section class="settings-section">
-                        <h3><i class="fas fa-user-circle"></i> Профіль аккаунту</h3>
+                <div class="settings-panel">
+                    <div class="settings-row">
+                        <div class="settings-label">Ім'я профілю</div>
+                        <div class="settings-value" id="settingsProfileName">—</div>
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-label">E-mail</div>
+                        <div class="settings-value" id="settingsProfileEmail">—</div>
+                    </div>
+
+                    <div class="settings-actions">
+                        <button id="changeNameBtnSettings" class="btn btn-secondary">Змінити ім'я</button>
+                        <button id="changePasswordBtnSettings" class="btn btn-secondary">Змінити пароль</button>
+                        <button id="changeEmailBtnSettings" class="btn btn-secondary">Змінити пошту</button>
+                    </div>
+
+                    <form id="changePasswordFormSettings" class="settings-form" style="display:none;">
+                        <h3>Змінити пароль</h3>
                         <div class="form-group">
-                            <label>Ім'я користувача</label>
-                            <input type="text" value="Василь Петренко" placeholder="Ваше ім'я">
+                            <label>Поточний пароль</label>
+                            <div class="input-with-icon">
+                                <input type="password" id="currentPasswordSettings" placeholder="Поточний пароль">
+                                <button type="button" class="password-toggle" data-target="currentPasswordSettings" aria-label="Показати пароль"><i class="fas fa-eye"></i></button>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label>E-mail</label>
-                            <input type="email" value="ivan@example.com" placeholder="your@email.com">
+                            <label>Новий пароль</label>
+                            <div class="input-with-icon">
+                                <input type="password" id="newPasswordSettings" placeholder="Новий пароль">
+                                <button type="button" class="password-toggle" data-target="newPasswordSettings" aria-label="Показати пароль"><i class="fas fa-eye"></i></button>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label>Коротка біографія</label>
-                            <textarea placeholder="Розкажіть про себе...">Люблю готувати смачні страви та ділитися рецептами.</textarea>
+                            <label>Підтвердження паролю</label>
+                            <div class="input-with-icon">
+                                <input type="password" id="confirmNewPasswordSettings" placeholder="Підтвердіть новий пароль">
+                                <button type="button" class="password-toggle" data-target="confirmNewPasswordSettings" aria-label="Показати пароль"><i class="fas fa-eye"></i></button>
+                            </div>
                         </div>
-                        <button class="btn btn-primary">Зберегти</button>
-                    </section>
+                        <div class="form-actions">
+                            <button type="button" id="savePasswordSettings" class="btn btn-primary">Зберегти</button>
+                            <button type="button" id="cancelPasswordSettings" class="btn">Скасувати</button>
+                        </div>
+                    </form>
 
-                    <!-- Security Settings -->
-                    <section class="settings-section">
-                        <h3><i class="fas fa-lock"></i> Безпека</h3>
-                        <button class="btn btn-secondary">Змінити пароль</button>
-                        <button class="btn btn-secondary" style="margin-top: 0.5rem;">Активні сесії</button>
-                    </section>
-
-                    <!-- Preferences -->
-                    <section class="settings-section">
-                        <h3><i class="fas fa-sliders-h"></i> Уподобання</h3>
-                        <label class="checkbox-label">
-                            <input type="checkbox" checked>
-                            <span>Отримувати повідомлення про нові рецепти</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" checked>
-                            <span>Отримувати рекомендації на основі моїх рецептів</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox">
-                            <span>Відповіді на коментарі</span>
-                        </label>
-                    </section>
-
-                    <!-- Danger Zone -->
-                    <section class="settings-section danger-zone">
-                        <h3><i class="fas fa-exclamation-triangle"></i> Небезпечна зона</h3>
-                        <p>Ці дії не можна скасувати. Будьте уважні!</p>
-                        <button class="btn btn-danger">Видалити мій аккаунт</button>
-                    </section>
+                    <form id="changeEmailFormSettings" class="settings-form" style="display:none;">
+                        <h3>Змінити пошту</h3>
+                        <div class="form-group">
+                            <label>Нова пошта</label>
+                            <input type="email" id="newEmailSettings" placeholder="new@email.com">
+                        </div>
+                        <div id="emailCodeRow" class="form-group" style="display:none;">
+                            <label>Код підтвердження (на стару пошту)</label>
+                            <input type="text" id="emailConfirmCode" placeholder="123456">
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="saveEmailSettings" class="btn btn-primary">Відправити код</button>
+                            <button type="button" id="confirmEmailSettings" class="btn btn-primary" style="display:none;">Підтвердити код</button>
+                            <button type="button" id="cancelEmailSettings" class="btn">Скасувати</button>
+                        </div>
+                    </form>
+                    
+                    <form id="changeNameFormSettings" class="settings-form" style="display:none;">
+                        <h3>Змінити ім'я профілю</h3>
+                        <div class="form-group">
+                            <label>Нове ім'я</label>
+                            <input type="text" id="newNameSettings" placeholder="Ваше нове ім'я">
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="saveNameSettings" class="btn btn-primary">Зберегти</button>
+                            <button type="button" id="cancelNameSettings" class="btn">Скасувати</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </main>
+
+    <!-- Confirm Modal (used for delete/confirm actions including logout) -->
+    <div id="confirmModal" class="confirm-delete-overlay" role="dialog" aria-hidden="true">
+        <div class="confirm-delete-box" role="document">
+            <div class="confirm-delete-title">Підтвердження</div>
+            <div id="confirmModalMessage" class="confirm-delete-desc">Підтвердіть дію</div>
+            <div class="confirm-delete-actions">
+                <button id="confirmModalNo" class="btn cancel">Ні</button>
+                <button id="confirmModalYes" class="btn confirm">Так</button>
+            </div>
+        </div>
+    </div>
     <!-- Edit Modal for user recipes -->
     <div id="edit-modal" class="modal">
         <div class="modal-content">
@@ -627,6 +623,10 @@
     <script src="js/main.js"></script>
     <script src="js/auth-modal.js"></script>
     <script src="js/comments.js"></script>
+    <script src="js/confirm-delete-modal.js"></script>
+    <script src="js/toast-helper.js"></script>
+    <script src="js/my.comments.js"></script>
+    <script src="js/settings-profile.js"></script>
     <script src="js/profile.js"></script>
     <!-- Confirm Modal -->
     <div id="confirmModal" class="confirm-modal-overlay" aria-hidden="true">
@@ -636,7 +636,7 @@
             <p id="confirmModalMessage">Ви впевнені?</p>
             <div class="confirm-modal-actions">
                 <button id="confirmModalNo" class="btn btn-secondary">Ні</button>
-                <button id="confirmModalYes" class="btn btn-danger">Так, видалити</button>
+                <button id="confirmModalYes" class="btn btn-danger">Так</button>
             </div>
         </div>
     </div>

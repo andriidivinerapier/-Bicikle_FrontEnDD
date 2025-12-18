@@ -135,18 +135,53 @@ document.addEventListener('DOMContentLoaded', () => {
     // Logout handler
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
-            fetch('backend/logout.php', { method: 'POST' })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        showAuthToast('Ви вийшли з аккаунту', 'success');
-                        updateAuthUI(null);
-                    } else {
-                        showAuthToast(data.message || 'Помилка при виході', 'error');
-                    }
-                })
-                .catch(() => showAuthToast('Помилка зʼєднання з сервером', 'error'));
+            const sharedModal = document.getElementById('confirmModal');
+            if (sharedModal) {
+                // Use shared modal if present on the page
+                const msg = sharedModal.querySelector('#confirmModalMessage');
+                const yesBtn = sharedModal.querySelector('#confirmModalYes');
+                const noBtn = sharedModal.querySelector('#confirmModalNo');
+                if (msg) msg.textContent = 'Ви дійсно хочете вийти з аккаунта?';
+
+                function cleanup() {
+                    sharedModal.classList.remove('open');
+                    sharedModal.setAttribute('aria-hidden', 'true');
+                    yesBtn.removeEventListener('click', onYes);
+                    noBtn.removeEventListener('click', onNo);
+                    document.removeEventListener('keydown', onKey);
+                    document.body.classList.remove('modal-open');
+                }
+                function onYes(e) { e && e.stopPropagation(); cleanup(); doLogout(); }
+                function onNo(e) { e && e.stopPropagation(); cleanup(); }
+                function onKey(e) { if (e.key === 'Escape') { cleanup(); } }
+
+                yesBtn.addEventListener('click', onYes);
+                noBtn.addEventListener('click', onNo);
+                document.addEventListener('keydown', onKey);
+
+                sharedModal.classList.add('open');
+                sharedModal.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('modal-open');
+                try { yesBtn.focus(); } catch (e) {}
+            } else {
+                // Fallback: direct logout
+                doLogout();
+            }
         });
+    }
+
+    function doLogout() {
+        fetch('backend/logout.php', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showAuthToast('Ви вийшли з аккаунту', 'success');
+                    updateAuthUI(null);
+                } else {
+                    showAuthToast(data.message || 'Помилка при виході', 'error');
+                }
+            })
+            .catch(() => showAuthToast('Помилка зʼєднання з сервером', 'error'));
     }
 
     function updateAuthUI(user) {

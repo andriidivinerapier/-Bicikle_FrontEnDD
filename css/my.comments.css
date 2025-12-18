@@ -1,0 +1,182 @@
+/* Styles for My Comments panel */
+.my-comments-list { display: flex; flex-direction: column; gap: 12px; padding: 12px; margin-top: 10px; }
+.my-comment-item {
+    background: linear-gradient(180deg,#0d1420 0%, #111827 100%);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.45);
+}
+.my-comment-meta { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:8px; }
+.my-comment-meta .left { display:flex; gap:12px; align-items:center; }
+.my-comment-meta .recipe-link { color:#ff9a3b; text-decoration:none; font-weight:700; transition: color 180ms ease; }
+.my-comment-meta .recipe-link:hover { color: #ff7a00; }
+.my-comment-meta .time { color:#99a6b6; font-size:0.9rem; margin-left:8px; }
+.my-comment-content { color:#e6eef8; line-height:1.4; white-space:pre-wrap; }
+.my-comment-actions { display:flex; gap:8px; align-items:center; }
+.my-comment-actions button { background:transparent; border:1px solid #e2e8f0; padding:6px 8px; border-radius:6px; cursor:pointer; font-size:0.9rem; }
+.my-comments-empty, .my-comments-loading, .my-comments-error {
+    padding:14px;
+    background: linear-gradient(180deg,#071026 0%, #0d1420 100%);
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,0.04);
+    color:#cbd5e1;
+}
+.comment-edit-area textarea { width:100%; min-height:80px; margin-top:8px; padding:8px; border-radius:6px; border:1px solid #d1d5db; }
+.comment-edit-controls { margin-top:8px; display:flex; gap:8px; justify-content:flex-end; }
+
+/* Make Save buttons in comment edit controls orange */
+.comment-edit-controls .save,
+.comment-edit-controls .btn-primary {
+    background: linear-gradient(90deg,#ff9a3b,#ff7a00) !important;
+    color: #fff !important;
+    border: none !important;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    box-shadow: 0 8px 22px rgba(255,122,0,0.12) !important;
+}
+.comment-edit-controls .save:hover,
+.comment-edit-controls .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(255,122,0,0.16) !important;
+}
+
+/* Pagination styles */
+.my-comments-pagination { display:flex; gap:12px; align-items:center; justify-content:flex-end; margin-top:8px; }
+.my-comments-pagination .pag-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.06);
+    color: #e6eef8;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 220ms cubic-bezier(.2,.9,.2,1), transform 160ms ease, box-shadow 220ms ease, opacity 180ms ease;
+}
+.my-comments-pagination .pag-btn:hover { background: rgba(255,122,0,0.06); transform: translateY(-2px); }
+.my-comments-pagination .pag-btn.active {
+    background: linear-gradient(90deg,#ff9a3b,#ff7a00);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 10px 30px rgba(255,122,0,0.14);
+    transform: translateY(-3px);
+}
+.my-comments-pagination .pag-pages { display:flex; gap:6px; }
+.my-comments-pagination .pag-btn:disabled { opacity:0.45; cursor:not-allowed; }
+
+/* Prev/Next as orange primary buttons */
+.my-comments-pagination .pag-btn.prev, .my-comments-pagination .pag-btn.next {
+    background: linear-gradient(90deg,#ff9a3b,#ff7a00);
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+}
+.my-comments-pagination .pag-btn.prev:hover, .my-comments-pagination .pag-btn.next:hover { box-shadow: 0 12px 30px rgba(255,122,0,0.16); transform: translateY(-3px); }
+
+@media (max-width:600px) {
+    .my-comment-meta { flex-direction:column; align-items:flex-start; gap:6px; }
+    .my-comments-pagination { justify-content:center; }
+}
+
+/* Edit/Delete button styles */
+.my-comment-actions .btn-edit {
+    background: linear-gradient(90deg, var(--accent, #ff7a00), #ff9a2e);
+    color: #fff;
+    border: none;
+    padding: 8px 10px;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(255,154,46,0.14);
+    transition: transform 220ms cubic-bezier(.2,.9,.2,1), box-shadow 220ms ease, opacity 160ms ease;
+    font-weight: 700;
+}
+.my-comment-actions .btn-edit:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(255,154,46,0.18); }
+.my-comment-actions .btn-edit:active { transform: translateY(-1px); }
+.my-comment-actions .btn-edit:focus { outline: none; box-shadow: 0 0 0 4px rgba(255,154,46,0.12); }
+
+.my-comment-actions .btn-delete {
+    background: linear-gradient(180deg, #ff5a63, #ff3038);
+    color: #fff;
+    border: none;
+    padding: 8px 10px;
+    border-radius: 8px;
+    box-shadow: 0 8px 22px rgba(255,48,56,0.16);
+    transition: transform 220ms cubic-bezier(.2,.9,.2,1), box-shadow 220ms ease, opacity 160ms ease;
+    font-weight: 700;
+}
+.my-comment-actions .btn-delete:hover { transform: translateY(-3px); box-shadow: 0 16px 36px rgba(255,48,56,0.22); }
+.my-comment-actions .btn-delete:active { transform: translateY(-1px); }
+.my-comment-actions .btn-delete:focus { outline: none; box-shadow: 0 0 0 4px rgba(255,48,56,0.12); }
+
+/* Ensure buttons have consistent spacing */
+.my-comment-actions .btn-edit, .my-comment-actions .btn-delete { min-width: 86px; text-align: center; }
+
+/* Confirm modal styling (enhance existing confirm modal) */
+.confirm-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(3,6,12,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2500;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 220ms ease, visibility 220ms ease;
+}
+
+/* Prevent layout shift when modals open/close by keeping scrollbar reserved */
+html {
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+}
+.confirm-modal-overlay.open { opacity: 1; visibility: visible; }
+.confirm-modal {
+    background: linear-gradient(180deg,#071026 0%, #0d1420 100%);
+    color: #e6eef8;
+    padding: 22px;
+    border-radius: 12px;
+    width: min(520px, 92%);
+    box-shadow: 0 40px 100px rgba(2,6,23,0.9), 0 8px 30px rgba(0,0,0,0.5);
+    text-align: center;
+    transform: translateY(8px) scale(0.98);
+    transition: transform 260ms cubic-bezier(.2,.9,.2,1);
+}
+.confirm-modal-overlay.open .confirm-modal { transform: translateY(0) scale(1); }
+.confirm-modal-icon { font-size: 38px; margin-bottom: 6px; }
+.confirm-modal h3 { margin: 6px 0 8px 0; color: #fff; }
+.confirm-modal p { color: #cbd5e1; margin-bottom: 16px; }
+.confirm-modal-actions { display:flex; gap:12px; justify-content:center; }
+.confirm-modal-actions .btn { min-width:140px; padding:10px 14px; border-radius:10px; font-weight:700; }
+.confirm-modal-actions .btn-secondary { background: transparent; border: 1px solid rgba(255,255,255,0.08); color: #e6eef8; }
+.confirm-modal-actions .btn-danger { background: linear-gradient(180deg, #ff5a63, #ff3038); border: none; color: #fff; box-shadow: 0 10px 30px rgba(255,48,56,0.18); }
+
+/* Force confirm modal visibility and stacking in case of conflicting rules */
+#confirmModal.confirm-modal-overlay, #confirmModal.confirm-modal-overlay.open {
+    position: fixed !important;
+    inset: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 99999 !important;
+    background: rgba(2,6,12,0.72) !important;
+}
+#confirmModal .confirm-modal {
+    width: min(560px, 96%) !important;
+    padding: 24px !important;
+    background: linear-gradient(180deg,#081426 0%, #0b1220 100%) !important;
+    color: #ffffff !important;
+}
+#confirmModal .confirm-modal-actions .btn-secondary {
+    background: transparent !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    color: #ffffff !important;
+}
+#confirmModal .confirm-modal-actions .btn-danger {
+    background: linear-gradient(180deg, #ff5a63, #ff3038) !important;
+    color: #fff !important;
+}
+#confirmModal .confirm-modal-actions .btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+

@@ -1,0 +1,55 @@
+:root{
+    --confirm-bg: #ffffff;
+    --confirm-text: #0f1724;
+    --overlay: rgba(2,6,23,0.6);
+}
+
+.confirm-delete-overlay{
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--overlay);
+    z-index: 99999;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 220ms ease, visibility 220ms ease;
+}
+.confirm-delete-overlay.open{
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.confirm-delete-box{
+    background: var(--confirm-bg);
+    color: var(--confirm-text);
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 520px;
+    width: 92%;
+    box-shadow: 0 30px 80px rgba(2,6,23,0.4);
+    transform: translateY(12px) scale(0.98);
+    transition: transform 260ms cubic-bezier(.2,.9,.2,1), opacity 200ms ease;
+    opacity: 0;
+}
+.confirm-delete-overlay.open .confirm-delete-box{
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+.confirm-delete-title{ font-weight:700; font-size:1.05rem; margin-bottom:6px; }
+.confirm-delete-desc{ color:#51606a; margin-bottom:14px; line-height:1.4; }
+
+.confirm-delete-actions{ display:flex; gap:10px; justify-content:flex-end; }
+.confirm-delete-actions .btn{ padding: 0.55rem 0.9rem; border-radius:8px; font-weight:600; border:none; cursor:pointer; transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease; }
+.confirm-delete-actions .btn.cancel{ background:transparent; border:1px solid rgba(230,238,248,0.6); color:var(--confirm-text); }
+.confirm-delete-actions .btn.confirm{ background: linear-gradient(90deg,#ff9a3b,#ff6b35); color:#fff; box-shadow:0 8px 18px rgba(255,122,0,0.12); }
+
+.confirm-delete-actions .btn:hover{ transform: translateY(-3px); }
+.confirm-delete-actions .btn:active{ transform: translateY(0) scale(0.985); }
+.confirm-delete-actions .btn:focus{ outline: none; box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
+
+@media (max-width:480px){ .confirm-delete-box{ padding:14px; } .confirm-delete-actions .btn{ min-width:92px; } }

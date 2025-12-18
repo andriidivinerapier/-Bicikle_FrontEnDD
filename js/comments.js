@@ -9,6 +9,28 @@
     }
 
     let _cachedSession = null;
+    let _pendingHighlightCommentId = null;
+
+    function highlightCommentInList(listEl, commentId) {
+        if (!listEl || !commentId) return;
+        const tryFind = () => {
+            const item = listEl.querySelector('.comment-item[data-comment-id="' + commentId + '"]');
+            if (item) {
+                item.classList.add('comment-highlight');
+                try { item.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+                setTimeout(() => { try { item.classList.remove('comment-highlight'); } catch (e) {} }, 3000);
+                return true;
+            }
+            return false;
+        };
+        // try immediately, otherwise retry a few times while comments load
+        if (tryFind()) return;
+        let attempts = 0;
+        const id = setInterval(() => {
+            attempts++;
+            if (tryFind() || attempts > 10) clearInterval(id);
+        }, 220);
+    }
     async function getSession() {
         if (_cachedSession) return _cachedSession;
         try {
@@ -64,6 +86,12 @@
 
             container.appendChild(el);
         });
+
+        // If modal requested a pending highlight, apply it when rendering inside modal
+        if (container && container.id === 'modalCommentsList' && _pendingHighlightCommentId) {
+            highlightCommentInList(container, _pendingHighlightCommentId);
+            _pendingHighlightCommentId = null;
+        }
 
         // attach handlers
         container.querySelectorAll('.comment-edit').forEach(btn => {
@@ -303,14 +331,26 @@
 
     // handle modal open events
     document.addEventListener('recipeModalOpen', (e) => {
-        const recipeId = e?.detail?.recipeId || '';
-        console.debug('recipeModalOpen event, detail.recipeId=', recipeId);
+        const detailRid = e?.detail?.recipeId || '';
+        console.debug('recipeModalOpen event, detail.recipeId=', detailRid);
         // Try to find canonical modal elements
-        const overlay = document.getElementById('recipeModal') || document.querySelector('.recipe-modal-overlay');
+        // prefer the visible/most-recent overlay if multiple exist
+        const overlays = Array.from(document.querySelectorAll('#recipeModal, .recipe-modal-overlay'));
+        if (!overlays || overlays.length === 0) return;
+        // choose the last overlay in DOM order (most recently added/opened)
+        const overlay = overlays[overlays.length - 1];
         if (!overlay) return;
         const list = overlay.querySelector('#modalCommentsList');
         const form = overlay.querySelector('#modalCommentForm');
-        if (list) loadCommentsFor(recipeId, list);
+        // Resolve recipe id robustly: prefer event detail, then overlay attributes/dataset, then list dataset
+        let recipeId = detailRid || overlay.getAttribute('data-recipe-id') || overlay.dataset.recipeId || (list && list.dataset.recipeId) || '';
+        // fallback: try to find any child element with data-recipe-id
+        if (!recipeId) {
+            const any = overlay.querySelector('[data-recipe-id]');
+            if (any) recipeId = any.getAttribute('data-recipe-id') || any.dataset.recipeId || '';
+        }
+        console.debug('Resolved recipeId for comments load:', recipeId);
+        if (list && recipeId) loadCommentsFor(recipeId, list);
 
         // ensure auth state before enabling form
         (async () => {
@@ -366,6 +406,11 @@
                 }
             });
         }
+    });
+
+    // allow other scripts to request a comment be highlighted when modal opens
+    document.addEventListener('highlightComment', (e) => {
+        _pendingHighlightCommentId = e && e.detail && e.detail.commentId ? String(e.detail.commentId) : null;
     });
 
     // Fallback: intercept form submissions globally so we never let the browser perform

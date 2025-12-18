@@ -303,20 +303,32 @@ document.addEventListener('DOMContentLoaded', () => {
     tabButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             const tabName = btn.dataset.tab;
-            
+
             // Remove active from all buttons and panels
             tabButtons.forEach(b => b.classList.remove('active'));
             tabPanels.forEach(p => p.classList.remove('active'));
-            
-            // Add active to clicked button and corresponding panel
+
+            // Add active to clicked button
             btn.classList.add('active');
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-            
+
+            // Activate the panel that matches the tab name
+            const panelEl = document.getElementById(`tab-${tabName}`);
+            if (panelEl) panelEl.classList.add('active');
+
+            // show or hide comments container inside favorites
+            const commentsContainer = document.getElementById('myCommentsList');
+            if (tabName === 'comments') {
+                if (commentsContainer) commentsContainer.style.display = '';
+                if (window.showMyComments) window.showMyComments(1);
+            } else {
+                if (commentsContainer) commentsContainer.style.display = 'none';
+            }
+
             // Load recipes when switching to recipes tab
             if (tabName === 'recipes') {
                 loadUserRecipes();
             }
-            
+
             // Update URL without page reload
             window.history.replaceState(null, '', `profile.html?tab=${tabName}`);
         });
@@ -339,28 +351,35 @@ document.addEventListener('DOMContentLoaded', () => {
     // Edit Profile Button
     if (editProfileBtn) {
         editProfileBtn.addEventListener('click', () => {
-            // Click on settings tab
-            document.querySelector('[data-tab="settings"]').click();
-            // Scroll to settings
-            setTimeout(() => {
+            const settingsTabBtn = document.querySelector('[data-tab="settings"]');
+            if (settingsTabBtn) {
+                settingsTabBtn.click();
+                setTimeout(() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 300);
+            } else {
+                // Settings tab removed: just scroll to top of profile
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-            }, 300);
+            }
         });
     }
 
     // Logout Button in Profile
     if (profileLogoutBtn) {
         profileLogoutBtn.addEventListener('click', () => {
-            if (confirm('Ви впевнені, що хочете вийти?')) {
+            showConfirmModal('Ви дійсно хочете вийти з аккаунта?').then(confirmed => {
+                if (!confirmed) return;
                 fetch('backend/logout.php', { method: 'POST' })
                     .then(res => res.json())
                     .then(data => {
                         if (data.status === 'success') {
                             window.location.href = 'index.html';
+                        } else {
+                            console.error('Logout failed:', data);
                         }
                     })
                     .catch(err => console.error('Logout error:', err));
-            }
+            });
         });
     }
 
@@ -442,8 +461,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Settings Form Save Button
-    const settingsSaveBtn = document.querySelector('#tab-settings .btn-primary');
+    // Settings Form Save Button — only run if a central save button (`settingsSaveBtn`) exists
+    const settingsSaveBtn = document.getElementById('settingsSaveBtn');
     if (settingsSaveBtn) {
         settingsSaveBtn.addEventListener('click', () => {
             const inputs = document.querySelectorAll('#tab-settings .form-group input, #tab-settings .form-group textarea');
@@ -753,13 +772,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Change Password Button
-    const changePasswordBtn = document.querySelector('#tab-settings .btn-secondary:first-of-type');
-    if (changePasswordBtn) {
-        changePasswordBtn.addEventListener('click', () => {
-            alert('Зміна пароля (функцію ще не реалізовано)');
-        });
-    }
+    // Change Password handled in settings-profile.js (no-op here to avoid duplicate alerts)
 
     // Delete Account Button
     const deleteAccountBtn = document.querySelector('.danger-zone .btn-danger');
@@ -844,7 +857,7 @@ document.addEventListener('DOMContentLoaded', () => {
             msg.textContent = message || 'Підтвердіть дію';
 
             function cleanup() {
-                modal.classList.remove('show');
+                modal.classList.remove('open');
                 modal.setAttribute('aria-hidden', 'true');
                 yesBtn.removeEventListener('click', onYes);
                 noBtn.removeEventListener('click', onNo);
@@ -864,7 +877,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.addEventListener('keydown', onKey);
 
             // show
-            modal.classList.add('show');
+            modal.classList.add('open');
             modal.setAttribute('aria-hidden', 'false');
             document.body.classList.add('modal-open');
             // focus yes button for accessibility

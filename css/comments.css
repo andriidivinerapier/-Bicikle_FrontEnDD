@@ -169,6 +169,26 @@
 .comment-edit-controls .btn { padding: 0.4rem 0.6rem; border-radius: 8px; }
 .comment-edit-controls .btn-secondary { background: transparent; border: 1px solid #dbe8f2; color: #122432; }
 
+/* Make save button in comment edit controls orange */
+.comment-edit-controls .save,
+.comment-edit-controls .btn-primary,
+.comment-edit-controls button.save-edit {
+    background: linear-gradient(90deg,#ff9a3b,#ff7a00) !important;
+    color: #fff !important;
+    border: none !important;
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 8px !important;
+    box-shadow: 0 8px 18px rgba(255,122,0,0.12) !important;
+    font-weight: 700 !important;
+    transition: transform 180ms cubic-bezier(.2,.9,.2,1), box-shadow 180ms ease, background 180ms ease;
+}
+.comment-edit-controls .save:hover,
+.comment-edit-controls .btn-primary:hover,
+.comment-edit-controls button.save-edit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(255,122,0,0.16) !important;
+}
+
 /* Delete confirmation modal */
 .comment-delete-modal-overlay {
     position: fixed;
@@ -207,4 +227,15 @@
 .comment-delete-modal .btn.cancel { background: transparent; border: 1px solid #e6eef8; color: #122432; }
 .comment-delete-modal .btn.confirm { background: linear-gradient(180deg, var(--accent) 0%, #ff9a3b 100%); color: #ffffff; box-shadow: 0 8px 18px rgba(255,122,0,0.12); }
 .comment-delete-modal .btn:focus { outline: 3px solid rgba(255,122,0,0.12); outline-offset: 2px; }
+
+/* Highlighted comment state when opened from My Comments */
+.comment-item.comment-highlight {
+    background: linear-gradient(90deg, #ccffd7 0%, #e6fff0 100%);
+    border-color: rgba(46,204,113,0.18);
+    box-shadow: 0 12px 30px rgba(46,204,113,0.14);
+    transform: translateY(-2px);
+    transition: background 300ms ease, box-shadow 300ms ease, transform 200ms ease;
+}
+
+.comment-item.comment-highlight .comment-content { background: transparent; }
 
