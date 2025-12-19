@@ -30,7 +30,7 @@ if ($cstmt) {
 
 $offset = ($page - 1) * $per_page;
 $comments = [];
-$stmt = $conn->prepare('SELECT c.id, c.recipe_id, c.content, c.created_at, COALESCE(r.title, ur.title, "") AS recipe_title FROM comments c LEFT JOIN recipes r ON c.recipe_id = r.id LEFT JOIN user_recipes ur ON c.recipe_id = ur.id WHERE c.user_id = ? ORDER BY c.created_at DESC LIMIT ? OFFSET ?');
+$stmt = $conn->prepare('SELECT c.id, c.recipe_id, c.content, c.created_at, COALESCE(ur.title, r.title, "") AS recipe_title FROM comments c LEFT JOIN recipes r ON c.recipe_id = r.id LEFT JOIN user_recipes ur ON c.recipe_id = ur.id WHERE c.user_id = ? ORDER BY c.created_at DESC LIMIT ? OFFSET ?');
 if ($stmt) {
     $stmt->bind_param('iii', $user_id, $per_page, $offset);
     $stmt->execute();

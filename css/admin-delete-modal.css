@@ -19,4 +19,8 @@
 .adm-btn.cancel{background:transparent}
 .adm-btn.confirm{background:linear-gradient(90deg,var(--adm-accent),#ff9a3b);color:#fff;border:none;box-shadow:0 8px 18px rgba(255,107,53,0.12)}
 .adm-btn:focus{outline: none; box-shadow:0 6px 18px rgba(0,0,0,0.08)}
+
+/* Approve (green) and Reject (red) variants for moderation actions */
+.adm-btn.approve{background:linear-gradient(90deg,#22c55e,#36d399);color:#fff;border:none;box-shadow:0 8px 18px rgba(34,197,94,0.12)}
+.adm-btn.reject{background:linear-gradient(90deg,#ef4444,#fb7185);color:#fff;border:none;box-shadow:0 8px 18px rgba(239,68,68,0.12)}
 @media (max-width:480px){.adm-modal-box{padding:12px}.adm-modal-actions .adm-btn{min-width:88px}}

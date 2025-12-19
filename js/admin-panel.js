@@ -852,34 +852,42 @@ function clearViewModal() {
 }
 
 function approveUserRecipe(id) {
-    if (!confirm('Підтвердити публікацію рецепту?')) return;
-    const fd = new FormData(); fd.append('recipe_id', id); fd.append('action', 'approve');
-    fetch('backend/admin-review-user-recipe.php', { method: 'POST', body: fd })
-        .then(r => r.json())
-        .then(res => {
-            if (res.status === 'success') {
-                showToast('Рецепт одобрено', 'success');
-                closeEditModal();
-                loadUserRecipes();
-                loadRecipes();
-            } else showToast(res.message || 'Помилка', 'error');
-        })
-        .catch(err => { console.error(err); showToast('Помилка мережі', 'error'); });
+    const modalFn = (typeof showAdminModal === 'function') ? showAdminModal : null;
+    const promptPromise = modalFn ? modalFn({ title: 'Погодити публікацію рецепту?', message: 'Ви впевнені, що хочете опублікувати цей рецепт?', confirmText: 'Одобрити', cancelText: 'Скасувати', confirmClass: 'approve' }) : Promise.resolve({ confirmed: confirm('Підтвердити публікацію рецепту?') });
+    promptPromise.then(result => {
+        if (!result || !result.confirmed) return;
+        const fd = new FormData(); fd.append('recipe_id', id); fd.append('action', 'approve');
+        fetch('backend/admin-review-user-recipe.php', { method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(res => {
+                if (res.status === 'success') {
+                    showToast('Рецепт одобрено', 'success');
+                    closeEditModal();
+                    loadUserRecipes();
+                    loadRecipes();
+                } else showToast(res.message || 'Помилка', 'error');
+            })
+            .catch(err => { console.error(err); showToast('Помилка мережі', 'error'); });
+    }).catch(err => { console.error('confirm modal error', err); });
 }
 
 function rejectUserRecipe(id) {
-    const reason = prompt('Вкажіть причину відхилення (буде надіслано користувачу):', '');
-    if (reason === null) return; // cancelled
-    const fd = new FormData(); fd.append('recipe_id', id); fd.append('action', 'reject'); fd.append('reason', reason);
-    fetch('backend/admin-review-user-recipe.php', { method: 'POST', body: fd })
-        .then(r => r.json())
-        .then(res => {
-            if (res.status === 'success') {
-                showToast('Рецепт відхилено', 'success');
-                loadUserRecipes();
-            } else showToast(res.message || 'Помилка', 'error');
-        })
-        .catch(err => { console.error(err); showToast('Помилка мережі', 'error'); });
+    const modalFn = (typeof showAdminModal === 'function') ? showAdminModal : null;
+    const promptPromise = modalFn ? modalFn({ title: 'Відхилити рецепт?', message: 'Вкажіть причину відхилення (буде надіслано користувачу):', showReason: true, confirmText: 'Відхилити', cancelText: 'Скасувати', confirmClass: 'reject' }) : Promise.resolve({ confirmed: true, reason: prompt('Вкажіть причину відхилення (буде надіслано користувачу):', '') });
+    promptPromise.then(result => {
+        if (!result || !result.confirmed) return;
+        const reason = result.reason || '';
+        const fd = new FormData(); fd.append('recipe_id', id); fd.append('action', 'reject'); fd.append('reason', reason);
+        fetch('backend/admin-review-user-recipe.php', { method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(res => {
+                if (res.status === 'success') {
+                    showToast('Рецепт відхилено', 'success');
+                    loadUserRecipes();
+                } else showToast(res.message || 'Помилка', 'error');
+            })
+            .catch(err => { console.error(err); showToast('Помилка мережі', 'error'); });
+    }).catch(err => { console.error('confirm modal error', err); });
 }
 function deleteUserRecipe(id) {
     // require admin modal with reason when deleting user-submitted recipe
@@ -1112,22 +1120,33 @@ function displayUsers(users) {
             delBtn.addEventListener('click', (e) => {
                 const uid = Number(delBtn.getAttribute('data-user-id'));
                 if (!uid) return;
-                if (!confirm('Ви впевнені, що хочете видалити цього користувача? Цю дію не можна скасувати.')) return;
-                const fd = new FormData(); fd.append('user_id', uid);
-                fetch('backend/delete-user.php', { method: 'POST', body: fd })
-                    .then(r => r.json())
-                    .then(res => {
-                        if (res && res.status === 'success') {
-                            showToast('Користувача видалено', 'success');
-                            loadUsers();
-                        } else {
-                            showToast(res.message || 'Помилка при видаленні', 'error');
-                        }
-                    })
-                    .catch(err => {
-                        console.error('Delete user error:', err);
-                        showToast('Помилка при видаленні користувача', 'error');
-                    });
+                const modalFn = (typeof showAdminModal === 'function') ? showAdminModal : null;
+                const promptPromise = modalFn ? modalFn({
+                    title: 'Видалити користувача?',
+                    message: 'Ви впевнені, що хочете видалити цього користувача? Цю дію не можна скасувати.',
+                    confirmText: 'Видалити',
+                    cancelText: 'Скасувати',
+                    confirmClass: 'reject'
+                }) : Promise.resolve({ confirmed: confirm('Ви впевнені, що хочете видалити цього користувача? Цю дію не можна скасувати.') });
+
+                promptPromise.then(result => {
+                    if (!result || !result.confirmed) return;
+                    const fd = new FormData(); fd.append('user_id', uid);
+                    fetch('backend/delete-user.php', { method: 'POST', body: fd })
+                        .then(r => r.json())
+                        .then(res => {
+                            if (res && res.status === 'success') {
+                                showToast('Користувача видалено', 'success');
+                                loadUsers();
+                            } else {
+                                showToast(res.message || 'Помилка при видаленні', 'error');
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Delete user error:', err);
+                            showToast('Помилка при видаленні користувача', 'error');
+                        });
+                }).catch(err => { console.error('confirm modal error', err); });
             });
         }
         tbody.appendChild(tr);

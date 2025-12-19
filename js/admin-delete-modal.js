@@ -35,10 +35,18 @@
             const btnYes = modal.querySelector('#adm-confirm');
             const btnNo = modal.querySelector('#adm-cancel');
 
+            // Set texts and visibility
             titleEl.textContent = opts.title || 'Підтвердження';
             descEl.textContent = opts.message || '';
             reasonWrap.style.display = opts.showReason ? 'block' : 'none';
             if (reasonInput) reasonInput.value = opts.defaultReason || '';
+
+            // Allow customizing button labels and confirm button class (approve/reject)
+            btnYes.textContent = opts.confirmText || 'Так';
+            btnNo.textContent = opts.cancelText || 'Ні';
+            // Clean custom classes then add requested class
+            btnYes.classList.remove('approve','reject');
+            if (opts.confirmClass) btnYes.classList.add(opts.confirmClass);
 
             function cleanup(){
                 modal.classList.remove('open');
