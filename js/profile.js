@@ -448,18 +448,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Delete Favorite Recipe
+    // Delete Favorite Recipe (use confirm modal)
     document.querySelectorAll('#tab-favorites .recipe-like').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (confirm('Видалити з улюблених?')) {
+            showConfirmModal('Ви дійсно хочете видалити з улюблених?').then(confirmed => {
+                if (!confirmed) return;
                 const card = btn.closest('.recipe-card');
+                if (!card) return;
                 card.style.opacity = '0';
                 card.style.transform = 'scale(0.9)';
                 setTimeout(() => {
                     card.remove();
                 }, 300);
-            }
+            });
         });
     });
 
@@ -1013,28 +1015,29 @@ document.addEventListener('DOMContentLoaded', () => {
                             const source = btn.dataset.source || 'user';
                             if (!recipeId) return;
 
-                            // Optimistic UI: show unliked state and toast, then call backend
-                            // Ask for confirmation to avoid accidental removals
-                            if (!confirm('Видалити з улюблених?')) return;
+                            // Ask for confirmation via modal to avoid accidental removals
+                            showConfirmModal('Ви дійсно хочете видалити з улюблених?').then(confirmed => {
+                                if (!confirmed) return;
 
-                            fetch('backend/remove-favorite.php', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                                body: `recipe_id=${encodeURIComponent(recipeId)}&source=${encodeURIComponent(source)}`
-                            })
-                            .then(r => r.json())
-                            .then(resp => {
-                                // remove card from DOM
-                                const card = btn.closest('.recipe-card');
-                                if (card) card.remove();
-                                // update favorites count
-                                const favCountElem = document.querySelector('.profile-stats span:nth-child(3) strong');
-                                if (favCountElem) favCountElem.textContent = Math.max(0, parseInt(favCountElem.textContent || '0') - 1);
-                                showToast('Видалено з улюблених', 'info');
-                            })
-                            .catch(err => {
-                                console.error('Remove favorite error:', err);
-                                showToast('Помилка при видаленні з улюблених', 'error');
+                                fetch('backend/remove-favorite.php', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                    body: `recipe_id=${encodeURIComponent(recipeId)}&source=${encodeURIComponent(source)}`
+                                })
+                                .then(r => r.json())
+                                .then(resp => {
+                                    // remove card from DOM
+                                    const card = btn.closest('.recipe-card');
+                                    if (card) card.remove();
+                                    // update favorites count
+                                    const favCountElem = document.querySelector('.profile-stats span:nth-child(3) strong');
+                                    if (favCountElem) favCountElem.textContent = Math.max(0, parseInt(favCountElem.textContent || '0') - 1);
+                                    showToast('Видалено з улюблених', 'info');
+                                })
+                                .catch(err => {
+                                    console.error('Remove favorite error:', err);
+                                    showToast('Помилка при видаленні з улюблених', 'error');
+                                });
                             });
                         });
                     });

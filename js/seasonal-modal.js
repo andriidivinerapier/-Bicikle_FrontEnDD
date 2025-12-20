@@ -402,7 +402,13 @@ async function openSeasonalModal(season) {
             const title = r.title || r.title;
             const image = r.image || r.image_path || 'images/homepage/placeholder.jpg';
             const desc = r.description || (r.instructions_array && r.instructions_array[0]) || '';
-            const time = r.time || r.cooking_time || r['time'] || '';
+            let rawTime = (r.time || r.cooking_time || r['time'] || '');
+            rawTime = (rawTime === null || rawTime === undefined) ? '' : String(rawTime);
+            let time = '';
+            if (rawTime !== '') {
+                const numericPart = rawTime.replace(/\s*хв/i, '').trim();
+                time = (numericPart !== '' && !isNaN(Number(numericPart))) ? `${numericPart} хв` : rawTime;
+            }
             const difficulty = r.difficulty || r.level || '';
             const ingredientsArr = r.ingredients_array || (r.ingredients ? (Array.isArray(r.ingredients) ? r.ingredients : String(r.ingredients).split('|')) : []);
             const stepsArr = r.instructions_array || (r.instructions ? (Array.isArray(r.instructions) ? r.instructions : String(r.instructions).split('|')) : []);
