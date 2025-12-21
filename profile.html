@@ -390,8 +390,10 @@
 
                 <div class="form-group">
                     <label>📸 Змінити фото</label>
-                    <div class="file-input-wrapper">
-                        <input type="file" name="image" id="editRecipeImage" accept="image/*">
+                    <div class="file-input-wrapper" style="display:flex;align-items:center;gap:10px;">
+                        <input type="file" name="image" id="editRecipeImage" accept="image/*" style="position:absolute;left:-9999px;" aria-hidden="true">
+                        <button type="button" id="editRecipeImageBtn" class="btn">Виберіть файл</button>
+                        <span id="editImageVisibleName" class="file-name">Файл не обраний</span>
                         <div id="editImageFileName" style="display:none;">✓ Обрано: <span id="editImageFileNameText"></span></div>
                     </div>
                     <div id="edit-current-image" class="current-image"></div>

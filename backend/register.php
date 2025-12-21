@@ -15,6 +15,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // Перевірка мінімальної довжини пароля (мінімум 7 символів)
+    if (mb_strlen($password, 'UTF-8') < 7) {
+        echo json_encode(['status' => 'error', 'message' => 'Пароль має містити мінімум 7 символів']);
+        exit;
+    }
     // Перевірка, чи існує користувач із таким email
     $stmt = $conn->prepare('SELECT id FROM users WHERE email = ?');
     $stmt->bind_param('s', $email);

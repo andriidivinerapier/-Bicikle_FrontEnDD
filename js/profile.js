@@ -1620,6 +1620,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const fileInput = document.getElementById('editRecipeImage');
         const imageFileInfo = document.getElementById('editImageFileName');
         const imageFileNameText = document.getElementById('editImageFileNameText');
+        const editImageBtn = document.getElementById('editRecipeImageBtn');
+        const editImageVisibleName = document.getElementById('editImageVisibleName');
         const addIngredientBtn = document.getElementById('editAddIngredientBtn');
         const ingredientsContainer = document.getElementById('editIngredientsContainer');
         const addStepBtn = document.getElementById('editAddStepBtn');
@@ -1632,6 +1634,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const fileSize = (e.target.files[0].size / 1024 / 1024).toFixed(2);
                     if (imageFileNameText) imageFileNameText.textContent = `${fileName} (${fileSize} MB)`;
                     if (imageFileInfo) imageFileInfo.style.display = 'block';
+                    if (editImageVisibleName) editImageVisibleName.textContent = fileName;
                     // show preview inside edit modal replacing current image
                     const imageContainer = document.getElementById('edit-current-image');
                     if (imageContainer) {
@@ -1645,8 +1648,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 } else if (imageFileInfo) {
                     imageFileInfo.style.display = 'none';
+                    if (editImageVisibleName) editImageVisibleName.textContent = 'Файл не обраний';
                 }
             });
+        }
+
+        // Wire custom button for edit modal file chooser
+        if (editImageBtn && fileInput) {
+            editImageBtn.addEventListener('click', (ev) => { ev.preventDefault(); fileInput.click(); });
         }
 
         if (addIngredientBtn && ingredientsContainer) {

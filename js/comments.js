@@ -45,6 +45,21 @@
 
     async function renderComments(container, comments) {
         container.innerHTML = '';
+        // dedupe comments by id to avoid duplicate display when multiple loads race
+        if (!Array.isArray(comments)) comments = [];
+        const seenIds = new Set();
+        const uniq = [];
+        for (const c of comments) {
+            const cid = String(c.id || c.comment_id || '');
+            if (!cid) {
+                // fallback: keep entries without id
+                uniq.push(c);
+                continue;
+            }
+            if (!seenIds.has(cid)) { seenIds.add(cid); uniq.push(c); }
+        }
+        if (uniq.length !== comments.length) console.debug('renderComments: deduped comments', comments.length, '->', uniq.length);
+        comments = uniq;
         const empty = !comments || comments.length === 0;
         if (empty) {
             container.innerHTML = '<div class="comment-empty">Ще немає коментарів. Будьте першим!</div>';
@@ -258,16 +273,27 @@
         if (!recipeId) return;
         try { if (listEl) listEl.dataset.recipeId = recipeId; } catch(e) {}
         try {
-            const res = await fetch('backend/get-comments.php?recipe_id=' + encodeURIComponent(recipeId));
+            // Abort any previous pending comments request for this list to avoid races
+            try { if (listEl && listEl._commentsController) { listEl._commentsController.abort(); } } catch(e) {}
+            const controller = new AbortController();
+            if (listEl) listEl._commentsController = controller;
+            const res = await fetch('backend/get-comments.php?recipe_id=' + encodeURIComponent(recipeId), { signal: controller.signal });
             const json = await res.json();
+            // cleanup controller reference
+            try { if (listEl) listEl._commentsController = null; } catch(e) {}
             if (json && json.status === 'success') {
                 renderComments(listEl, json.comments);
             } else {
                 listEl.innerHTML = '<div class="comment-empty">Не вдалося завантажити коментарі.</div>';
             }
         } catch (err) {
+            if (err && err.name === 'AbortError') {
+                // aborted due to a newer request — silently ignore
+                console.debug('Comments load aborted for', recipeId);
+                return;
+            }
             console.error('Comments load error', err);
-            listEl.innerHTML = '<div class="comment-empty">Помилка при завантаженні коментарів.</div>';
+            try { listEl.innerHTML = '<div class="comment-empty">Помилка при завантаженні коментарів.</div>'; } catch(e) {}
         }
     }
 

@@ -176,14 +176,24 @@
                             else if (typeof openRecipeModal === 'function') openRecipeModal(card);
                         } else {
                             // create a temporary minimal card so profile/recipes modal opener can use it
+                            // attempt to fetch full recipe data from backend to populate modal fields
+                            let recipeData = null;
+                            try {
+                                const rresp = await fetch('backend/get-recipe.php?id=' + encodeURIComponent(rid));
+                                const jr = await rresp.json();
+                                if (jr && jr.status === 'success' && jr.recipe) recipeData = jr.recipe;
+                            } catch (e) { console.error('Failed to fetch recipe for modal:', e); }
+
                             const temp = document.createElement('div');
                             temp.className = 'recipe-card';
                             temp.style.display = 'none';
                             temp.dataset.recipeId = rid || '';
-                            temp.dataset.ingredients = '';
-                            temp.dataset.steps = '';
-                            temp.dataset.difficulty = '';
-                            temp.innerHTML = `<div class="recipe-image" style="background-image: url('');"></div><div class="recipe-info"><h4>${escapeHtml(link.textContent || 'Рецепт')}</h4><div class="recipe-meta"><div class="meta-left"><span class="cook-time"></span></div><div class="meta-right"><button class="recipe-button">Рецепт</button></div></div></div>`;
+                            temp.dataset.ingredients = (recipeData && (recipeData.ingredients || recipeData.ingredients === '') ) ? (recipeData.ingredients || '') : '';
+                            temp.dataset.steps = (recipeData && (recipeData.instructions || recipeData.instructions === '')) ? (recipeData.instructions || '') : '';
+                            temp.dataset.difficulty = (recipeData && recipeData.difficulty) ? recipeData.difficulty : '';
+                            temp.dataset.time = (recipeData && (recipeData.cooking_time || recipeData.time)) ? (recipeData.cooking_time || recipeData.time) : '';
+                            const imageUrl = (recipeData && recipeData.image_path) ? recipeData.image_path : '';
+                            temp.innerHTML = `<div class="recipe-image" style="background-image: url('${escapeHtml(imageUrl)}');"></div><div class="recipe-info"><h4>${escapeHtml(link.textContent || 'Рецепт')}</h4><div class="recipe-meta"><div class="meta-left"><span class="cook-time"></span></div><div class="meta-right"><button class="recipe-button">Рецепт</button></div></div></div>`;
                             document.body.appendChild(temp);
                             // trigger opener (profile.js listens for clicks on .recipe-button)
                             const tb = temp.querySelector('.recipe-button');

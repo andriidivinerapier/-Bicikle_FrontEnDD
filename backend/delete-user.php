@@ -130,7 +130,27 @@ try {
     if (!empty($recipeIds)) {
         try {
             $in = implode(',', array_map('intval', $recipeIds));
-            $conn->query("DELETE FROM favorites WHERE recipe_id IN ($in)");
+            // If favorites table has a `source` column, only delete favorites where source='user'
+            $colCheck = $conn->prepare("SELECT COUNT(*) as cnt FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'favorites' AND COLUMN_NAME = 'source'");
+            $dbName = $conn->real_escape_string($dbname ?? '');
+            $hasSource = false;
+            if ($colCheck) {
+                $colCheck->bind_param('s', $dbName);
+                $colCheck->execute();
+                $colRes = $colCheck->get_result();
+                if ($colRes) {
+                    $r = $colRes->fetch_assoc();
+                    $hasSource = intval($r['cnt'] ?? 0) > 0;
+                }
+                $colCheck->close();
+            }
+
+            if ($hasSource) {
+                // delete only favorites that reference user-created recipes
+                $conn->query("DELETE FROM favorites WHERE recipe_id IN ($in) AND LOWER(source) = 'user'");
+            } else {
+                // no source column — favorites refer to admin table by convention, so skip
+            }
         } catch (Exception $e) {
             error_log('Error deleting favorites for user recipes: ' . $e->getMessage());
         }

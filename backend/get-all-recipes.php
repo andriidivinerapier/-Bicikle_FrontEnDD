@@ -14,16 +14,41 @@ if ($per_page < 1 || $per_page > 100) $per_page = 12;
 $offset = ($page - 1) * $per_page;
 
 try {
+    // Normalize category: accept english keys (e.g. 'desserts') or Ukrainian labels (e.g. 'Десерти').
+    $category_label = '';
+    if ($category) {
+        $map = [
+            'breakfast' => 'Сніданки',
+            'lunch' => 'Обід',
+            'dinner' => 'Вечеря',
+            'desserts' => 'Десерти',
+            'salads' => 'Салати',
+            'soups' => 'Супи',
+            'snacks' => 'Закуски',
+            'drinks' => 'Напої',
+            'vegan' => 'Веганські',
+            'pastries' => 'Тістечка',
+            'all' => 'Усі'
+        ];
+        $catKey = mb_strtolower(trim($category), 'UTF-8');
+        if (isset($map[$catKey])) {
+            $category_label = $map[$catKey];
+        } else {
+            // If user passed a Ukrainian label, keep it as second comparison value as-is
+            $category_label = $category;
+        }
+    }
     // Count total matching user recipes
     if ($category) {
+        // compare lowercased category against either provided key or localized label
         $countStmt = $conn->prepare(
             'SELECT COUNT(*) as cnt FROM user_recipes ur
              LEFT JOIN users u ON ur.user_id = u.id
              WHERE (ur.title LIKE ? OR ur.category LIKE ? OR COALESCE(u.username, "") LIKE ?)
                AND ur.status = "approved"
-               AND ur.category = ?'
+               AND (LOWER(ur.category) = LOWER(?) OR LOWER(ur.category) = LOWER(?))'
         );
-        $countStmt->bind_param('ssss', $search, $search, $search, $category);
+        $countStmt->bind_param('sssss', $search, $search, $search, $category, $category_label);
     } else {
         $countStmt = $conn->prepare(
             'SELECT COUNT(*) as cnt FROM user_recipes ur
@@ -42,20 +67,20 @@ try {
     $total_pages = (int)ceil($total_recipes / $per_page);
 
     // Fetch paginated results
-    if ($category) {
-        $stmt = $conn->prepare(
-            'SELECT ur.id, ur.title, ur.ingredients, ur.instructions, ur.category, ur.image_path, ur.created_at, 
-                    COALESCE(u.username, "Невідомий автор") AS username, u.id as user_id, "user" as source
-             FROM user_recipes ur
-             LEFT JOIN users u ON ur.user_id = u.id
-             WHERE (ur.title LIKE ? OR ur.category LIKE ? OR COALESCE(u.username, "") LIKE ?)
-               AND ur.status = "approved"
-               AND ur.category = ?
-             ORDER BY ur.created_at DESC
-             LIMIT ?, ?'
-        );
-        $stmt->bind_param('sssiii', $search, $search, $search, $category, $offset, $per_page);
-    } else {
+        if ($category) {
+                $stmt = $conn->prepare(
+                        'SELECT ur.id, ur.title, ur.ingredients, ur.instructions, ur.category, ur.image_path, ur.created_at, 
+                                        COALESCE(u.username, "Невідомий автор") AS username, u.id as user_id, "user" as source
+                         FROM user_recipes ur
+                         LEFT JOIN users u ON ur.user_id = u.id
+                         WHERE (ur.title LIKE ? OR ur.category LIKE ? OR COALESCE(u.username, "") LIKE ?)
+                             AND ur.status = "approved"
+                             AND (LOWER(ur.category) = LOWER(?) OR LOWER(ur.category) = LOWER(?))
+                         ORDER BY ur.created_at DESC
+                         LIMIT ?, ?'
+                );
+                $stmt->bind_param('sssssii', $search, $search, $search, $category, $category_label, $offset, $per_page);
+        } else {
         $stmt = $conn->prepare(
             'SELECT ur.id, ur.title, ur.ingredients, ur.instructions, ur.category, ur.image_path, ur.created_at, 
                     COALESCE(u.username, "Невідомий автор") AS username, u.id as user_id, "user" as source

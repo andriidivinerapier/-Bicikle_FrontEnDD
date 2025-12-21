@@ -465,6 +465,8 @@
         const paginationContainer = document.getElementById('pagination');
         let currentPage = 1;
         const perPage = 12;
+        // keep track of currently selected category so paging preserves the filter
+        let activeCategory = 'all';
 
         function buildPagination(pagination) {
             if (!paginationContainer) return;
@@ -475,14 +477,14 @@
                 btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
                 btn.textContent = i;
                 btn.dataset.page = i;
-                btn.addEventListener('click', () => loadRecipes('', '', Number(btn.dataset.page)));
+                btn.addEventListener('click', () => loadRecipes('', activeCategory, Number(btn.dataset.page)));
                 paginationContainer.appendChild(btn);
             }
             if (currentPage < total) {
                 const nextBtn = document.createElement('button');
                 nextBtn.className = 'page-next';
                 nextBtn.textContent = '→';
-                nextBtn.addEventListener('click', () => loadRecipes('', '', currentPage + 1));
+                nextBtn.addEventListener('click', () => loadRecipes('', activeCategory, currentPage + 1));
                 paginationContainer.appendChild(nextBtn);
             }
         }
@@ -490,6 +492,8 @@
         function loadRecipes(searchTerm = '', category = '', page = 1) {
             console.log('📥 Завантажуємо рецепти від спільноти... page=', page);
             currentPage = page;
+            // persist active category so pagination and other controls keep the filter
+            activeCategory = category || activeCategory || 'all';
             loadingSpinner.style.display = 'block';
             grid.innerHTML = '';
             noRecipesMsg.style.display = 'none';
@@ -498,7 +502,7 @@
             params.append('page', page);
             params.append('per_page', perPage);
             if (searchTerm) params.append('search', searchTerm);
-            if (category) params.append('category', category);
+            if (category && category !== 'all') params.append('category', category);
 
             fetch('backend/get-all-recipes.php?' + params.toString())
                 .then(response => {
@@ -608,10 +612,13 @@
             const key = labelToKey(inputVal);
             if (key) {
                 // if matches a known category label -> filter by category key
-                if (key === 'all') loadRecipes();
+                activeCategory = key;
+                if (key === 'all') loadRecipes('', 'all');
                 else loadRecipes('', key);
             } else {
-                loadRecipes(inputVal);
+                // search term (clear category)
+                activeCategory = 'all';
+                loadRecipes(inputVal, 'all');
             }
         });
 
@@ -620,10 +627,12 @@
                 const inputVal = (filterInput.value || '').trim();
                 const key = labelToKey(inputVal);
                 if (key) {
-                    if (key === 'all') loadRecipes();
+                    activeCategory = key;
+                    if (key === 'all') loadRecipes('', 'all');
                     else loadRecipes('', key);
                 } else {
-                    loadRecipes(inputVal);
+                    activeCategory = 'all';
+                    loadRecipes(inputVal, 'all');
                 }
             }
         });
@@ -721,8 +730,8 @@
                 catalogModalCommunity.classList.remove('show');
                 if (catalogBtnCommunity) catalogBtnCommunity.setAttribute('aria-expanded', 'false');
                 if (catalogBtnCommunity && typeof catalogBtnCommunity.focus === 'function') catalogBtnCommunity.focus();
-                if (cat && cat !== 'all') loadRecipes('', cat);
-                else loadRecipes();
+                activeCategory = cat || 'all';
+                loadRecipes('', activeCategory);
             });
         }
     });
