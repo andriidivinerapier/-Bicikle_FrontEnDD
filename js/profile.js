@@ -247,36 +247,67 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            if (!confirm('Ви дійсно хочете видалити всі сповіщення?')) return;
-
-            const fd = new FormData();
-            fd.append('all', '1');
-
-            fetch('backend/delete-notifications.php', { method: 'POST', body: fd })
-                .then(r => r.json())
-                .then(resp => {
-                    if (resp && resp.status === 'success') {
-                        if (notifList) notifList.innerHTML = '<div class="notif-empty">Немає сповіщень</div>';
-                        if (notifBadge) { notifBadge.style.display = 'none'; notifBadge.textContent = '0'; }
-                        if (profileNotifBadge) { profileNotifBadge.style.display = 'none'; profileNotifBadge.textContent = '0'; }
-                        showToast('Сповіщення видалено', 'success');
-                    } else {
-                        console.error('Delete notifications error', resp);
-                        showToast('Помилка при очищенні сповіщень', 'error');
-                    }
-                })
-                .catch(err => {
-                    console.error('Network error deleting notifications', err);
-                    showToast('Помилка мережі', 'error');
-                })
-                .finally(() => {
-                    if (notifDropdown) {
-                        notifDropdown.classList.remove('show');
-                        notifDropdown.setAttribute('aria-hidden', 'true');
-                    }
-                    if (notifBtn) notifBtn.setAttribute('aria-expanded', 'false');
-                    if (profileNotifBtn) profileNotifBtn.setAttribute('aria-expanded', 'false');
+            // Use site modal helper instead of native confirm()
+            if (window.showConfirmDelete) {
+                showConfirmDelete('Ви дійсно хочете видалити всі сповіщення?', 'Очистити сповіщення').then(confirmed => {
+                    if (!confirmed) return;
+                    const fd = new FormData(); fd.append('all', '1');
+                    fetch('backend/delete-notifications.php', { method: 'POST', body: fd })
+                        .then(r => r.json())
+                        .then(resp => {
+                            if (resp && resp.status === 'success') {
+                                if (notifList) notifList.innerHTML = '<div class="notif-empty">Немає сповіщень</div>';
+                                if (notifBadge) { notifBadge.style.display = 'none'; notifBadge.textContent = '0'; }
+                                if (profileNotifBadge) { profileNotifBadge.style.display = 'none'; profileNotifBadge.textContent = '0'; }
+                                showToast('Сповіщення видалено', 'success');
+                            } else {
+                                console.error('Delete notifications error', resp);
+                                showToast('Помилка при очищенні сповіщень', 'error');
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Network error deleting notifications', err);
+                            showToast('Помилка мережі', 'error');
+                        })
+                        .finally(() => {
+                            if (notifDropdown) {
+                                notifDropdown.classList.remove('show');
+                                notifDropdown.setAttribute('aria-hidden', 'true');
+                            }
+                            if (notifBtn) notifBtn.setAttribute('aria-expanded', 'false');
+                            if (profileNotifBtn) profileNotifBtn.setAttribute('aria-expanded', 'false');
+                        });
                 });
+            } else {
+                // fallback to native confirm if helper not available
+                if (!confirm('Ви дійсно хочете видалити всі сповіщення?')) return;
+                const fd = new FormData(); fd.append('all', '1');
+                fetch('backend/delete-notifications.php', { method: 'POST', body: fd })
+                    .then(r => r.json())
+                    .then(resp => {
+                        if (resp && resp.status === 'success') {
+                            if (notifList) notifList.innerHTML = '<div class="notif-empty">Немає сповіщень</div>';
+                            if (notifBadge) { notifBadge.style.display = 'none'; notifBadge.textContent = '0'; }
+                            if (profileNotifBadge) { profileNotifBadge.style.display = 'none'; profileNotifBadge.textContent = '0'; }
+                            showToast('Сповіщення видалено', 'success');
+                        } else {
+                            console.error('Delete notifications error', resp);
+                            showToast('Помилка при очищенні сповіщень', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Network error deleting notifications', err);
+                        showToast('Помилка мережі', 'error');
+                    })
+                    .finally(() => {
+                        if (notifDropdown) {
+                            notifDropdown.classList.remove('show');
+                            notifDropdown.setAttribute('aria-hidden', 'true');
+                        }
+                        if (notifBtn) notifBtn.setAttribute('aria-expanded', 'false');
+                        if (profileNotifBtn) profileNotifBtn.setAttribute('aria-expanded', 'false');
+                    });
+            }
         });
     }
 
