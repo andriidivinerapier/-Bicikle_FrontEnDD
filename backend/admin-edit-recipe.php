@@ -96,14 +96,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->query("ALTER TABLE recipes ADD COLUMN cooking_time INT DEFAULT 0");
     }
 
+    // Ensure legacy 'time' column exists for compatibility
+    $check = $conn->query("SHOW COLUMNS FROM recipes LIKE 'time'");
+    if ($check && $check->num_rows == 0) {
+        $conn->query("ALTER TABLE recipes ADD COLUMN `time` INT DEFAULT 0");
+    }
+
     $cooking_time = is_numeric($time) ? intval($time) : 0;
-    $stmt = $conn->prepare('UPDATE recipes SET title = ?, ingredients = ?, instructions = ?, category = ?, difficulty = ?, cooking_time = ?, image_path = ? WHERE id = ?');
-    $stmt->bind_param('sssssisi', $title, $ingredients, $instructions, $category, $difficulty, $cooking_time, $image_path, $recipe_id);
+    // Update both cooking_time and legacy time column so frontend/backends reading either one see changes
+    $stmt = $conn->prepare('UPDATE recipes SET title = ?, ingredients = ?, instructions = ?, category = ?, difficulty = ?, cooking_time = ?, `time` = ?, image_path = ? WHERE id = ?');
+    $stmt->bind_param('sssssissi', $title, $ingredients, $instructions, $category, $difficulty, $cooking_time, $cooking_time, $image_path, $recipe_id);
 
     if ($stmt->execute()) {
         echo json_encode(['status' => 'success', 'message' => 'Рецепт успішно оновлено']);
     } else {
-        echo json_encode(['status' => 'error', 'message' => 'Помилка при оновленні рецепту']);
+        echo json_encode(['status' => 'error', 'message' => 'Помилка при оновленні рецепту', 'debug' => $stmt->error]);
     }
 
     $stmt->close();

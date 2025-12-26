@@ -30,19 +30,24 @@ $user_id = intval($_SESSION['user']['id'] ?? 0);
 $username = $_SESSION['user']['username'] ?? 'User';
 
 // Insert comment
-$stmt = $conn->prepare('INSERT INTO comments (recipe_id, user_id, username, content, created_at) VALUES (?, ?, ?, ?, NOW())');
+// comments table stores user_id but not username; get username via users table when returning
+$stmt = $conn->prepare('INSERT INTO comments (recipe_id, user_id, content, created_at) VALUES (?, ?, ?, NOW())');
 if (!$stmt) {
     error_log('[add-comment] prepare failed: ' . $conn->error);
     echo json_encode(['status' => 'error', 'message' => 'DB prepare failed', 'debug' => ['db_error' => $conn->error]]);
     exit;
 }
-$stmt->bind_param('iiss', $recipe_id, $user_id, $username, $content);
+$stmt->bind_param('iis', $recipe_id, $user_id, $content);
 $ok = $stmt->execute();
 if ($ok) {
     $inserted_id = $stmt->insert_id;
     $stmt->close();
     // Fetch the inserted row to return
-    $stmt2 = $conn->prepare('SELECT id, recipe_id, user_id, username, content, created_at FROM comments WHERE id = ? LIMIT 1');
+    // Select comment and user name via LEFT JOIN
+    $stmt2 = $conn->prepare(
+        'SELECT c.id, c.recipe_id, c.user_id, COALESCE(u.username, "User") AS username, c.content, c.created_at '
+        . 'FROM comments c LEFT JOIN users u ON c.user_id = u.id WHERE c.id = ? LIMIT 1'
+    );
     if ($stmt2) {
         $stmt2->bind_param('i', $inserted_id);
         $stmt2->execute();

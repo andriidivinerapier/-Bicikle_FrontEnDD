@@ -540,6 +540,7 @@ function handleEditRecipe(e) {
     })
         .then(response => response.json())
         .then(data => {
+            console.debug('admin-edit-recipe response', data);
             if (data.status === 'success') {
                 showToast('Рецепт успішно оновлено', 'success');
                 closeEditModal();

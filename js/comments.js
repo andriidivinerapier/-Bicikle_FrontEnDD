@@ -389,12 +389,14 @@
             }
         })();
 
-        if (form) {
+            if (form) {
             // avoid binding multiple submit handlers when event fires repeatedly
             if (form.dataset.commentsBound) return;
             form.dataset.commentsBound = '1';
+            console.debug('comments.js: bound submit handler for modalCommentForm');
 
             form.addEventListener('submit', async (ev) => {
+                console.debug('comments.js: submit event fired on modalCommentForm', { event: ev });
                 ev.preventDefault();
                 const ta = form.querySelector('textarea');
                 const btn = form.querySelector('button[type="submit"]');
@@ -414,9 +416,11 @@
                     form.dataset.posting = '0';
                     btn.disabled = false;
                     alert('Не вдалось визначити рецепт для додавання коментаря. Спробуйте ще раз.');
-                    console.error('postComment aborted: missing recipeId. event.detail=', e?.detail, 'overlay.dataset=', overlay.dataset, 'list.dataset=', list && list.dataset);
+                    console.error('postComment aborted: missing recipeId. event.detail=', e?.detail, 'overlay.dataset=', overlay && overlay.dataset, 'list.dataset=', list && list.dataset);
                     return;
                 }
+
+                console.debug('comments.js: posting comment', { recipeId: rid, contentPreview: (ta && ta.value && ta.value.substring(0,80)) });
 
                 const json = await postComment(rid, ta.value.trim());
                 btn.disabled = false;

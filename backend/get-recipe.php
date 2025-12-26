@@ -9,8 +9,7 @@ if (!$id) {
     exit;
 }
 
-// Try to find in admin recipes table first
-$stmt = $conn->prepare('SELECT id, user_id, title, category, ingredients, instructions, image_path, difficulty, cooking_time, created_at FROM recipes WHERE id = ? LIMIT 1');
+$stmt = $conn->prepare('SELECT id, user_id, title, category, ingredients, instructions, image_path, difficulty, COALESCE(cooking_time, `time`) AS cooking_time, created_at FROM recipes WHERE id = ? LIMIT 1');
 $stmt->bind_param('i', $id);
 if ($stmt->execute()) {
     $res = $stmt->get_result();
@@ -24,7 +23,7 @@ if ($stmt->execute()) {
 $stmt->close();
 
 // Fallback: look into user_recipes
-$stmt2 = $conn->prepare('SELECT id, user_id, title, category, ingredients, instructions, image_path, difficulty, created_at FROM user_recipes WHERE id = ? LIMIT 1');
+$stmt2 = $conn->prepare('SELECT id, user_id, title, category, ingredients, instructions, image_path, difficulty, COALESCE(cooking_time, `time`) AS cooking_time, created_at FROM user_recipes WHERE id = ? LIMIT 1');
 $stmt2->bind_param('i', $id);
 if ($stmt2->execute()) {
     $res2 = $stmt2->get_result();

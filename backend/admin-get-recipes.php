@@ -10,7 +10,7 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     exit;
 }
 
-$stmt = $conn->prepare('SELECT id, user_id, title, category, created_at, image_path FROM recipes ORDER BY created_at DESC');
+$stmt = $conn->prepare('SELECT id, user_id, title, category, difficulty, COALESCE(cooking_time, `time`) AS cooking_time, created_at, image_path FROM recipes ORDER BY created_at DESC');
 $stmt->execute();
 $result = $stmt->get_result();
 $recipes = [];

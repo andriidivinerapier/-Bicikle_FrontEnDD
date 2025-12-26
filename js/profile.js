@@ -332,6 +332,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial fetch to update badge on load
     fetchNotifications();
 
+    // Poll for user notifications and show toasts for unread (global)
+    function pollNotifications() {
+        fetch('backend/get-user-notifications.php')
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success' && Array.isArray(data.notifications)) {
+                    data.notifications.forEach(n => {
+                        if (n.is_read == 0) {
+                            // Show a toast for unread notifications and mark them as read
+                            showToast(n.message, 'info');
+                            const fd = new FormData(); fd.append('id', n.id);
+                            fetch('backend/mark-notification-read.php', { method: 'POST', body: fd })
+                                .catch(err => console.error('mark read err', err));
+                        }
+                    });
+                }
+            })
+            .catch(err => console.error('notifications err', err));
+    }
+
+    // Start polling every 20 seconds
+    setInterval(pollNotifications, 20000);
+    // Also poll once immediately
+    pollNotifications();
+
     // Tab Switching
     tabButtons.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -835,32 +860,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (confirm('Остаточно видалити аккаунт?')) {
                     alert('Видалення аккаунту (функцію ще не реалізовано)');
                 }
-
-                // ---------------- Notifications ----------------
-                // Poll for user notifications and show toasts for unread
-                function pollNotifications() {
-                    fetch('backend/get-user-notifications.php')
-                        .then(r => r.json())
-                        .then(data => {
-                            if (data.status === 'success' && Array.isArray(data.notifications)) {
-                                data.notifications.forEach(n => {
-                                    if (n.is_read == 0) {
-                                        showToast(n.message, 'info');
-                                        // mark as read
-                                        const fd = new FormData(); fd.append('id', n.id);
-                                        fetch('backend/mark-notification-read.php', { method: 'POST', body: fd })
-                                            .catch(err => console.error('mark read err', err));
-                                    }
-                                });
-                            }
-                        })
-                        .catch(err => console.error('notifications err', err));
-                }
-
-                // Start polling every 20 seconds
-                setInterval(pollNotifications, 20000);
-                // Also poll once on load
-                pollNotifications();
             }
         });
     }

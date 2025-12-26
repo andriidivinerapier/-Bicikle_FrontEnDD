@@ -12,7 +12,12 @@ if (!$recipe_id) {
 }
 
 $comments = [];
-$stmt = $conn->prepare('SELECT id, recipe_id, user_id, username, content, created_at FROM comments WHERE recipe_id = ? ORDER BY created_at DESC LIMIT ?');
+// Use LEFT JOIN to obtain username from users table (comments table stores only user_id)
+$stmt = $conn->prepare(
+    'SELECT c.id, c.recipe_id, c.user_id, COALESCE(u.username, "User") AS username, c.content, c.created_at '
+    . 'FROM comments c LEFT JOIN users u ON c.user_id = u.id '
+    . 'WHERE c.recipe_id = ? ORDER BY c.created_at DESC LIMIT ?'
+);
 if ($stmt) {
     $stmt->bind_param('ii', $recipe_id, $limit);
     $stmt->execute();

@@ -56,7 +56,7 @@ try {
             r.instructions,
             r.image_path,
             r.difficulty,
-            r.cooking_time,
+            r.`time` AS cooking_time,
             COALESCE(u.username, 'Recepty') as author,
             r.created_at,
             'admin' as source
