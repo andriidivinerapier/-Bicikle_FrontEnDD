@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: Get latest code
         uses: actions/checkout@v5
-
+        
       - name: Sync files
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
@@ -18,3 +18,5 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: ${{ secrets.FTP_PATH }}
+          timeout: 300000      
+          protocol: ftps      
