@@ -37,11 +37,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         console.warn('⚠️ .profile-stats element not found');
                     }
-                    // Update profile username and email
+                    // Update profile username, email and avatar
                     const usernameEl = document.getElementById('profileUsername');
                     const emailEl = document.getElementById('profileEmail');
                     if (usernameEl) usernameEl.textContent = user.username || 'Користувач';
                     if (emailEl) emailEl.textContent = user.email || 'email@example.com';
+                    if (user.avatar_path) {
+                        setAvatarPreview(user.avatar_path);
+                    }
                 } else {
                     console.warn('⚠️ Profile stats response invalid:', data);
                 }
@@ -59,6 +62,157 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileNotifBtn = document.getElementById('profileNotifBtn');
     const profileNotifBadge = document.getElementById('profileNotifBadge');
     const markAllReadBtn = document.getElementById('markAllReadBtn');
+    const profileAvatarInput = document.getElementById('profileAvatarInput');
+    const changeAvatarBtn = document.getElementById('changeAvatarBtn');
+    const profileAvatarDisplay = document.getElementById('profileAvatarDisplay');
+
+    function setAvatarPreview(src) {
+        if (!profileAvatarDisplay) return;
+        if (!src) {
+            profileAvatarDisplay.style.backgroundImage = '';
+            profileAvatarDisplay.textContent = '👤';
+            profileAvatarDisplay.classList.remove('has-image');
+            return;
+        }
+        profileAvatarDisplay.style.backgroundImage = `url('${src}')`;
+        profileAvatarDisplay.textContent = '';
+        profileAvatarDisplay.classList.add('has-image');
+    }
+
+    function captureAvatarState() {
+        if (!profileAvatarDisplay) return null;
+        return {
+            backgroundImage: profileAvatarDisplay.style.backgroundImage,
+            textContent: profileAvatarDisplay.textContent,
+            hasImage: profileAvatarDisplay.classList.contains('has-image')
+        };
+    }
+
+    function restoreAvatarState(state) {
+        if (!profileAvatarDisplay || !state) return;
+        profileAvatarDisplay.style.backgroundImage = state.backgroundImage || '';
+        profileAvatarDisplay.textContent = state.hasImage ? '' : state.textContent;
+        if (state.hasImage) {
+            profileAvatarDisplay.classList.add('has-image');
+        } else {
+            profileAvatarDisplay.classList.remove('has-image');
+        }
+    }
+
+    function showAvatarConfirmModal(message, title) {
+        return new Promise((resolve) => {
+            const overlay = document.getElementById('avatarConfirmModal');
+            const titleEl = document.getElementById('avatarConfirmModalTitle');
+            const msgEl = document.getElementById('avatarConfirmModalMessage');
+            const yesBtn = document.getElementById('avatarConfirmModalYes');
+            const noBtn = document.getElementById('avatarConfirmModalNo');
+            if (!overlay || !titleEl || !msgEl || !yesBtn || !noBtn) {
+                return resolve(window.confirm(message));
+            }
+            if (titleEl) titleEl.textContent = title || 'Підтвердіть фото';
+            msgEl.textContent = message || 'Ви впевнені?';
+
+            function cleanup() {
+                overlay.classList.remove('show');
+                overlay.setAttribute('aria-hidden', 'true');
+                yesBtn.removeEventListener('click', onYes);
+                noBtn.removeEventListener('click', onNo);
+                overlay.removeEventListener('click', onCloseOutside);
+                document.removeEventListener('keydown', onEsc);
+            }
+            function onYes(event) {
+                event.preventDefault();
+                cleanup();
+                resolve(true);
+            }
+            function onNo(event) {
+                event.preventDefault();
+                cleanup();
+                resolve(false);
+            }
+            function onCloseOutside(event) {
+                if (event.target === overlay) {
+                    cleanup();
+                    resolve(false);
+                }
+            }
+            function onEsc(event) {
+                if (event.key === 'Escape') {
+                    cleanup();
+                    resolve(false);
+                }
+            }
+
+            yesBtn.addEventListener('click', onYes);
+            noBtn.addEventListener('click', onNo);
+            overlay.addEventListener('click', onCloseOutside);
+            document.addEventListener('keydown', onEsc);
+            overlay.classList.add('show');
+            overlay.setAttribute('aria-hidden', 'false');
+            setTimeout(() => { try { yesBtn.focus(); } catch (e) {} }, 50);
+        });
+    }
+
+    if (changeAvatarBtn && profileAvatarInput) {
+        changeAvatarBtn.addEventListener('click', () => profileAvatarInput.click());
+        profileAvatarInput.addEventListener('change', async (event) => {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                if (typeof showToast === 'function') {
+                    showToast('Оберіть, будь ласка, зображення', 'error');
+                }
+                profileAvatarInput.value = '';
+                return;
+            }
+            const previousState = captureAvatarState();
+            const reader = new FileReader();
+            reader.onload = async (loadEvent) => {
+                setAvatarPreview(loadEvent.target.result);
+                const confirmed = await showAvatarConfirmModal('Ви дійсно хочете встановити це фото як аватарку?', 'Підтвердити фото');
+                if (!confirmed) {
+                    restoreAvatarState(previousState);
+                    profileAvatarInput.value = '';
+                    if (typeof showToast === 'function') {
+                        showToast('Зміна фото скасована', 'info');
+                    }
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('avatar', file);
+
+                try {
+                    const uploadResponse = await fetch('backend/update-user-avatar.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await uploadResponse.json();
+                    if (result.status === 'success' && result.avatar_path) {
+                        setAvatarPreview(result.avatar_path);
+                        profileAvatarInput.value = '';
+                        if (typeof showToast === 'function') {
+                            showToast('Фото збережено в профілі', 'success');
+                        }
+                    } else {
+                        restoreAvatarState(previousState);
+                        profileAvatarInput.value = '';
+                        if (typeof showToast === 'function') {
+                            showToast(result.message || 'Не вдалося зберегти фото', 'error');
+                        }
+                    }
+                } catch (err) {
+                    console.error('Avatar upload failed:', err);
+                    restoreAvatarState(previousState);
+                    profileAvatarInput.value = '';
+                    if (typeof showToast === 'function') {
+                        showToast('Не вдалося зберегти фото', 'error');
+                    }
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    }
 
     function fetchNotifications() {
         fetch('backend/get-user-notifications.php')

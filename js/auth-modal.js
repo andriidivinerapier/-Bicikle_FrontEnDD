@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileBtn = document.getElementById('profileBtn');
     const profileMenu = document.getElementById('profileMenu');
     const profileNameEl = document.getElementById('profileName');
+    const profileAvatarEl = document.querySelector('.profile-avatar');
     const logoutBtn = document.getElementById('logoutBtn');
     const authTabs = document.querySelectorAll('.auth-tab');
     const authForms = document.querySelectorAll('.auth-form');
@@ -189,6 +190,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (loginButton) loginButton.style.display = 'none';
             if (profileContainer) profileContainer.style.display = 'flex';
             if (profileNameEl) profileNameEl.textContent = user.username;
+            if (profileAvatarEl) {
+                if (user.avatar_path) {
+                    profileAvatarEl.style.backgroundImage = `url('${user.avatar_path}')`;
+                    profileAvatarEl.style.backgroundSize = 'cover';
+                    profileAvatarEl.style.backgroundPosition = 'center';
+                    profileAvatarEl.style.backgroundRepeat = 'no-repeat';
+                    profileAvatarEl.classList.add('has-image');
+                    profileAvatarEl.textContent = '';
+                } else {
+                    profileAvatarEl.style.backgroundImage = '';
+                    profileAvatarEl.style.backgroundRepeat = '';
+                    profileAvatarEl.style.backgroundPosition = '';
+                    profileAvatarEl.style.backgroundSize = '';
+                    profileAvatarEl.classList.remove('has-image');
+                    profileAvatarEl.textContent = '👤';
+                }
+            }
             const adminMenuLink = document.getElementById('adminMenuLink');
             const adminMenuSeparator = document.getElementById('adminMenuSeparator');
             if (user.role === 'admin') {
@@ -202,6 +220,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (loginButton) loginButton.style.display = '';
             if (profileContainer) profileContainer.style.display = 'none';
             if (profileNameEl) profileNameEl.textContent = 'Профіль';
+            if (profileAvatarEl) {
+                profileAvatarEl.style.backgroundImage = '';
+                profileAvatarEl.style.backgroundRepeat = '';
+                profileAvatarEl.style.backgroundPosition = '';
+                profileAvatarEl.style.backgroundSize = '';
+                profileAvatarEl.classList.remove('has-image');
+                profileAvatarEl.textContent = '👤';
+            }
             const adminMenuLink = document.getElementById('adminMenuLink');
             const adminMenuSeparator = document.getElementById('adminMenuSeparator');
             if (adminMenuLink) adminMenuLink.style.display = 'none';
@@ -218,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         .then(res => res.json())
                         .then(profileData => {
                             if (profileData.status === 'success' && profileData.user) {
-                                updateAuthUI({ username: profileData.user.username || data.username, email: profileData.user.email, role: data.role });
+                                updateAuthUI({ username: profileData.user.username || data.username, email: profileData.user.email, role: data.role, avatar_path: profileData.user.avatar_path });
                             } else {
                                 updateAuthUI({ username: data.username, role: data.role });
                             }

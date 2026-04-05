@@ -13,20 +13,43 @@ if (!isset($_SESSION['user']) || !is_array($_SESSION['user'])) {
 $user_id = intval($_SESSION['user']['id'] ?? 0);
 $username = $_SESSION['user']['username'] ?? '';
 $email = $_SESSION['user']['email'] ?? '';
+$avatar_path = '';
 
 error_log("DEBUG: get-user-profile.php called for user_id=$user_id");
 
 // Якщо ID є, завантажимо додаткові дані з бази
 if ($user_id) {
-    // refresh username/email from users table if present
-    $stmt = $conn->prepare('SELECT username, email FROM users WHERE id = ? LIMIT 1');
+    // Determine whether avatar_path exists in this users table
+    $avatar_path_exists = false;
+    $schemaStmt = $conn->prepare("SHOW COLUMNS FROM users LIKE 'avatar_path'");
+    if ($schemaStmt) {
+        $schemaStmt->execute();
+        $schemaStmt->store_result();
+        if ($schemaStmt->num_rows > 0) {
+            $avatar_path_exists = true;
+        }
+        $schemaStmt->close();
+    }
+
+    if ($avatar_path_exists) {
+        $stmt = $conn->prepare('SELECT username, email, avatar_path FROM users WHERE id = ? LIMIT 1');
+    } else {
+        $stmt = $conn->prepare('SELECT username, email FROM users WHERE id = ? LIMIT 1');
+    }
     if ($stmt) {
         $stmt->bind_param('i', $user_id);
         $stmt->execute();
-        $stmt->bind_result($db_username, $db_email);
+        if ($avatar_path_exists) {
+            $stmt->bind_result($db_username, $db_email, $db_avatar_path);
+        } else {
+            $stmt->bind_result($db_username, $db_email);
+        }
         if ($stmt->fetch()) {
             $username = $db_username ?: $username;
             $email = $db_email ?: $email;
+            if ($avatar_path_exists) {
+                $avatar_path = $db_avatar_path ?: '';
+            }
         }
         $stmt->close();
     }
@@ -96,6 +119,7 @@ echo json_encode([
     'user' => [
         'username' => $username,
         'email' => $email,
+        'avatar_path' => $avatar_path ?? '',
         'recipes_count' => intval($total_recipes),
         'comments_count' => intval($comments_count),
         'favorites_count' => intval($favorites_count)

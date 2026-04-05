@@ -208,19 +208,35 @@ body.modal-open {
     box-shadow: 0 8px 25px rgba(255,122,0,0.25);
 }
 
+.profile-avatar {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    min-height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(255,122,0,0.18), rgba(255,122,0,0.08));
+    color: #222;
+    font-size: 1.2rem;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: background 180ms ease, transform 180ms ease;
+}
+
+.profile-avatar.has-image {
+    color: transparent;
+}
+
 .profile-btn:hover::before {
     transform: translateX(100%);
 }
 
 .profile-btn:active {
     transform: translateY(-1px);
-}
-
-.profile-avatar {
-    font-size: 1.2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .profile-name {

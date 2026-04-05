@@ -57,7 +57,13 @@
     <section class="profile-header">
         <div class="profile-header-content">
             <div class="profile-avatar-large">
-                <div class="avatar-placeholder">👤</div>
+                <div class="avatar-upload-wrapper">
+                    <div class="avatar-placeholder" id="profileAvatarDisplay">👤</div>
+                    <button type="button" id="changeAvatarBtn" class="avatar-change-btn" aria-label="Змінити фото профілю">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                    <input type="file" id="profileAvatarInput" accept="image/*" style="display:none;" aria-hidden="true">
+                </div>
             </div>
                 <div class="profile-info">
                     <div class="profile-name-row">
@@ -641,6 +647,17 @@
             <div class="confirm-modal-actions">
                 <button id="confirmModalNo" class="btn btn-secondary">Ні</button>
                 <button id="confirmModalYes" class="btn btn-danger">Так</button>
+            </div>
+        </div>
+    </div>
+    <!-- Avatar Confirm Modal -->
+    <div id="avatarConfirmModal" class="avatar-confirm-overlay" aria-hidden="true">
+        <div class="avatar-confirm-box" role="dialog" aria-modal="true" aria-labelledby="avatarConfirmModalTitle">
+            <div class="avatar-confirm-title" id="avatarConfirmModalTitle">Підтвердження</div>
+            <div id="avatarConfirmModalMessage" class="avatar-confirm-desc">Ви дійсно хочете встановити це фото як аватарку?</div>
+            <div class="avatar-confirm-actions">
+                <button id="avatarConfirmModalNo" class="btn cancel">Ні</button>
+                <button id="avatarConfirmModalYes" class="btn confirm">Так</button>
             </div>
         </div>
     </div>
