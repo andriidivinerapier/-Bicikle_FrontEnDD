@@ -1,9 +1,9 @@
 <?php
 // db.php — підключення до бази даних MySQL
-$host = 'localhost';
-$user = 'root'; // змініть, якщо інший користувач
-$password = ''; // змініть, якщо є пароль
-$dbname = 'recepty_db';
+$host = 'rt613684.mysql.tools';
+$user = 'rt613684_recepty'; // змініть, якщо інший користувач
+$password = '!Y66)bNz4m'; // змініть, якщо є пароль
+$dbname = 'rt613684_recepty';
 
 // Створення підключення
 $conn = new mysqli($host, $user, $password, $dbname);

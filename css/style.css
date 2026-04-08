@@ -852,8 +852,8 @@ body.modal-open {
         flex-direction: column;
         gap: 1rem;
         padding: 1rem;
-        /* restore normal padding on small screens */
         padding-right: 1rem;
+        align-items: stretch;
     }
 
     /* reduce header height on small screens so padding-top isn't excessive */
@@ -863,10 +863,92 @@ body.modal-open {
         flex-direction: column;
         text-align: center;
         gap: 1rem;
+        width: 100%;
+    }
+
+    .nav-links li {
+        width: 100%;
+    }
+
+    .nav-links a {
+        display: inline-block;
+        width: 100%;
+        padding: 0.75rem 0;
+    }
+
+    .nav-actions {
+        width: 100%;
+        justify-content: center;
+        margin-left: 0;
+        position: relative;
+    }
+
+    .profile-container {
+        position: static;
+        transform: none;
+        right: auto;
+        top: auto;
+        width: 100%;
+    }
+
+    .profile-btn {
+        width: 100%;
+        justify-content: space-between;
+        margin-left: 0;
+    }
+
+    .login-btn,
+    .catalog-button {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .hero {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .hero-image {
+        height: 320px;
+    }
+
+    .hero-content {
+        padding: 1.2rem;
     }
 
     .hero-content h2 {
         font-size: 2rem;
+    }
+
+    .recipes-section,
+    .about-content,
+    .contact-main,
+    .footer,
+    .seasons-section {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .recipes-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .recipes-header h2 {
+        font-size: 1.75rem;
+    }
+
+    .recipes-header .header-actions {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .page-search {
+        width: 100%;
+        max-width: 100%;
     }
 
     .footer-content {
@@ -881,6 +963,106 @@ body.modal-open {
     .seasons-grid {
         grid-template-columns: 1fr;
         max-width: 600px;
+    }
+}
+
+@media (max-width: 600px) {
+    .header {
+        padding: 0.8rem 0;
+    }
+
+    .nav-container {
+        padding: 0.8rem 0.9rem;
+    }
+
+    .hero-image {
+        height: 260px;
+    }
+
+    .hero-content {
+        padding: 1rem;
+    }
+
+    .hero-content h2 {
+        font-size: 1.75rem;
+    }
+
+    .recipe-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.6rem;
+    }
+
+    .recipe-button,
+    .login-btn,
+    .catalog-button,
+    .submit-btn {
+        width: 100%;
+    }
+
+    .page-search {
+        font-size: 0.95rem;
+    }
+
+    .nav-links a {
+        font-size: 0.95rem;
+    }
+
+    .nav-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .footer {
+        padding: 3rem 1rem 2rem;
+    }
+
+    .footer-bottom {
+        padding-top: 1.5rem;
+    }
+
+    .seasons-section {
+        padding: 2rem 1rem;
+    }
+
+    .modal-content {
+        width: min(100%, 94vw);
+        padding: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-image {
+        height: 220px;
+    }
+
+    .hero-content {
+        padding: 0.9rem;
+    }
+
+    .nav-links a {
+        padding: 0.7rem 0;
+    }
+
+    .profile-btn {
+        padding: 0.75rem 1rem;
+    }
+
+    .footer {
+        padding: 2rem 0.8rem 1.5rem;
+    }
+
+    .footer-content {
+        gap: 1.5rem;
+    }
+
+    .recipe-button,
+    .login-btn,
+    .catalog-button,
+    .submit-btn {
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
 }
 

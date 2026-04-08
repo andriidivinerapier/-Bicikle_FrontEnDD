@@ -148,3 +148,30 @@
         padding: 1rem;
     }
 }
+
+@media (max-width: 600px) {
+    .contact-main {
+        padding: 0.9rem;
+    }
+
+    .contact-hero {
+        margin: 2rem 0;
+    }
+
+    .contact-hero h2 {
+        font-size: 1.75rem;
+    }
+
+    .contact-form,
+    .info-block {
+        padding: 1.5rem;
+    }
+
+    .submit-btn {
+        width: 100%;
+    }
+
+    .contact-container {
+        gap: 1.5rem;
+    }
+}

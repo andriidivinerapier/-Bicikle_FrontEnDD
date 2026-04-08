@@ -135,6 +135,38 @@
     }
 }
 
+@media (max-width: 600px) {
+    .about-content {
+        padding: 1rem;
+    }
+
+    .about-hero {
+        padding: 2rem 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .mission-section,
+    .values-section {
+        padding: 2rem 1rem;
+    }
+
+    .mission-content {
+        max-width: 100%;
+    }
+
+    .value-card {
+        padding: 1.5rem;
+    }
+
+    .about-hero h1 {
+        font-size: 1.85rem;
+    }
+
+    .about-hero .subtitle {
+        font-size: 1rem;
+    }
+}
+
 @media (max-width: 1024px) {
     .values-grid {
         grid-template-columns: repeat(2, 1fr);
