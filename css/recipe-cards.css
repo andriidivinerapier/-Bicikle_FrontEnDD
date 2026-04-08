@@ -8,6 +8,174 @@
     margin: 0 auto 2rem;
 }
 
+/* ========== МОБІЛЬНА АДАПТАЦІЯ recipe-cards (max-width: 768px) ========== */
+@media (max-width: 768px) {
+    * { box-sizing: border-box !important; }
+    body { overflow-x: hidden !important; width: 100% !important; }
+    
+    /* ЗАГОЛОВОК */
+    .recipes-header {
+        max-width: 100% !important;
+        margin: 0 !important;
+        margin-bottom: 1rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.75rem !important;
+    }
+    
+    .recipes-header h2 {
+        font-size: 1.5rem !important;
+        margin: 0 !important;
+    }
+    
+    .header-actions {
+        margin-left: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+    }
+    
+    .header-actions > div {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+    }
+    
+    /* ПОШУК, КНОПКИ */
+    #searchInput.page-search,
+    #filterInput.page-search {
+        width: 100% !important;
+        max-width: none !important;
+        padding: 0.65rem 1rem !important;
+        padding-left: 44px !important;
+    }
+    
+    .catalog-button,
+    #searchBtn,
+    #filterBtn,
+    #catalogBtn,
+    #catalogBtnCommunity {
+        width: 100% !important;
+        justify-content: center !important;
+        height: 44px !important;
+    }
+    
+    /* КАТЕГОРІЇ */
+    .categories-container,
+    .categories,
+    .categories-modal-grid {
+        display: flex !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    .categories::-webkit-scrollbar,
+    .categories-modal-grid::-webkit-scrollbar {
+        height: 4px !important;
+    }
+    
+    .categories::-webkit-scrollbar-thumb,
+    .categories-modal-grid::-webkit-scrollbar-thumb {
+        background: #FF7A00 !important;
+    }
+    
+    .cat-btn {
+        flex: 0 0 auto !important;
+        min-width: 100px !important;
+        height: 40px !important;
+        white-space: nowrap !important;
+    }
+    
+    /* СІТКА РЕЦЕПТІВ */
+    .recipes-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 1rem !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+    
+    .recipe-card {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        height: auto !important;
+        background: linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.22)) !important;
+        border: 1px solid rgba(255,255,255,0.03) !important;
+        border-radius: 14px !important;
+        overflow: hidden !important;
+        box-shadow: 0 8px 26px rgba(2,6,23,0.65) !important;
+    }
+    
+    .recipe-image {
+        width: 100% !important;
+        height: 200px !important;
+        object-fit: cover !important;
+        display: block !important;
+        aspect-ratio: 16 / 9 !important;
+    }
+    
+    .recipe-content {
+        display: flex !important;
+        flex-direction: column !important;
+        padding: 1rem !important;
+        gap: 0.5rem !important;
+    }
+    
+    .recipe-title {
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+        margin: 0 !important;
+        color: #fff !important;
+    }
+    
+    .recipe-description {
+        font-size: 0.85rem !important;
+        color: #9aa6b6 !important;
+        margin: 0 !important;
+        line-height: 1.4 !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+    }
+    
+    .recipe-meta {
+        display: flex !important;
+        gap: 1rem !important;
+        font-size: 0.75rem !important;
+        color: #9aa6b6 !important;
+        margin-top: 0.25rem !important;
+    }
+    
+    /* ПАГІНАЦІЯ */
+    .pagination {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
+        max-width: 1200px !important;
+        margin: 2rem auto !important;
+        gap: 0.5rem !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .pagination > * {
+        margin: 0 !important;
+    }
+    
+    .page-btn {
+        width: 44px !important;
+        height: 44px !important;
+        min-height: 44px !important;
+        font-size: 0.9rem !important;
+        padding: 0 !important;
+    }
+}
+
 /* Recipes page header and catalog button (moved here so recipes page works with only this file) */
 .recipes-header {
     max-width: 1200px;
@@ -296,12 +464,14 @@ input#searchInput.page-search {
 
 /* Pagination */
 .pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.6rem;
-    margin: 2rem 0;
-    flex-wrap: wrap;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    max-width: 1200px !important;
+    margin: 2rem auto !important;
+    gap: 0.6rem !important;
+    flex-wrap: wrap !important;
 }
 
 .page-btn,
