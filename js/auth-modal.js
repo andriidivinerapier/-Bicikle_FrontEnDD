@@ -37,6 +37,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
 
+    // 📱 МОБІЛЬНІ ЕЛЕМЕНТИ
+    const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+    const mobileMenuProfile = document.getElementById('mobileMenuProfile');
+    const mobileProfileAvatar = document.getElementById('mobileProfileAvatar');
+    const mobileProfileName = document.getElementById('mobileProfileName');
+    const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+
     // Show modal when clicking login button
     if (loginButton) {
         loginButton.addEventListener('click', (e) => {
@@ -171,6 +179,43 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // 📱 МОБІЛЬНИЙ ЛОГАУТ  
+    if (mobileLogoutBtn) {
+        mobileLogoutBtn.addEventListener('click', () => {
+            const sharedModal = document.getElementById('confirmModal');
+            if (sharedModal) {
+                const msg = sharedModal.querySelector('#confirmModalMessage');
+                const yesBtn = sharedModal.querySelector('#confirmModalYes');
+                const noBtn = sharedModal.querySelector('#confirmModalNo');
+                if (msg) msg.textContent = 'Ви дійсно хочете вийти з аккаунта?';
+
+                function cleanup() {
+                    sharedModal.classList.remove('open');
+                    sharedModal.setAttribute('aria-hidden', 'true');
+                    yesBtn.removeEventListener('click', onYes);
+                    noBtn.removeEventListener('click', onNo);
+                    document.removeEventListener('keydown', onKey);
+                    document.body.classList.remove('modal-open');
+                }
+                function onYes(e) { e && e.stopPropagation(); cleanup(); doLogout(); }
+                function onNo(e) { e && e.stopPropagation(); cleanup(); }
+                function onKey(e) { if (e.key === 'Escape') { cleanup(); } }
+
+                yesBtn.addEventListener('click', onYes);
+                noBtn.addEventListener('click', onNo);
+                document.addEventListener('keydown', onKey);
+
+                sharedModal.classList.add('open');
+                sharedModal.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('modal-open');
+                try { yesBtn.focus(); } catch (e) {}
+            } else {
+                // Fallback: direct logout
+                doLogout();
+            }
+        });
+    }
+
     function doLogout() {
         fetch('backend/logout.php', { method: 'POST' })
             .then(res => res.json())
@@ -187,6 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateAuthUI(user) {
         if (user && user.username) {
+            // 🖥️ ДЕСКТОП
             if (loginButton) loginButton.style.display = 'none';
             if (profileContainer) profileContainer.style.display = 'flex';
             if (profileNameEl) profileNameEl.textContent = user.username;
@@ -207,6 +253,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     profileAvatarEl.textContent = '👤';
                 }
             }
+
+            // 📱 МОБІЛЬНЕ МЕНЮ
+            if (mobileLoginBtn) mobileLoginBtn.style.display = 'none';
+            if (mobileMenuProfile) mobileMenuProfile.style.display = 'flex';
+            if (mobileProfileName) mobileProfileName.textContent = user.username.toUpperCase();
+            if (mobileProfileAvatar) {
+                if (user.avatar_path) {
+                    mobileProfileAvatar.style.backgroundImage = `url('${user.avatar_path}')`;
+                    mobileProfileAvatar.style.backgroundSize = 'cover';
+                    mobileProfileAvatar.style.backgroundPosition = 'center';
+                    mobileProfileAvatar.style.backgroundRepeat = 'no-repeat';
+                    mobileProfileAvatar.classList.add('has-image');
+                    mobileProfileAvatar.textContent = '';
+                } else {
+                    mobileProfileAvatar.style.backgroundImage = '';
+                    mobileProfileAvatar.style.backgroundRepeat = '';
+                    mobileProfileAvatar.style.backgroundPosition = '';
+                    mobileProfileAvatar.style.backgroundSize = '';
+                    mobileProfileAvatar.classList.remove('has-image');
+                    mobileProfileAvatar.textContent = '👤';
+                }
+            }
+
             const adminMenuLink = document.getElementById('adminMenuLink');
             const adminMenuSeparator = document.getElementById('adminMenuSeparator');
             if (user.role === 'admin') {
@@ -217,6 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (adminMenuSeparator) adminMenuSeparator.style.display = 'none';
             }
         } else {
+            // 🖥️ ДЕСКТОП (ГІСТЬ)
             if (loginButton) loginButton.style.display = '';
             if (profileContainer) profileContainer.style.display = 'none';
             if (profileNameEl) profileNameEl.textContent = 'Профіль';
@@ -228,6 +298,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 profileAvatarEl.classList.remove('has-image');
                 profileAvatarEl.textContent = '👤';
             }
+
+            // 📱 МОБІЛЬНЕ МЕНЮ (ГІСТЬ)
+            if (mobileLoginBtn) mobileLoginBtn.style.display = '';
+            if (mobileMenuProfile) mobileMenuProfile.style.display = 'none';
+            if (mobileProfileName) mobileProfileName.textContent = 'Профіль';
+            if (mobileProfileAvatar) {
+                mobileProfileAvatar.style.backgroundImage = '';
+                mobileProfileAvatar.style.backgroundRepeat = '';
+                mobileProfileAvatar.style.backgroundPosition = '';
+                mobileProfileAvatar.style.backgroundSize = '';
+                mobileProfileAvatar.classList.remove('has-image');
+                mobileProfileAvatar.textContent = '👤';
+            }
+
             const adminMenuLink = document.getElementById('adminMenuLink');
             const adminMenuSeparator = document.getElementById('adminMenuSeparator');
             if (adminMenuLink) adminMenuLink.style.display = 'none';

@@ -373,6 +373,7 @@ document.querySelectorAll('.nav-links a').forEach(link => {
     const mobileMenuClose = document.getElementById('mobileMenuClose');
     const mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
     const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+    const mobileProfileLink = document.querySelector('.mobile-profile-link');
 
     if (!mobileMenu || !mobileMenuClose || !mobileMenuBackdrop || !mobileFab) {
         return;
@@ -400,6 +401,11 @@ document.querySelectorAll('.nav-links a').forEach(link => {
             closeMenu();
         }
     });
+
+    // 📱 Close menu when clicking on profile link
+    if (mobileProfileLink) {
+        mobileProfileLink.addEventListener('click', closeMenu);
+    }
 
     if (mobileLoginBtn) {
         mobileLoginBtn.addEventListener('click', (event) => {

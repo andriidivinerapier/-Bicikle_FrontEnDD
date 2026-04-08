@@ -53,6 +53,33 @@
         </nav>
     </header>
 
+    <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+        <div class="mobile-menu__backdrop" id="mobileMenuBackdrop"></div>
+        <div class="mobile-menu__panel">
+            <button class="mobile-menu__close" id="mobileMenuClose" aria-label="Закрити меню">×</button>
+            <nav class="mobile-menu__nav" aria-label="Мобільне меню">
+                <a href="index.html">Головна</a>
+                <a href="recipes.html">Рецепти</a>
+                <a href="community-recipes.html">Рецепти користувачів</a>
+                <a href="about.html">Про нас</a>
+                <a href="contacts.html">Контакти</a>
+            </nav>
+
+            <!-- Мобільна кнопка логіну (показується якщо НЕ залогінений) -->
+            <button class="mobile-menu__login" id="mobileLoginBtn">УВІЙТИ</button>
+
+            <!-- Мобільний профіль (показується якщо залогінений) -->
+            <div class="mobile-menu__profile" id="mobileMenuProfile" style="display: none;">
+                <a href="profile.html" class="mobile-profile-link">
+                    <span class="mobile-profile-avatar" id="mobileProfileAvatar">👤</span>
+                    <span class="mobile-profile-name" id="mobileProfileName">Профіль</span>
+                </a>
+                <button class="mobile-profile-logout" id="mobileLogoutBtn" aria-label="Вихід">Вихід</button>
+            </div>
+        </div>
+    </div>
+    <button class="mobile-fab" id="mobileFab" aria-label="Відкрити меню"></button>
+
     <main class="recipes-page" style="margin-top:70px; padding:2rem;">
             <div class="recipes-header">
             <h2>Рецепти</h2>
