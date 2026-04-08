@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Смачні рецепти - Ваш кулінарний путівник</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,6 +50,22 @@
             </div>
         </nav>
     </header>
+
+    <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+        <div class="mobile-menu__backdrop" id="mobileMenuBackdrop"></div>
+        <div class="mobile-menu__panel">
+            <button class="mobile-menu__close" id="mobileMenuClose" aria-label="Закрити меню">×</button>
+            <nav class="mobile-menu__nav" aria-label="Мобільне меню">
+                <a href="index.html">Головна</a>
+                <a href="recipes.html">Рецепти</a>
+                <a href="community-recipes.html">Рецепти користувачів</a>
+                <a href="about.html">Про нас</a>
+                <a href="contacts.html">Контакти</a>
+            </nav>
+            <button class="mobile-menu__login" id="mobileLoginBtn">Увійти</button>
+        </div>
+    </div>
+    <button class="mobile-fab" id="mobileFab" aria-label="Відкрити меню"></button>
 
     <!-- Hero секція -->
     <section class="hero">

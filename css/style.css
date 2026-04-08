@@ -16,6 +16,13 @@
     box-sizing: border-box;
 }
 
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+    position: relative;
+}
+
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-1);
@@ -1079,6 +1086,608 @@ body.modal-open {
     background-image: url('../images/dessert.jpg');
 }
 
+.burger-btn {
+    display: none;
+}
+
+.mobile-menu {
+    display: none;
+}
+
+.mobile-fab {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .header {
+        position: sticky;
+        top: 0;
+        z-index: 1100;
+        padding: 0.85rem 0 0.5rem;
+        background: linear-gradient(180deg, var(--bg-2), rgba(28,34,48,0.96));
+    }
+
+    .nav-container {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+        max-width: 100%;
+        padding: 0 15px;
+    }
+
+    .nav-links {
+        display: none !important;
+    }
+
+    .burger-btn {
+        display: none !important;
+    }
+
+    .burger-btn span {
+        width: 18px;
+        height: 2px;
+        border-radius: 999px;
+        background: #fff;
+    }
+
+    .login-btn {
+        display: none;
+    }
+
+    .mobile-menu {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+        display: none;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 220ms ease, visibility 220ms ease;
+        z-index: 1200;
+        overflow-x: hidden;
+    }
+
+    .mobile-fab {
+        display: inline-flex;
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: #ff7a33;
+        color: #fff;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        box-shadow: 0 18px 32px rgba(255,119,51,0.28);
+        cursor: pointer;
+        z-index: 1400;
+        transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease, opacity 220ms ease, visibility 220ms ease;
+    }
+
+    .mobile-fab:hover {
+        transform: scale(1.04);
+        box-shadow: 0 20px 38px rgba(255,119,51,0.34);
+    }
+
+    .mobile-fab:active {
+        transform: scale(0.96);
+    }
+
+    .mobile-fab::before {
+        content: '';
+        width: 20px;
+        height: 2px;
+        background: #fff;
+        border-radius: 1px;
+        box-shadow: 0 -6px 0 #fff, 0 6px 0 #fff;
+    }
+
+    .menu-open .mobile-fab,
+    .mobile-fab.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: scale(0.92);
+    }
+
+    .mobile-menu.open {
+        display: block;
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .mobile-menu__backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .mobile-menu__panel {
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: min(320px, 78vw);
+        background: #111b2c;
+        padding: 1.25rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        transform: translateX(100%);
+        transition: transform 240ms ease;
+        box-shadow: -8px 0 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .mobile-menu.open .mobile-menu__panel {
+        transform: translateX(0);
+    }
+
+    .mobile-menu__close {
+        align-self: flex-end;
+        width: 42px;
+        height: 42px;
+        border: none;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.08);
+        color: #fff;
+        font-size: 1.4rem;
+        cursor: pointer;
+    }
+
+    .mobile-menu__nav {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .mobile-menu__nav a {
+        display: block;
+        color: var(--text-primary);
+        text-decoration: none;
+        padding: 0.95rem 1rem;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.05);
+        transition: background 200ms ease;
+    }
+
+    .mobile-menu__nav a:hover {
+        background: rgba(255,122,0,0.14);
+    }
+
+    .mobile-menu__login {
+        margin-top: auto;
+        width: 100%;
+        min-height: 44px;
+        border: none;
+        border-radius: 14px;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .hero {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.5rem 15px 1.5rem;
+    }
+
+    .hero-image {
+        width: 100%;
+        border-radius: 18px;
+        overflow: hidden;
+    }
+
+    .hero-image img {
+        width: 100%;
+        display: block;
+        object-fit: cover;
+        height: auto;
+    }
+
+    .hero-content {
+        text-align: center;
+        padding: 0;
+    }
+
+    .hero-content h2 {
+        font-size: 2.2rem;
+        line-height: 1.08;
+        margin: 0.75rem 0 0.85rem;
+    }
+
+    .hero-content p {
+        font-size: 1rem;
+        line-height: 1.7;
+        color: #cbd5e1;
+        margin: 0 auto 1.5rem;
+        max-width: 42rem;
+    }
+
+    .cta-button {
+        width: 100%;
+        min-height: 44px;
+        border-radius: 14px;
+        font-size: 1rem;
+        padding: 1rem 1.1rem;
+    }
+
+    .recipes-section {
+        padding: 0 15px 1.5rem;
+    }
+
+    .recipes-section h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        padding-left: 0;
+    }
+
+    .categories-grid {
+        display: flex;
+        gap: 1rem;
+        overflow-x: auto;
+        padding-bottom: 1rem;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+    }
+
+    .categories-grid > * {
+        flex: 0 0 84%;
+        min-width: 84%;
+        scroll-snap-align: start;
+    }
+
+    .categories-grid::-webkit-scrollbar {
+        display: none;
+    }
+
+    .recipe-card {
+        width: auto;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.1);
+        box-shadow: none;
+        overflow: hidden;
+        background: rgba(255,255,255,0.03);
+    }
+
+    .recipe-image {
+        aspect-ratio: 16 / 9;
+        min-height: 180px;
+    }
+
+    .recipe-card .recipe-info {
+        padding: 1rem;
+    }
+
+    .recipe-info h4 {
+        font-size: 1.2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .recipe-description {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        color: #cbd5e1;
+    }
+
+    .recipe-meta {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .recipe-button {
+        min-height: 44px;
+        border-radius: 14px;
+        padding: 0.95rem 1rem;
+    }
+
+    .recipe-like {
+        min-width: 44px;
+        min-height: 44px;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.08);
+    }
+
+    .seasons-section {
+        padding: 1.5rem 15px 2rem;
+    }
+
+    .seasons-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.9rem;
+    }
+
+    .season-card {
+        min-height: 180px;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .season-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .season-card h3 {
+        font-size: 1rem;
+        padding: 1rem;
+    }
+
+    .footer {
+        padding: 2rem 15px 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .header {
+        position: sticky;
+        top: 0;
+        z-index: 1100;
+        padding: 0.85rem 15px;
+        background: linear-gradient(180deg, var(--bg-2), rgba(28,34,48,0.96));
+    }
+
+    .nav-container {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+    }
+
+    .logo {
+        margin-left: 0;
+    }
+
+    .nav-actions {
+        gap: 0.75rem;
+    }
+
+    .nav-links {
+        display: none !important;
+    }
+
+    .login-btn {
+        display: none !important;
+    }
+
+    .profile-container {
+        display: none !important;
+    }
+
+    .burger-btn {
+        display: none !important;
+    }
+
+    .mobile-fab {
+        display: inline-flex;
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: #ff7a33;
+        color: #fff;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        box-shadow: 0 18px 32px rgba(255,119,51,0.28);
+        cursor: pointer;
+        z-index: 1400;
+        transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease, opacity 220ms ease, visibility 220ms ease;
+    }
+
+    .mobile-fab:hover {
+        transform: scale(1.04);
+        box-shadow: 0 20px 38px rgba(255,119,51,0.34);
+    }
+
+    .mobile-fab:active {
+        transform: scale(0.96);
+    }
+
+    .mobile-fab::before {
+        content: '';
+        width: 20px;
+        height: 2px;
+        background: #fff;
+        border-radius: 1px;
+        box-shadow: 0 -6px 0 #fff, 0 6px 0 #fff;
+    }
+
+    .menu-open .mobile-fab,
+    .mobile-fab.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: scale(0.92);
+    }
+
+    .hero {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.25rem 15px 1.25rem;
+    }
+
+    .hero-image {
+        width: 100%;
+        border-radius: 18px;
+        overflow: hidden;
+        min-height: 180px;
+    }
+
+    .hero-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .hero-content {
+        text-align: center;
+        padding: 0;
+    }
+
+    .hero-content h2 {
+        font-size: 22px;
+        line-height: 1.2;
+        margin: 0.75rem 0 0.85rem;
+    }
+
+    .hero-content p {
+        font-size: 15px;
+        line-height: 1.7;
+        margin: 0 auto 1.25rem;
+        max-width: 100%;
+        color: #cbd5e1;
+    }
+
+    .cta-button {
+        width: 100%;
+        min-height: 48px;
+        border-radius: 14px;
+        font-size: 1rem;
+        padding: 1rem 1rem;
+    }
+
+    .recipes-section {
+        padding: 0 15px 1.5rem;
+    }
+
+    .recipes-section h2 {
+        font-size: 1.4rem;
+        margin-bottom: 0.85rem;
+    }
+
+    .categories-grid {
+        display: flex;
+        gap: 1rem;
+        overflow-x: auto;
+        padding-bottom: 1rem;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+    }
+
+    .categories-grid > * {
+        flex: 0 0 84%;
+        min-width: 84%;
+        scroll-snap-align: start;
+    }
+
+    .categories-grid::-webkit-scrollbar {
+        display: none;
+    }
+
+    .recipe-card {
+        width: auto;
+        min-width: 84%;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: none;
+        overflow: hidden;
+        background: rgba(255,255,255,0.03);
+    }
+
+    .recipe-card .recipe-info {
+        padding: 1rem;
+    }
+
+    .recipe-info h4 {
+        font-size: 1.1rem;
+        margin-bottom: 0.7rem;
+    }
+
+    .recipe-description {
+        font-size: 0.95rem;
+        margin-bottom: 0.9rem;
+        color: #cbd5e1;
+    }
+
+    .recipe-meta {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .recipe-button,
+    .recipe-like {
+        min-height: 44px;
+        border-radius: 14px;
+    }
+
+    .seasons-section {
+        padding: 1.5rem 15px 2rem;
+    }
+
+    .seasons-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+
+    .season-card {
+        min-height: 160px;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .season-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .season-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(0,0,0,0.75) 100%);
+        pointer-events: none;
+    }
+
+    .season-card h3 {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: 0;
+        padding: 1rem;
+        z-index: 1;
+        color: #fff;
+        font-size: 1rem;
+        line-height: 1.3;
+    }
+
+    .footer {
+        padding: 2rem 15px 2rem;
+        text-align: center;
+    }
+
+    .footer-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.25rem;
+    }
+
+    .social-links {
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .footer .social-link {
+        width: 44px;
+        height: 44px;
+    }
+}
+
 /* Page transition container */
 .fade-page {
     opacity: 0;
@@ -1341,5 +1950,39 @@ body.modal-open {
         transform: none;
         right: auto;
         margin-left: 0;
+    }
+}
+
+/* Final mobile override for navigation */
+@media (max-width: 768px) {
+    .header {
+        position: sticky;
+        top: 0;
+        z-index: 1100;
+        background: linear-gradient(180deg, var(--bg-2), rgba(28,34,48,0.96));
+    }
+
+    .nav-links {
+        display: none !important;
+    }
+
+    .burger-btn {
+        display: inline-flex !important;
+    }
+
+    .login-btn {
+        display: none !important;
+    }
+
+    .profile-container {
+        display: none !important;
+    }
+
+    .mobile-menu {
+        display: none;
+    }
+
+    .mobile-menu.open {
+        display: block;
     }
 }
