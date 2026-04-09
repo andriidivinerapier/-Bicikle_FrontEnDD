@@ -393,6 +393,12 @@ document.querySelectorAll('.nav-links a').forEach(link => {
         mobileMenu.setAttribute('aria-hidden', 'true');
     };
 
+    window.openMobileNavigation = () => {
+        if (mobileMenu) {
+            openMenu();
+        }
+    };
+
     mobileFab.addEventListener('click', openMenu);
     mobileMenuClose.addEventListener('click', closeMenu);
     mobileMenuBackdrop.addEventListener('click', closeMenu);

@@ -23,50 +23,84 @@
 
 .avatar-upload-wrapper {
     position: relative;
-    width: 140px;
-    height: 140px;
+    width: 120px;
+    height: 120px;
 }
 
-.avatar-placeholder {
-    width: 100%;
-    height: 100%;
+.avatar-container {
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+    border: 3px solid #FF7A30; /* Оранжева рамка */
+    box-shadow: 0 4px 12px rgba(255, 122, 0, 0.3); /* Тінь для виділення */
     background: linear-gradient(135deg, var(--accent), rgba(255,122,0,0.7));
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 4rem;
-    box-shadow: 0 10px 30px rgba(255,122,0,0.2);
     animation: avatarPulse 3s ease-in-out infinite;
-    background-size: cover;
-    background-position: center;
 }
 
-.avatar-placeholder.has-image {
-    color: transparent;
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    position: relative;
+    z-index: 1;
+}
+
+.avatar-placeholder-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 4rem;
+    color: #ffffff;
+    z-index: 2;
+    display: none; /* Показувати тільки якщо немає зображення */
+}
+
+.avatar-container.has-image .avatar-placeholder-icon {
+    display: none;
+}
+
+.avatar-container:not(.has-image) .avatar-img {
+    display: none;
+}
+
+.avatar-container:not(.has-image) {
+    background: #374151; /* Темно-сірий фон для іконки */
+}
+
+.avatar-container:not(.has-image) .avatar-placeholder-icon {
+    display: block;
 }
 
 .avatar-change-btn {
     position: absolute;
     right: 0;
     bottom: 0;
-    width: 42px;
-    height: 42px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     border: 1px solid rgba(255,122,0,0.3);
-    background: rgba(255,255,255,0.95);
+    background: #ffffff; /* Білий фон */
     color: #222;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 3;
+    font-size: 0.9rem;
 }
 
 .avatar-change-btn:hover {
     transform: translateY(-1px);
-    background: #ffffff;
+    background: #f0f0f0;
 }
 
 .avatar-confirm-overlay {
@@ -190,7 +224,7 @@
 .profile-header-bell { margin-left: 8px; }
 
 .profile-info h1 {
-    margin: 0 0 0.5rem 0;
+    margin: 1rem 0 0.5rem 0; /* Додано margin-top: 1rem */
     font-size: 2.2rem;
     color: #ffffff;
     font-weight: 700;
@@ -397,6 +431,8 @@
 .profile-tabs-nav::-webkit-scrollbar-thumb {
     background: rgba(255,255,255,0.1);
     border-radius: 4px;
+}
+
 .recipe-category {
     background: rgba(0,0,0,0.28);
     color: #ff7a00;
@@ -407,7 +443,6 @@
     box-shadow: inset 0 -3px 0 rgba(0,0,0,0.18);
     margin-right: 6px;
     transform: translateX(-4px);
-}
 }
 
 .profile-tab-btn {
@@ -420,7 +455,7 @@
     cursor: pointer;
     white-space: nowrap;
     position: relative;
-    transition: color 200ms ease;
+    transition: color 200ms ease, background 220ms ease, transform 220ms ease;
     display: flex;
     align-items: center;
     gap: 0.6rem;
@@ -761,43 +796,197 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    .header .nav-actions .profile-btn {
+        display: none !important;
+    }
+
+    .profile-header {
+        background: #1E2530;
+        padding: 2rem 1.5rem 1.25rem;
+    }
+
     .profile-header-content {
         flex-direction: column;
+        align-items: center;
         text-align: center;
         gap: 1.5rem;
+        max-width: 100%;
+        margin: 0 auto;
     }
 
-    .profile-info h1 {
-        font-size: 1.6rem;
-    }
-
-    .profile-stats {
+    .avatar-upload-wrapper {
+        position: relative;
+        width: min(120px, 100%);
+        height: min(120px, 100%);
+        display: flex;
+        align-items: center;
         justify-content: center;
-        gap: 1.5rem;
     }
 
-    .profile-actions {
-        justify-content: center;
+    .avatar-wrapper {
+        width: 120px;
+        height: 120px;
+        font-size: 3.5rem;
+        margin: 0 auto;
+    }
+
+    .avatar-change-btn {
+        right: 0;
+        bottom: 0;
+        transform: none; /* Повернути до нижнього правого кута */
+        background: #ffffff;
+        border: 1px solid rgba(255,122,0,0.3);
+        width: 32px;
+        height: 32px;
+    }
+
+    .avatar-change-btn:hover {
+        background: #f0f0f0;
+    }
+
+    .profile-info {
         width: 100%;
     }
 
-    .profile-tabs-nav {
+    .profile-name-row {
+        justify-content: center;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .profile-name-row h1 {
+        margin-bottom: 0;
+        font-size: 1.75rem;
+    }
+
+    .profile-header-bell {
+        margin-left: 0.35rem;
+        padding: 0.55rem 0.65rem;
+        background: rgba(255,255,255,0.05);
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.08);
+        color: #ffffff;
+    }
+
+    .profile-header-bell i {
+        color: var(--accent);
+    }
+
+    #profileEmail {
+        color: #cbd5e1;
+        font-size: 0.95rem;
+        margin-top: 0.35rem;
+        letter-spacing: 0.2px;
+    }
+
+    .profile-actions {
+        display: none;
+    }
+
+    .profile-stats {
+        display: flex;
+        justify-content: space-around;
         flex-wrap: wrap;
+        gap: 0.9rem;
+        margin-top: 1.3rem;
+        width: 100%;
+        max-width: 520px;
+        padding: 0;
+    }
+
+    .profile-stats span {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        flex: 1 1 30%;
+        min-width: 96px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 20px;
+        padding: 1rem 0.85rem;
+        color: #e6eef8;
+        font-size: 0.95rem;
+    }
+
+    .profile-stats span i {
+        color: var(--accent);
+        font-size: 1rem;
+    }
+
+    .profile-stats span strong {
+        font-size: 1.1rem; /* Зменшений шрифт цифр */
+        color: var(--accent);
     }
 
     .profile-tab-btn {
-        padding: 0.8rem 1rem;
-        font-size: 0.85rem;
+        padding: 0.9rem 1.1rem;
+        font-size: 0.88rem;
+        min-width: 160px;
+        flex: 0 0 auto;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+        transition: all 240ms ease;
+        scroll-snap-align: start;
+    }
+
+    .profile-tabs-nav {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 0.85rem;
+        padding: 0 0.5rem 0.4rem;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+    }
+
+    .profile-tab-btn.active {
+        background: rgba(255,122,0,0.18);
+        color: var(--accent);
+        border-color: rgba(255,122,0,0.3);
+        box-shadow: 0 10px 26px rgba(255,122,0,0.14);
+    }
+
+    .profile-tab-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .profile-tab-btn:focus-visible {
+        outline: 2px solid rgba(255,122,0,0.45);
+        outline-offset: 3px;
+    }
+
+    .profile-main {
+        max-width: 100%;
+        padding: 20px;
     }
 
     .recipes-grid {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 1rem;
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .recipe-card {
+        width: 100%;
+    }
+
+    .recipe-image {
+        height: 220px;
+        min-height: 220px;
+    }
+
+    .recipe-image img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        display: block;
     }
 
     .recipes-header {
         flex-direction: column;
         align-items: stretch;
+        gap: 1rem;
     }
 
     .recipes-header .btn {
@@ -812,17 +1001,12 @@
     .profile-header {
         padding: 1.5rem 1rem;
     }
-
-    .avatar-placeholder {
-        width: 100px;
-        height: 100px;
-        font-size: 3rem;
-    }
 }
 
 @media (max-width: 480px) {
     .profile-info h1 {
         font-size: 1.3rem;
+        margin-top: 1rem; /* Додано margin-top для мобільної версії */
     }
 
     .profile-stats {

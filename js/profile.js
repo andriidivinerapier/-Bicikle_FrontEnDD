@@ -65,36 +65,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileAvatarInput = document.getElementById('profileAvatarInput');
     const changeAvatarBtn = document.getElementById('changeAvatarBtn');
     const profileAvatarDisplay = document.getElementById('profileAvatarDisplay');
+    const profileAvatarImage = document.getElementById('profileAvatarImage');
 
     function setAvatarPreview(src) {
         if (!profileAvatarDisplay) return;
         if (!src) {
-            profileAvatarDisplay.style.backgroundImage = '';
-            profileAvatarDisplay.textContent = '👤';
             profileAvatarDisplay.classList.remove('has-image');
+            if (profileAvatarImage) {
+                profileAvatarImage.src = '';
+            }
             return;
         }
-        profileAvatarDisplay.style.backgroundImage = `url('${src}')`;
-        profileAvatarDisplay.textContent = '';
+        if (profileAvatarImage) {
+            profileAvatarImage.src = src;
+        }
         profileAvatarDisplay.classList.add('has-image');
     }
 
     function captureAvatarState() {
         if (!profileAvatarDisplay) return null;
         return {
-            backgroundImage: profileAvatarDisplay.style.backgroundImage,
-            textContent: profileAvatarDisplay.textContent,
-            hasImage: profileAvatarDisplay.classList.contains('has-image')
+            hasImage: profileAvatarDisplay.classList.contains('has-image'),
+            imageSrc: profileAvatarImage ? profileAvatarImage.src : ''
         };
     }
 
     function restoreAvatarState(state) {
         if (!profileAvatarDisplay || !state) return;
-        profileAvatarDisplay.style.backgroundImage = state.backgroundImage || '';
-        profileAvatarDisplay.textContent = state.hasImage ? '' : state.textContent;
-        if (state.hasImage) {
+        if (state.hasImage && state.imageSrc) {
+            if (profileAvatarImage) {
+                profileAvatarImage.src = state.imageSrc;
+            }
             profileAvatarDisplay.classList.add('has-image');
         } else {
+            if (profileAvatarImage) {
+                profileAvatarImage.src = '';
+            }
             profileAvatarDisplay.classList.remove('has-image');
         }
     }
@@ -167,8 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const previousState = captureAvatarState();
             const reader = new FileReader();
-            reader.onload = async (loadEvent) => {
-                setAvatarPreview(loadEvent.target.result);
+            reader.onload = async () => {
+                setAvatarPreview(reader.result);
                 const confirmed = await showAvatarConfirmModal('Ви дійсно хочете встановити це фото як аватарку?', 'Підтвердити фото');
                 if (!confirmed) {
                     restoreAvatarState(previousState);

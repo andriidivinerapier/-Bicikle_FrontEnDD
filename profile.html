@@ -85,7 +85,10 @@
         <div class="profile-header-content">
             <div class="profile-avatar-large">
                 <div class="avatar-upload-wrapper">
-                    <div class="avatar-placeholder" id="profileAvatarDisplay">👤</div>
+                    <div class="avatar-container" id="profileAvatarDisplay">
+                        <img id="profileAvatarImage" class="avatar-img" src="<?php echo $user['avatar_path'] ?: 'assets/default-avatar.png'; ?>" alt="Аватар користувача">
+                        <span class="avatar-placeholder-icon">👤</span>
+                    </div>
                     <button type="button" id="changeAvatarBtn" class="avatar-change-btn" aria-label="Змінити фото профілю">
                         <i class="fas fa-camera"></i>
                     </button>
@@ -118,9 +121,9 @@
                     </div>
                 <p id="profileEmail">Unknown</p>
                 <p class="profile-stats">
-                    <span><strong>12</strong> рецептів </span>
-                    <span><strong>34</strong> коментарів </span>
-                    <span><strong>89</strong> улюблених </span>
+                    <span class="profile-stat-item"><i class="fas fa-book-open"></i><strong>12</strong> рецептів</span>
+                    <span class="profile-stat-item"><i class="fas fa-comment-alt"></i><strong>34</strong> коментарів</span>
+                    <span class="profile-stat-item"><i class="fas fa-heart"></i><strong>89</strong> улюблених</span>
                 </p>
             </div>
             <div class="profile-actions">
@@ -134,17 +137,17 @@
     <!-- Main Content -->
     <main class="profile-main">
         <!-- Tab Navigation -->
-        <div class="profile-tabs-nav">
-            <button class="profile-tab-btn active" data-tab="favorites">
+        <div class="profile-tabs-nav" role="tablist" aria-label="Профільні вкладки">
+            <button class="profile-tab-btn active" role="tab" aria-selected="true" aria-controls="tab-favorites" id="tab-favorites-btn" data-tab="favorites">
                 <i class="fas fa-heart"></i> Улюблені рецепти
             </button>
-            <button class="profile-tab-btn" data-tab="comments">
+            <button class="profile-tab-btn" role="tab" aria-selected="false" aria-controls="tab-comments" id="tab-comments-btn" data-tab="comments">
                 <i class="fas fa-comments"></i> Мої коментарі
             </button>
-            <button class="profile-tab-btn" data-tab="recipes">
+            <button class="profile-tab-btn" role="tab" aria-selected="false" aria-controls="tab-recipes" id="tab-recipes-btn" data-tab="recipes">
                 <i class="fas fa-plus-circle"></i> Мої рецепти
             </button>
-            <button class="profile-tab-btn" data-tab="settings">
+            <button class="profile-tab-btn" role="tab" aria-selected="false" aria-controls="tab-settings" id="tab-settings-btn" data-tab="settings">
                 <i class="fas fa-cog"></i> Налаштування
             </button>
         </div>
@@ -152,7 +155,7 @@
         <!-- Tab Contents -->
         <div class="profile-tabs-content">
             <!-- Tab: Favorites -->
-            <div class="profile-tab-panel active" id="tab-favorites">
+            <div class="profile-tab-panel active" id="tab-favorites" role="tabpanel" aria-labelledby="tab-favorites-btn">
                 <h2>Улюблені рецепти</h2>
                 <div class="recipes-grid">
                     <div class="recipe-card" data-ingredients="Кіноа - 200г|Авокадо - 1 шт|Морква - 2 шт|Огірок - 1 шт|Хумус - 100г" data-steps="Промити кіноа та зварити за інструкцією|Нарізати авокадо та овочі|Змішати всі інгредієнти з хумусом|Подавати охолодженим" data-difficulty="Легка">
@@ -218,7 +221,7 @@
             </div>
 
             <!-- Tab: Мої коментарі -->
-            <div class="profile-tab-panel" id="tab-comments">
+            <div class="profile-tab-panel" id="tab-comments" role="tabpanel" aria-labelledby="tab-comments-btn">
                 <h2>Мої коментарі</h2>
                 <div id="myCommentsList" class="my-comments-list">
                     <div class="my-comments-empty">Завантаження коментарів…</div>
@@ -227,7 +230,7 @@
 
          
             <!-- Tab: My Recipes -->
-            <div class="profile-tab-panel" id="tab-recipes">
+            <div class="profile-tab-panel" id="tab-recipes" role="tabpanel" aria-labelledby="tab-recipes-btn">
                 <div class="recipes-header">
                     <h2>Мої рецепти</h2>
                         <button class="btn btn-primary" id="profileAddRecipeBtn">
@@ -274,7 +277,7 @@
                 </div>
             </div>
 
-            <div class="profile-tab-panel" id="tab-settings">
+            <div class="profile-tab-panel" id="tab-settings" role="tabpanel" aria-labelledby="tab-settings-btn">
                 <h2>Налаштування профілю</h2>
 
                 <div class="settings-panel">

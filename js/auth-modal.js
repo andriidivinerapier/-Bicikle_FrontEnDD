@@ -75,11 +75,39 @@ document.addEventListener('DOMContentLoaded', () => {
     if (profileBtn) {
         profileBtn.addEventListener('click', (e) => {
             e.stopPropagation();
+            if (window.innerWidth <= 768 && typeof window.openMobileNavigation === 'function') {
+                e.preventDefault();
+                window.openMobileNavigation();
+                return;
+            }
             if (!window.location.pathname.includes('profile.html')) {
                 window.location.href = 'profile.html';
+            } else {
+                // Toggle profile menu on profile.html
+                if (profileMenu) {
+                    const isOpen = profileMenu.classList.contains('open');
+                    if (isOpen) {
+                        profileMenu.classList.remove('open');
+                        profileBtn.setAttribute('aria-expanded', 'false');
+                        profileMenu.setAttribute('aria-hidden', 'true');
+                    } else {
+                        profileMenu.classList.add('open');
+                        profileBtn.setAttribute('aria-expanded', 'true');
+                        profileMenu.setAttribute('aria-hidden', 'false');
+                    }
+                }
             }
         });
     }
+
+    // Close profile menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (profileMenu && profileBtn && !profileBtn.contains(e.target) && !profileMenu.contains(e.target)) {
+            profileMenu.classList.remove('open');
+            profileBtn.setAttribute('aria-expanded', 'false');
+            profileMenu.setAttribute('aria-hidden', 'true');
+        }
+    });
 
     function closeAuthModalAndMaybeRedirect() {
         const activeForm = document.querySelector('.auth-form.active');
