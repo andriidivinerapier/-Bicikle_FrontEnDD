@@ -105,19 +105,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Модальне вікно рецепту
-    document.addEventListener('click', (e) => {
-        // Обробка кнопки "Рецепт" — використовуємо closest(), щоб спрацьовувало при кліку на SVG або внутрішні елементи
-        const recipeBtn = e.target.closest && e.target.closest('.recipe-button');
-        if (recipeBtn) {
-            const card = recipeBtn.closest('.recipe-card');
-            openRecipeModal(card);
-            return;
-        }
+    // Skip if main.js is already handling recipe events (on index.html, both files load)
+    if (!window.__mainJsRecipeHandlerActive) {
+        document.addEventListener('click', (e) => {
+            // Обробка кнопки "Рецепт" — використовуємо closest(), щоб спрацьовувало при кліку на SVG або внутрішні елементи
+            const recipeBtn = e.target.closest && e.target.closest('.recipe-button');
+            if (recipeBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                const card = recipeBtn.closest('.recipe-card');
+                openRecipeModal(card);
+                return;
+            }
 
-        // Обробка кнопки "вподобайки" — використовуємо closest() аналогічно
-        const likeElem = e.target.closest && e.target.closest('.recipe-like');
-        if (likeElem) {
-            e.preventDefault();
+            // Обробка кнопки "вподобайки" — використовуємо closest() аналогічно
+            const likeElem = e.target.closest && e.target.closest('.recipe-like');
+            if (likeElem) {
+                e.preventDefault();
             e.stopPropagation();
 
             const likeBtn = likeElem;
@@ -173,118 +177,117 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
         }
     });
+    }
 
     function openRecipeModal(card) {
-        const title = card.querySelector('h4').textContent;
-        const time = card.querySelector('.cook-time')?.textContent || '';
-        const imgUrl = card.querySelector('.recipe-image')?.style.backgroundImage.slice(4, -1).replace(/"/g, '') || '';
-        const ingredientsRaw = card.dataset.ingredients || '';
-        const stepsRaw = card.dataset.steps || '';
-        const difficulty = card.dataset.difficulty || '';
-
-        // Створюємо модальне вікно
-        const modalHtml = `
-            <div class="recipe-modal-overlay">
-                <div class="recipe-modal">
-                    <button class="modal-close">×</button>
-                    <div class="modal-image-wrap">
-                        <img src="${imgUrl}" alt="${title}">
-                    </div>
-                    <div class="modal-body">
-                        <h2 id="modalTitle">${title}</h2>
-                        <div class="modal-meta">
-                            <span class="difficulty">${difficulty}</span>
-                            <span class="cook-time">${time}</span>
-                        </div>
-                        <div class="ingredients">
-                            <h4>Інгредієнти:</h4>
-                            <ul>
-                                ${ingredientsRaw.split('|')
-                                    .filter(Boolean)
-                                    .map(i => `<li>${i.trim()}</li>`)
-                                    .join('')}
-                            </ul>
-                        </div>
-                        <div class="preparation">
-                            <h4>Приготування:</h4>
-                            <ol>
-                                ${stepsRaw.split('|')
-                                    .filter(Boolean)
-                                    .map(s => `<li>${s.trim()}</li>`)
-                                    .join('')}
-                            </ol>
-                        </div>
-                        <section class="comments-section" aria-labelledby="commentsTitle">
-                            <h4 id="commentsTitle">Коментарі</h4>
-                            <div class="comments-list" id="modalCommentsList"></div>
-                            <form id="modalCommentForm" class="comment-form">
-                                <textarea name="comment" placeholder="Напишіть коментар..." required></textarea>
-                                <button type="submit">Надіслати</button>
-                            </form>
-                        </section>
-                    </div>
-                </div>
-            </div>`;
-
-        // Close any existing recipe modal overlays to avoid duplication.
-        // Do not remove the static `#recipeModal` element (it is used elsewhere).
-        document.querySelectorAll('.recipe-modal-overlay').forEach(m => {
-            if (m.id === 'recipeModal') {
-                m.classList.remove('open');
-                try { m.setAttribute('aria-hidden', 'true'); } catch (e) {}
-            } else {
-                m.remove();
+        // Clean up any existing modal overlays first
+        document.querySelectorAll('.recipe-modal-overlay').forEach(oldModal => {
+            try { oldModal.remove(); } catch (e) {}
+        });
+        document.body.style.overflow = '';
+        
+        // Small delay to ensure cleanup
+        setTimeout(() => {
+            createAndShowModal();
+        }, 10);
+        
+        function createAndShowModal() {
+            // Guard: prevent opening multiple modals simultaneously
+            const existingOpenModal = document.querySelector('.recipe-modal-overlay.open');
+            if (existingOpenModal) {
+                console.warn('Modal already open, preventing duplicate');
+                return;
             }
-        });
+            
+            // Use nice modal from profile.html
+            const title = card.querySelector('h4')?.textContent || 'Рецепт';
+            const rawTime = card.dataset.time || card.querySelector('.cook-time')?.textContent || '';
+            const time = rawTime ? (isNaN(rawTime) ? rawTime : `${rawTime} хв`) : '';
+            const category = card.querySelector('.recipe-category')?.textContent || '';
+            const imgUrl = card.querySelector('.recipe-image')?.style.backgroundImage.slice(4, -1).replace(/"/g, '') || 'images/homepage/salad1.jpg';
+            const ingredientsRaw = card.dataset.ingredients || '';
+            const stepsRaw = card.dataset.steps || '';
+            const difficulty = card.dataset.difficulty || 'Легка';
+            const recipeId = card.dataset.recipeId || '';
 
-        // Додаємо модал до body
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
+            // Create modal HTML
+            const modalHtml = `
+                <div class="recipe-modal-overlay">
+                    <div class="recipe-modal">
+                        <button class="modal-close">×</button>
+                        <div class="modal-image-wrap">
+                            <img src="${imgUrl}" alt="${title}" onerror="this.src='images/homepage/salad1.jpg'">
+                        </div>
+                        <div class="modal-body">
+                            <h2 id="modalTitle">${title}</h2>
+                            <div class="modal-meta">
+                                <span class="difficulty">${difficulty}</span>
+                                <span class="cook-time">⏱️ ${time}</span>
+                            </div>
+                            <div class="ingredients">
+                                <h4>🥘 Інгредієнти:</h4>
+                                <ul>
+                                    ${ingredientsRaw.split('|')
+                                        .filter(Boolean)
+                                        .map(i => `<li>${i.trim()}</li>`)
+                                        .join('')}
+                                </ul>
+                            </div>
+                            <div class="preparation">
+                                <h4>📋 Приготування:</h4>
+                                <ol>
+                                    ${stepsRaw.split('|')
+                                        .filter(Boolean)
+                                        .map(s => `<li>${s.trim()}</li>`)
+                                        .join('')}
+                                </ol>
+                            </div>
+                            <section class="comments-section" aria-labelledby="commentsTitle">
+                                <h4 id="commentsTitle">Коментарі</h4>
+                                <div class="comments-list" id="modalCommentsList">
+                                    <!-- comments loaded by JS -->
+                                </div>
+                                <form id="modalCommentForm" class="comment-form">
+                                    <textarea name="comment" placeholder="Напишіть коментар..." required></textarea>
+                                    <button type="submit">Надіслати</button>
+                                </form>
+                            </section>
+                        </div>
+                    </div>
+                </div>`;
 
-        // Отримуємо посилання на останній доданий modal (щоб не конфліктувати зі статичними модалами на index.html)
-        const modals = document.querySelectorAll('.recipe-modal-overlay');
-        const modal = modals[modals.length - 1];
-        const closeBtn = modal.querySelector('.modal-close');
+            // Add modal to page
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // Get references to new elements
+            const modal = document.querySelector('.recipe-modal-overlay:last-child');
+            const closeBtn = modal.querySelector('.modal-close');
 
-        // Відкриваємо модал
-        requestAnimationFrame(() => {
-            modal.classList.add('open');
-            document.body.style.overflow = 'hidden';
-            // Add common modal class so other scripts/styles remain consistent
-            document.body.classList.add('modal-open');
-            document.body.classList.add('no-scroll');
-            // set recipe id for comments loader and notify
-            try { modal.setAttribute('data-recipe-id', card.dataset.recipeId || card.dataset.recipe_id || ''); } catch (e) {}
-            document.dispatchEvent(new CustomEvent('recipeModalOpen', { detail: { recipeId: card.dataset.recipeId || card.dataset.recipe_id || '' } }));
-        });
+            // Open modal with animation
+            requestAnimationFrame(() => {
+                modal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            });
 
-        // Обробники закриття
-        const closeModal = () => {
-            modal.classList.remove('open');
-            // restore scrolling
-            document.body.style.overflow = '';
-            document.body.style.height = '';
-            document.body.classList.remove('modal-open');
-            document.body.classList.remove('no-scroll');
-            document.removeEventListener('keydown', onKeyDown);
-            // Remove immediately to avoid stale modal remaining and needing a second click
-            try { modal.remove(); } catch (e) { /* ignore */ }
-        };
+            // set recipe id on modal and fire event for comments loader
+            try { modal.setAttribute('data-recipe-id', recipeId); } catch (e) {}
+            document.dispatchEvent(new CustomEvent('recipeModalOpen', { detail: { recipeId } }));
 
-        closeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            closeModal();
-        });
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                e.stopPropagation();
-                closeModal();
-            }
-        });
+            // Close handlers
+            const closeModal = () => {
+                modal.classList.remove('open');
+                document.body.style.overflow = '';
+                setTimeout(() => modal.remove(), 300);
+            };
 
-        const onKeyDown = (e) => {
-            if (e.key === 'Escape') closeModal();
-        };
-        document.addEventListener('keydown', onKeyDown);
+            closeBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeModal();
+            });
+        }
     }
 
     function closeAllModals() {

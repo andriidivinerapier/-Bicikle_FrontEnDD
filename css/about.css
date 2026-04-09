@@ -116,59 +116,284 @@
     line-height: 1.5;
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-    .about-hero h1 {
-        font-size: 2rem;
-    }
-    
-    .about-hero .subtitle {
-        font-size: 1.1rem;
-    }
-    
-    .values-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .mission-content p {
-        font-size: 1rem;
-    }
-}
-
-@media (max-width: 600px) {
-    .about-content {
-        padding: 1rem;
-    }
-
-    .about-hero {
-        padding: 2rem 1rem;
-        margin-bottom: 2rem;
-    }
-
-    .mission-section,
-    .values-section {
-        padding: 2rem 1rem;
-    }
-
-    .mission-content {
-        max-width: 100%;
-    }
-
-    .value-card {
-        padding: 1.5rem;
-    }
-
-    .about-hero h1 {
-        font-size: 1.85rem;
-    }
-
-    .about-hero .subtitle {
-        font-size: 1rem;
-    }
-}
-
+/* ========== МОБІЛЬНА АДАПТАЦІЯ about (max-width: 1024px) ========== */
 @media (max-width: 1024px) {
     .values-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ========== МОБІЛЬНА АДАПТАЦІЯ about (max-width: 768px) ========== */
+@media (max-width: 768px) {
+    .about-content {
+        padding-top: 70px !important;
+    }
+
+    .about-hero {
+        padding: 2.5rem 1.5rem !important;
+        margin-bottom: 2.5rem !important;
+    }
+
+    .about-hero h1 {
+        font-size: 1.95rem !important;
+        margin-bottom: 1rem !important;
+        line-height: 1.2 !important;
+    }
+
+    .about-hero .subtitle {
+        font-size: 1.05rem !important;
+        line-height: 1.5 !important;
+        color: #a8b7c8 !important;
+    }
+
+    .mission-section {
+        padding: 2.25rem 1.5rem !important;
+        margin-bottom: 2.25rem !important;
+    }
+
+    .mission-content {
+        max-width: 100% !important;
+    }
+
+    .mission-icon {
+        margin-bottom: 1.25rem !important;
+    }
+
+    .mission-icon svg {
+        width: 42px !important;
+        height: 42px !important;
+    }
+
+    .mission-content h2 {
+        font-size: 1.55rem !important;
+        margin-bottom: 0.85rem !important;
+    }
+
+    .mission-content p {
+        font-size: 0.95rem !important;
+        line-height: 1.5 !important;
+    }
+
+    .values-section {
+        padding: 2rem 1.5rem !important;
+    }
+
+    .values-section h2 {
+        font-size: 1.55rem !important;
+        margin-bottom: 1.75rem !important;
+    }
+
+    .values-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.25rem !important;
+        max-width: 100% !important;
+    }
+
+    .value-card {
+        padding: 1.5rem !important;
+        background-color: #131d2e !important;
+        border-radius: 10px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+    }
+
+    .value-card:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 4px 16px rgba(255,122,0,0.08) !important;
+    }
+
+    .value-icon {
+        margin-bottom: 1rem !important;
+    }
+
+    .value-icon svg {
+        width: 28px !important;
+        height: 28px !important;
+    }
+
+    .value-card h3 {
+        font-size: 1.15rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .value-card p {
+        font-size: 0.9rem !important;
+        line-height: 1.4 !important;
+        color: #9badbe !important;
+    }
+}
+
+/* ========== МОБІЛЬНА АДАПТАЦІЯ about (max-width: 600px) ========== */
+@media (max-width: 600px) {
+    .about-content {
+        padding-top: 65px !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .about-hero {
+        padding: 2rem 1.25rem !important;
+        margin-bottom: 2rem !important;
+        text-align: center !important;
+    }
+
+    .about-hero h1 {
+        font-size: 1.65rem !important;
+        margin-bottom: 0.75rem !important;
+        font-weight: 700 !important;
+        word-break: break-word !important;
+    }
+
+    .about-hero .subtitle {
+        font-size: 0.95rem !important;
+        line-height: 1.45 !important;
+    }
+
+    .mission-section {
+        padding: 2rem 1.25rem !important;
+        margin-bottom: 2rem !important;
+    }
+
+    .mission-content {
+        max-width: 100% !important;
+    }
+
+    .mission-icon {
+        margin-bottom: 1rem !important;
+    }
+
+    .mission-icon svg {
+        width: 38px !important;
+        height: 38px !important;
+    }
+
+    .mission-content h2 {
+        font-size: 1.35rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    .mission-content p {
+        font-size: 0.9rem !important;
+        line-height: 1.45 !important;
+    }
+
+    .values-section {
+        padding: 1.75rem 1.25rem !important;
+    }
+
+    .values-section h2 {
+        font-size: 1.35rem !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    .values-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+        max-width: 100% !important;
+    }
+
+    .value-card {
+        padding: 1.25rem !important;
+        background-color: #131d2e !important;
+        border-radius: 10px !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
+        margin: 0 !important;
+    }
+
+    .value-card:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 12px rgba(255,122,0,0.06) !important;
+    }
+
+    .value-icon {
+        margin-bottom: 0.85rem !important;
+    }
+
+    .value-icon svg {
+        width: 26px !important;
+        height: 26px !important;
+    }
+
+    .value-card h3 {
+        font-size: 1.05rem !important;
+        margin-bottom: 0.4rem !important;
+        font-weight: 600 !important;
+    }
+
+    .value-card p {
+        font-size: 0.85rem !important;
+        line-height: 1.35 !important;
+        color: #9badbe !important;
+    }
+}
+
+/* ========== МОБІЛЬНА АДАПТАЦІЯ about (max-width: 480px) ========== */
+@media (max-width: 480px) {
+    .about-content {
+        padding-top: 60px !important;
+    }
+
+    .about-hero {
+        padding: 1.75rem 1rem !important;
+        margin-bottom: 1.75rem !important;
+    }
+
+    .about-hero h1 {
+        font-size: 1.45rem !important;
+        margin-bottom: 0.6rem !important;
+    }
+
+    .about-hero .subtitle {
+        font-size: 0.9rem !important;
+    }
+
+    .mission-section {
+        padding: 1.75rem 1rem !important;
+        margin-bottom: 1.75rem !important;
+    }
+
+    .mission-icon svg {
+        width: 34px !important;
+        height: 34px !important;
+    }
+
+    .mission-content h2 {
+        font-size: 1.2rem !important;
+        margin-bottom: 0.65rem !important;
+    }
+
+    .mission-content p {
+        font-size: 0.85rem !important;
+    }
+
+    .values-section {
+        padding: 1.5rem 1rem !important;
+    }
+
+    .values-section h2 {
+        font-size: 1.2rem !important;
+        margin-bottom: 1.25rem !important;
+    }
+
+    .values-grid {
+        gap: 0.85rem !important;
+    }
+
+    .value-card {
+        padding: 1rem !important;
+        border-radius: 8px !important;
+    }
+
+    .value-card h3 {
+        font-size: 0.95rem !important;
+        margin-bottom: 0.35rem !important;
+    }
+
+    .value-card p {
+        font-size: 0.8rem !important;
+    }
+
+    .value-icon svg {
+        width: 24px !important;
+        height: 24px !important;
     }
 }

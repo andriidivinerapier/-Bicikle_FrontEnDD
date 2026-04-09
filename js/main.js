@@ -150,38 +150,6 @@ document.querySelectorAll('.nav-links a').forEach(link => {
 
 // --- Modal: open / close / populate ---
 (function () {
-    const modalOverlay = document.getElementById('recipeModal');
-    if (!modalOverlay) {
-        console.log('Note: recipeModal not found on this page');
-        return;
-    }
-    const modalClose = document.getElementById('modalClose');
-    const modalImage = document.getElementById('modalImage');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalIngredients = document.getElementById('modalIngredients');
-    const modalPreparation = document.getElementById('modalPreparation');
-    const modalDifficulty = modalOverlay.querySelector('.tag.difficulty');
-    const modalTimeEl = modalOverlay.querySelector('.tag.time');
-
-    // Small data store for demo recipes (keyed by title)
-    const recipes = {
-        'будда-боул': {
-            difficulty: 'Легка',
-            time: '25 хв',
-            ingredients: [
-                'Кіноа - 100г', 'Морква - 1 шт', 'Соєвий соус - 2 ст.л.',
-                'Нут варений - 200г', 'Броколі - 200г', 'Кунжутна олія - 1 ст.л.',
-                'Авокадо - 1 шт', 'Шпинат - 50г'
-            ],
-            steps: [
-                'Приготуйте кіноа згідно інструкції на упаковці.',
-                'Поріжте овочі та обсмажте моркву і броколі на олії кілька хвилин.',
-                'Змішайте кіноа, овочі та нут, додайте соєвий соус і кунжутну олію.',
-                'Декоруйте скибочками авокадо та свіжим шпинатом. Подавайте теплою.'
-            ]
-        }
-    };
-
     function extractUrlFromBg(bg) {
         // bg like: url("images/homepage/salad1.jpg")
         if (!bg) return '';
@@ -189,100 +157,152 @@ document.querySelectorAll('.nav-links a').forEach(link => {
         return m ? m[1] : bg;
     }
 
-    function openModal(data) {
-        // remove any other dynamic recipe overlays that might block interaction
-        try {
-            document.querySelectorAll('.recipe-modal-overlay').forEach(el => {
-                if (el.id !== 'recipeModal') {
-                    try { el.remove(); } catch (e) { /* ignore */ }
+    function openRecipeModal(cardOrData) {
+        // Clean up any existing modal overlays first
+        document.querySelectorAll('.recipe-modal-overlay').forEach(oldModal => {
+            try { oldModal.remove(); } catch (e) {}
+        });
+        document.body.style.overflow = '';
+        
+        // Small delay to ensure cleanup
+        setTimeout(() => {
+            createAndShowModal();
+        }, 10);
+        
+        function createAndShowModal() {
+            let title, rawTime, time, imgUrl, ingredientsRaw, stepsRaw, difficulty, recipeId;
+            if (cardOrData.querySelector && typeof cardOrData.querySelector === 'function') {
+                // It's a card element
+                title = cardOrData.querySelector('h4')?.textContent || 'Рецепт';
+                rawTime = cardOrData.dataset.time || cardOrData.querySelector('.cook-time')?.textContent || '';
+                time = rawTime ? (isNaN(rawTime) ? rawTime : `${rawTime} хв`) : '';
+                imgUrl = cardOrData.querySelector('.recipe-image')?.style.backgroundImage.slice(4, -1).replace(/"/g, '') || 'images/homepage/salad1.jpg';
+                ingredientsRaw = cardOrData.dataset.ingredients || '';
+                stepsRaw = cardOrData.dataset.steps || '';
+                difficulty = cardOrData.dataset.difficulty || 'Легка';
+                recipeId = cardOrData.dataset.recipeId || cardOrData.dataset.recipe_id || '';
+            } else {
+                // It's data object from CTA button
+                title = cardOrData.textContent || 'Рецепт';
+                rawTime = cardOrData.time || '';
+                time = rawTime ? (isNaN(rawTime) ? rawTime : `${rawTime} хв`) : '';
+                imgUrl = cardOrData.backgroundImage || 'url(images/homepage/salad1.jpg)';
+                if (imgUrl.startsWith('url(')) {
+                    imgUrl = imgUrl.slice(4, -1).replace(/"/g, '', "'", '');
                 }
+                ingredientsRaw = cardOrData.ingredients || '';
+                stepsRaw = cardOrData.steps || '';
+                difficulty = cardOrData.difficulty || 'Легка';
+                recipeId = cardOrData.recipeId || '';
+            }
+
+            // Create modal HTML
+            const modalHtml = `
+                <div class="recipe-modal-overlay">
+                    <div class="recipe-modal">
+                        <button class="modal-close">×</button>
+                        <div class="modal-image-wrap">
+                            <img src="${imgUrl}" alt="${title}" onerror="this.src='images/homepage/salad1.jpg'">
+                        </div>
+                        <div class="modal-body">
+                            <h2 id="modalTitle">${title}</h2>
+                            <div class="modal-meta">
+                                <span class="difficulty">${difficulty}</span>
+                                <span class="cook-time">⏱️ ${time}</span>
+                            </div>
+                            <div class="ingredients">
+                                <h4>🥘 Інгредієнти:</h4>
+                                <ul>
+                                    ${ingredientsRaw.split('|')
+                                        .filter(Boolean)
+                                        .map(i => `<li>${i.trim()}</li>`)
+                                        .join('')}
+                                </ul>
+                            </div>
+                            <div class="preparation">
+                                <h4>📋 Приготування:</h4>
+                                <ol>
+                                    ${stepsRaw.split('|')
+                                        .filter(Boolean)
+                                        .map(s => `<li>${s.trim()}</li>`)
+                                        .join('')}
+                                </ol>
+                            </div>
+                            <section class="comments-section" aria-labelledby="commentsTitle">
+                                <h4 id="commentsTitle">Коментарі</h4>
+                                <div class="comments-list" id="modalCommentsList">
+                                    <!-- comments loaded by JS -->
+                                </div>
+                                <form id="modalCommentForm" class="comment-form">
+                                    <textarea name="comment" placeholder="Напишіть коментар..." required></textarea>
+                                    <button type="submit">Надіслати</button>
+                                </form>
+                            </section>
+                        </div>
+                    </div>
+                </div>`;
+
+            // Add modal to page
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // Get references to new elements
+            const modal = document.querySelector('.recipe-modal-overlay:last-child');
+            const closeBtn = modal.querySelector('.modal-close');
+
+            // Open modal with animation
+            requestAnimationFrame(() => {
+                modal.classList.add('open');
+                document.body.style.overflow = 'hidden';
             });
-            // ensure body scroll is reset before opening
-            document.body.style.overflow = '';
-            document.body.classList.remove('no-scroll');
-        } catch (e) {}
 
-        // fill image & title
-        console.debug('openModal called, recipeId=', data && (data.recipeId || data.recipe_id));
-        if (data.image) modalImage.src = data.image;
-        if (data.title) modalTitle.textContent = data.title;
+            // set recipe id on modal and fire event for comments loader
+            try { modal.setAttribute('data-recipe-id', recipeId); } catch (e) {}
+            document.dispatchEvent(new CustomEvent('recipeModalOpen', { detail: { recipeId } }));
 
-        // tags (difficulty/time)
-        if (modalDifficulty) modalDifficulty.textContent = data.difficulty || '';
-        if (modalTimeEl) modalTimeEl.textContent = data.time || '';
-        
-        // populate ingredients
-        modalIngredients.innerHTML = '';
-        (data.ingredients || []).forEach(ing => {
-            const li = document.createElement('li');
-            li.textContent = ing;
-            modalIngredients.appendChild(li);
-        });
+            // Close handlers
+            const closeModal = () => {
+                modal.classList.remove('open');
+                document.body.style.overflow = '';
+                setTimeout(() => modal.remove(), 300);
+            };
 
-        // preparation
-        modalPreparation.innerHTML = '';
-        (data.steps || []).forEach(step => {
-            const li = document.createElement('li');
-            li.textContent = step;
-            modalPreparation.appendChild(li);
-        });
-
-        // Add class to body to prevent background scroll
-        document.body.classList.add('modal-open');
-        document.body.style.overflow = 'hidden';
-
-        // Show modal
-        modalOverlay.classList.add('open');
-        modalOverlay.setAttribute('aria-hidden', 'false');
-        // set recipe id on overlay for comments loader (if provided in data)
-        const rid = data.recipeId || data.recipe_id || '';
-        try { modalOverlay.setAttribute('data-recipe-id', rid); } catch (e) {}
-        console.debug('modal opened, overlay data-recipe-id=', modalOverlay.getAttribute('data-recipe-id'));
-        document.dispatchEvent(new CustomEvent('recipeModalOpen', { detail: { recipeId: rid } }));
-        
-        // Reset scroll position of modal
-        modalOverlay.scrollTop = 0;
-    }
-
-    function closeModal() {
-        modalOverlay.classList.remove('open');
-        modalOverlay.setAttribute('aria-hidden', 'true');
-        // restore body scrolling and remove modal classes
-        try { document.body.style.overflow = ''; } catch (e) {}
-        try { document.body.style.height = ''; } catch (e) {}
-        document.body.classList.remove('modal-open');
-        document.body.classList.remove('no-scroll');
+            closeBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeModal();
+            });
+        }
     }
 
     // Attach to recipe buttons using event delegation (to handle dynamically added cards)
+    // Mark that main.js is handling click events to prevent recipes.js from double-triggering
+    window.__mainJsRecipeHandlerActive = true;
     document.addEventListener('click', (e) => {
+        // Handle clicks on recipe buttons
         if (e.target.classList.contains('recipe-button')) {
+            e.preventDefault();
+            e.stopPropagation();
             const card = e.target.closest('.recipe-card');
             if (!card) return;
-            const title = (card.querySelector('h4')?.textContent || '').trim();
-            const rawBg = card.querySelector('.recipe-image')?.style.backgroundImage || getComputedStyle(card.querySelector('.recipe-image')).backgroundImage;
-            const imageUrl = extractUrlFromBg(rawBg) || 'images/homepage/salad1.jpg';
-
-            const key = title.toLowerCase();
-            const ds = card.dataset || {};
-            const ingredients = ds.ingredients ? ds.ingredients.split('|') : (recipes[key]?.ingredients || ['Інгредієнт 1', 'Інгредієнт 2']);
-            const steps = ds.steps ? ds.steps.split('|') : (recipes[key]?.steps || ['Крок 1: ...', 'Крок 2: ...']);
-            const difficulty = ds.difficulty || recipes[key]?.difficulty || 'Середня';
-            const time = ds.time || card.querySelector('.cook-time')?.textContent || recipes[key]?.time || '';
-
-            const data = {
-                title: title || recipes[key]?.title || 'Рецепт',
-                image: imageUrl,
-                difficulty,
-                time,
-                ingredients,
-                steps
-                ,recipeId: ds.recipeId || ds.recipe_id || ''
-            };
-
-            openModal(data);
+            // Use nice modal from profile.html
+            openRecipeModal(card);
+            return; // Prevent further event propagation
         }
-    });
+        
+        // Handle clicks on recipe cards themselves (for better UX in carousels)
+        // Only if the target is NOT a button, like button, or edit/delete action.
+        if (e.target.classList.contains('recipe-like')) return; // Skip like buttons
+        if (e.target.closest('.recipe-card-action')) return; // Skip edit/delete buttons inside the card
+        const card = e.target.closest('.recipe-card');
+        if (card && !e.target.closest('.recipe-button') && !e.target.closest('.recipe-like')) {
+            e.preventDefault();
+            e.stopPropagation();
+            // Use nice modal from profile.html
+            openRecipeModal(card);
+        }
+    }, true); // Use capture phase to ensure we handle before other handlers
 
     // Attach to hero CTA button ("Переглянути рецепт") — opens modal with hero recipe
     function handleHeroCtaClick(target) {
@@ -292,55 +312,52 @@ document.querySelectorAll('.nav-links a').forEach(link => {
             if (!window.__heroCtaCooldown) window.__heroCtaCooldown = 0;
             if (now < window.__heroCtaCooldown) return; // ignore
             window.__heroCtaCooldown = now + 300; // 300ms cooldown
-            const heroTitle = document.querySelector('.hero-content h2')?.textContent.trim();
-            const heroImg = document.querySelector('.hero-image img')?.src || '';
+            
+            const heroTitle = document.querySelector('.hero-content h2')?.textContent.trim() || 'Рецепт';
+            const heroImg = document.querySelector('.hero-image img')?.src || 'images/homepage/salad1.jpg';
 
-        // Try to find a matching recipe card by title on the page
-        let matchedCard = Array.from(document.querySelectorAll('.recipe-card')).find(c => {
-            const t = (c.querySelector('h4')?.textContent || '').trim();
-            return t && heroTitle && t.toLowerCase() === heroTitle.toLowerCase();
-        });
+            // Try to find a matching recipe card by title on the page
+            let matchedCard = Array.from(document.querySelectorAll('.recipe-card')).find(c => {
+                const t = (c.querySelector('h4')?.textContent || '').trim();
+                return t && heroTitle && t.toLowerCase() === heroTitle.toLowerCase();
+            });
 
-        if (matchedCard) {
-            const title = (matchedCard.querySelector('h4')?.textContent || '').trim();
-            const imgEl = matchedCard.querySelector('.recipe-image');
-            const rawBg = imgEl ? (imgEl.style.backgroundImage || getComputedStyle(imgEl).backgroundImage) : '';
-            const imageUrl = extractUrlFromBg(rawBg) || matchedCard.querySelector('img')?.src || heroImg || 'images/homepage/salad1.jpg';
-            const ds = matchedCard.dataset || {};
-            const ingredients = ds.ingredients ? ds.ingredients.split('|') : ['Інгредієнт 1', 'Інгредієнт 2'];
-            const steps = ds.steps ? ds.steps.split('|') : ['Крок 1: ...', 'Крок 2: ...'];
-            const difficulty = ds.difficulty || 'Середня';
-            const time = ds.time || matchedCard.querySelector('.cook-time')?.textContent || '';
-            const rid = ds.recipeId || ds.recipe_id || matchedCard.dataset.recipeId || matchedCard.dataset.recipe_id || '';
-            const overlay = document.getElementById('recipeModal');
-            // only skip opening if both overlay and target have a non-empty recipe id and they match
-            if (overlay && overlay.classList.contains('open')) {
-                const currentRid = String(overlay.getAttribute('data-recipe-id') || '');
-                if (rid && currentRid && currentRid === String(rid)) return;
+            if (matchedCard) {
+                // Use matched card's data
+                openRecipeModal(matchedCard);
+                return;
             }
 
-            openModal({ title, image: imageUrl, difficulty, time, ingredients, steps, recipeId: rid });
-            return;
-        }
+            // Fallback: use data from CTA button or hero section
+            const ds = (target && target.dataset) ? target.dataset : (document.querySelector('.cta-button')?.dataset || {});
+            const ingredients = ds.ingredients || 'Інгредієнт 1|Інгредієнт 2|Інгредієнт 3';
+            const steps = ds.steps || 'Крок 1: ...|Крок 2: ...|Крок 3: ...';
+            const difficulty = ds.difficulty || 'Середня';
+            const time = ds.time || '30 хв';
+            const rid = ds.recipeId || ds.recipe_id || '';
 
-        // Fallback: use data-* on the CTA button if provided, otherwise simple placeholders
-        const ds = (target && target.dataset) ? target.dataset : (document.querySelector('.cta-button')?.dataset || {});
-        const rid = ds.recipeId || ds.recipe_id || '';
-        const overlay = document.getElementById('recipeModal');
-        if (overlay && overlay.classList.contains('open')) {
-            const currentRid = String(overlay.getAttribute('data-recipe-id') || '');
-            if (rid && currentRid && currentRid === String(rid)) return;
-        }
-        const ingredients = ds.ingredients ? ds.ingredients.split('|') : ['Інгредієнт 1', 'Інгредієнт 2', 'Інгредієнт 3'];
-        const steps = ds.steps ? ds.steps.split('|') : ['Крок 1: ...', 'Крок 2: ...', 'Крок 3: ...'];
-        const difficulty = ds.difficulty || document.querySelector('.recipe-card')?.dataset?.difficulty || 'Середня';
-        const time = ds.time || document.querySelector('.cook-time')?.textContent || '';
-
-        openModal({ title: heroTitle || 'Рецепт', image: heroImg || 'images/homepage/salad1.jpg', difficulty, time, ingredients, steps, recipeId: rid });
+            // Pass simple data object
+            openRecipeModal({
+                textContent: heroTitle,
+                time: time,
+                ingredients: ingredients,
+                steps: steps,
+                difficulty: difficulty,
+                backgroundImage: `url(${heroImg})`,
+                recipeId: rid
+            });
         } catch (err) {
-            console.error('Hero CTA handler error', err);
-            // attempt a safe fallback to open a basic modal
-            try { openModal({ title: 'Рецепт', image: 'images/homepage/salad1.jpg', difficulty: 'Середня', time: '', ingredients: ['Інгредієнт 1'], steps: ['Крок 1'], recipeId: (target && target.dataset && (target.dataset.recipeId || target.dataset.recipe_id)) || '' }); } catch (e) { console.error('Fallback openModal failed', e); }
+            console.error('Hero CTA handler error:', err);
+            // Fallback to basic modal
+            openRecipeModal({
+                textContent: 'Рецепт',
+                time: '30 хв',
+                ingredients: 'Інгредієнт 1',
+                steps: 'Крок 1',
+                difficulty: 'Середня',
+                backgroundImage: 'url(images/homepage/salad1.jpg)',
+                recipeId: ''
+            });
         }
     }
 
@@ -358,13 +375,6 @@ document.querySelectorAll('.nav-links a').forEach(link => {
             handleHeroCtaClick(t);
         }
     });
-
-    // Close handlers
-    modalClose.addEventListener('click', closeModal);
-    modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) closeModal();
-    });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 })();
 
 (function () {

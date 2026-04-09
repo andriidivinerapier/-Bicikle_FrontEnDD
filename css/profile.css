@@ -573,6 +573,8 @@
     position: absolute;
     inset: 0;
     background: linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.4) 100%);
+    z-index: 1;
+    pointer-events: none;
 }
 
 .recipe-card {
@@ -585,7 +587,8 @@
     right: 10px;
     display: flex;
     gap: 0.5rem;
-    z-index: 5;
+    z-index: 100 !important;
+    pointer-events: auto !important;
 }
 
 .recipe-card-editable .recipe-card-action {
@@ -601,6 +604,16 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
     color: #ffffff;
     transition: transform 180ms ease, background 180ms ease;
+    z-index: 101 !important;
+    pointer-events: auto !important;
+}
+
+.recipe-image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.4) 100%);
+    z-index: 1;
 }
 
 .recipe-card-editable .recipe-card-action.btn-danger {
@@ -1809,10 +1822,12 @@
         right: 10px;
         display: flex;
         gap: 0.5rem;
-        z-index: 5;
+        z-index: 100 !important;
+        pointer-events: auto !important;
     }
 
     .recipe-card-editable .recipe-card-action {
+        cursor: pointer;
         width: 35px;
         height: 35px;
         min-width: 35px;

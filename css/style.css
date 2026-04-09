@@ -1783,6 +1783,221 @@ body.modal-open {
 /* Page transition container */
 .fade-page {
     opacity: 0;
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+/* ========== INDEX.HTML SPECIFIC MOBILE FIXES ========== */
+@media (max-width: 768px) {
+    /* Fix Hero section positioning */
+    .hero {
+        position: relative;
+        z-index: 1;
+        margin-bottom: 2rem;
+    }
+
+    /* Fix categories grid for index.html - horizontal scrolling carousel */
+    .recipes-section .categories-grid {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 1rem !important;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        white-space: nowrap !important;
+        padding: 0 15px 10px 15px !important;
+        margin-bottom: 2rem !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        scroll-snap-type: x mandatory !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important; /* Firefox */
+        -ms-overflow-style: none !important; /* IE/Edge */
+    }
+
+    /* Hide scrollbar for WebKit browsers */
+    .recipes-section .categories-grid::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .recipes-section .categories-grid > .recipe-card {
+        flex-shrink: 0 !important;
+        width: 280px !important;
+        max-width: 280px !important;
+        min-width: 280px !important;
+        margin: 0 !important;
+        scroll-snap-align: start !important;
+    }
+
+    /* Ensure recipe cards display properly on index.html */
+    .recipes-section .recipe-card {
+        display: flex !important;
+        flex-direction: column !important;
+        background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12)) !important;
+        border: 1px solid rgba(255,255,255,0.04) !important;
+        border-radius: 14px !important;
+        overflow: hidden !important;
+        box-shadow: 0 6px 18px rgba(2,6,23,0.6) !important;
+        transition: transform 280ms cubic-bezier(.2,.9,.2,1),
+                    box-shadow 280ms ease,
+                    border-color 280ms ease,
+                    background 280ms ease !important;
+        cursor: pointer !important;
+    }
+
+    .recipes-section .recipe-card:hover {
+        transform: translateY(-4px) scale(1.02) !important;
+        box-shadow: 0 12px 24px rgba(2,6,23,0.7) !important;
+        border-color: rgba(255,122,0,0.15) !important;
+    }
+
+    .recipes-section .recipe-image {
+        height: 180px !important;
+        background-size: cover !important;
+        background-position: center !important;
+    }
+
+    .recipes-section .recipe-info {
+        padding: 1.25rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+    }
+
+    .recipes-section .recipe-info h4 {
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        color: #f8fafc !important;
+        margin: 0 !important;
+    }
+
+    .recipes-section .recipe-description {
+        color: #94a3b8 !important;
+        font-size: 0.9rem !important;
+        line-height: 1.4 !important;
+        margin: 0 !important;
+    }
+
+    .recipes-section .recipe-meta {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        margin-top: 0.5rem !important;
+    }
+
+    .recipes-section .meta-left {
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.75rem !important;
+    }
+
+    .recipes-section .cook-time {
+        color: #ffffff !important;
+        font-size: 0.9rem !important;
+        font-weight: 500 !important;
+    }
+
+    .recipes-section .recipe-category {
+        background: rgba(0,0,0,0.28) !important;
+        color: #ff7a00 !important;
+        padding: 0.18rem 0.5rem !important;
+        border-radius: 16px !important;
+        font-size: 0.85rem !important;
+        font-weight: 700 !important;
+        box-shadow: inset 0 -3px 0 rgba(0,0,0,0.18) !important;
+    }
+
+    .recipes-section .meta-right {
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.75rem !important;
+    }
+
+    .recipes-section .recipe-button {
+        background: linear-gradient(90deg, var(--accent), rgba(255,122,0,0.95)) !important;
+        color: #fff !important;
+        border: none !important;
+        padding: 0.5rem 1rem !important;
+        border-radius: 8px !important;
+        font-size: 0.9rem !important;
+        font-weight: 500 !important;
+        cursor: pointer !important;
+        transition: transform 180ms ease !important;
+    }
+
+    .recipes-section .recipe-button:hover {
+        transform: translateY(-1px) !important;
+    }
+
+    .recipes-section .recipe-like {
+        background: rgba(255,255,255,0.08) !important;
+        border: none !important;
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 8px !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: #94a3b8 !important;
+        transition: all 180ms ease !important;
+    }
+
+    .recipes-section .recipe-like:hover {
+        background: rgba(255,255,255,0.12) !important;
+        color: #ff6b6b !important;
+    }
+
+    .recipes-section .recipe-like.liked {
+        color: #ff6b6b !important;
+        background: rgba(255,107,107,0.1) !important;
+    }
+
+    /* Seasons section mobile fixes */
+    .seasons-section {
+        padding: 2rem 15px !important;
+    }
+
+    .seasons-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1rem !important;
+    }
+
+    .season-card {
+        aspect-ratio: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-end !important;
+        padding: 1rem !important;
+        border-radius: 12px !important;
+        background-size: cover !important;
+        background-position: center !important;
+        color: white !important;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5) !important;
+    }
+
+    .season-card h3 {
+        margin: 0 !important;
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+    }
+}
+
+/* ========== MODAL Z-INDEX FIX FOR INDEX.HTML ========== */
+.recipe-modal-overlay {
+    z-index: 10000 !important;
+}
+
+/* Ensure modal appears above all index.html elements */
+.fade-page .recipe-modal-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 10000 !important;
+}
     transition: opacity 0.5s ease;
     will-change: opacity;
 }

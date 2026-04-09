@@ -601,52 +601,58 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Delete/Edit Recipe Buttons
-    document.querySelectorAll('.recipe-card-editable .btn-icon').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (btn.classList.contains('btn-danger')) {
-                // Delete recipe (call backend) using modal confirmation
-                const card = btn.closest('.recipe-card');
-                if (!card) return;
-                showConfirmModal('Видалити цей рецепт?').then(confirmed => {
-                    if (!confirmed) return;
+    // Delete/Edit Recipe Buttons (delegated handler)
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.recipe-card-action');
+        if (!btn) return;
+        const card = btn.closest('.recipe-card');
+        if (!card) return;
+        e.preventDefault();
+        e.stopPropagation();
 
-                    const recipeId = card.dataset.recipeId || card.dataset.recipeid || '';
-                    if (!recipeId) {
-                        card.style.opacity = '0';
-                        card.style.transform = 'scale(0.95)';
-                        setTimeout(() => card.remove(), 300);
-                        return;
-                    }
+        if (btn.classList.contains('btn-danger')) {
+            showConfirmModal('Видалити цей рецепт?').then(confirmed => {
+                if (!confirmed) return;
 
-                    const fd = new FormData(); fd.append('recipe_id', recipeId);
-                    fetch('backend/delete-user-recipe.php', { method: 'POST', body: fd })
-                        .then(r => r.json())
-                        .then(resp => {
-                            if (resp && resp.status === 'success') {
-                                card.style.opacity = '0';
-                                card.style.transform = 'scale(0.95)';
-                                setTimeout(() => {
-                                    card.remove();
-                                    try { loadUserProfileStats(); } catch (e){}
-                                }, 300);
-                                showToast('Рецепт видалено', 'success');
-                            } else {
-                                console.error('Delete recipe error', resp);
-                                showToast(resp.message || 'Помилка при видаленні', 'error');
-                            }
-                        })
-                        .catch(err => {
-                            console.error('Network error deleting recipe', err);
-                            showToast('Помилка мережі', 'error');
-                        });
-                });
-            } else {
-                // Edit recipe
-                alert('Редагування рецепту (функцію ще не реалізовано)');
-            }
-        });
+                const recipeId = card.dataset.recipeId || card.dataset.recipeid || '';
+                if (!recipeId) {
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.95)';
+                    setTimeout(() => card.remove(), 300);
+                    return;
+                }
+
+                const fd = new FormData(); fd.append('recipe_id', recipeId);
+                fetch('backend/delete-user-recipe.php', { method: 'POST', body: fd })
+                    .then(r => r.json())
+                    .then(resp => {
+                        if (resp && resp.status === 'success') {
+                            card.style.opacity = '0';
+                            card.style.transform = 'scale(0.95)';
+                            setTimeout(() => {
+                                card.remove();
+                                try { loadUserProfileStats(); } catch (e){}
+                            }, 300);
+                            showToast('Рецепт видалено', 'success');
+                        } else {
+                            console.error('Delete recipe error', resp);
+                            showToast(resp.message || 'Помилка при видаленні', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Network error deleting recipe', err);
+                        showToast('Помилка мережі', 'error');
+                    });
+            });
+            return;
+        }
+
+        const recipeId = card.dataset.recipeId || card.dataset.recipeid || '';
+        if (!recipeId) {
+            showToast('Не вдалося отримати ID рецепту', 'error');
+            return;
+        }
+        openUserEditModal(recipeId);
     });
 
     // Delete Comment Buttons
@@ -1367,8 +1373,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         article.innerHTML = `
                             <div class="recipe-image" style="background-image: url('${image}')">
                                 <div class="recipe-card-actions">
-                                    <button class="recipe-card-action btn-icon" title="Редагувати"><i class="fas fa-edit"></i></button>
-                                    <button class="recipe-card-action btn-icon btn-danger" title="Видалити"><i class="fas fa-trash-alt"></i></button>
+                                    <button class="recipe-card-action btn-icon" data-id="${recipe.id || ''}" title="Редагувати"><i class="fas fa-edit"></i></button>
+                                    <button class="recipe-card-action btn-icon btn-danger" data-id="${recipe.id || ''}" title="Видалити"><i class="fas fa-trash-alt"></i></button>
                                 </div>
                             </div>
                             <div class="recipe-info">

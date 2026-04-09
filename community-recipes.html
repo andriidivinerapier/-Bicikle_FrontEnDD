@@ -362,7 +362,9 @@
             article.dataset.source = 'user';
             // store ingredients and instructions for modal
             article.dataset.ingredients = recipe.ingredients || '';
-            article.dataset.instructions = recipe.instructions || '';
+            article.dataset.steps = recipe.instructions || '';  // Changed from .instructions to .steps
+            article.dataset.difficulty = recipe.difficulty || 'Середня';
+            article.dataset.time = recipe.cooking_time || recipe.time || '30';
 
             const image = (recipe.image_path && recipe.image_path.trim()) ? recipe.image_path : 'images/homepage/salad1.jpg';
             // Debug: log image path for troubleshooting
@@ -585,6 +587,97 @@
                 });
         }
 
+        // Open recipe modal (inline for mobile)
+        function openRecipeModalInline(card) {
+            const title = card.querySelector('h4')?.textContent || 'Рецепт';
+            const rawTime = card.dataset.time || card.querySelector('.cook-time')?.textContent || '';
+            const time = rawTime ? (isNaN(rawTime) ? rawTime : `${rawTime} хв`) : '';
+            const category = card.querySelector('.recipe-category')?.textContent || '';
+            const imgUrl = card.querySelector('.recipe-image')?.style.backgroundImage.slice(4, -1).replace(/"/g, '') || 'images/homepage/salad1.jpg';
+            const ingredientsRaw = card.dataset.ingredients || '';
+            const stepsRaw = card.dataset.steps || '';
+            const difficulty = card.dataset.difficulty || 'Легка';
+
+            // Create modal HTML
+            const modalHtml = `
+                <div class="recipe-modal-overlay">
+                    <div class="recipe-modal">
+                        <button class="modal-close">×</button>
+                        <div class="modal-image-wrap">
+                            <img src="${imgUrl}" alt="${title}" onerror="this.src='images/homepage/salad1.jpg'">
+                        </div>
+                        <div class="modal-body">
+                            <h2 id="modalTitle">${title}</h2>
+                            <div class="modal-meta">
+                                <span class="difficulty">${difficulty}</span>
+                                <span class="cook-time">⏱️ ${time}</span>
+                            </div>
+                            <div class="ingredients">
+                                <h4>🥘 Інгредієнти:</h4>
+                                <ul>
+                                    ${ingredientsRaw.split('|')
+                                        .filter(Boolean)
+                                        .map(i => `<li>${i.trim()}</li>`)
+                                        .join('')}
+                                </ul>
+                            </div>
+                            <div class="preparation">
+                                <h4>📋 Приготування:</h4>
+                                <ol>
+                                    ${stepsRaw.split('|')
+                                        .filter(Boolean)
+                                        .map(s => `<li>${s.trim()}</li>`)
+                                        .join('')}
+                                </ol>
+                            </div>
+                            <section class="comments-section" aria-labelledby="commentsTitle">
+                                <h4 id="commentsTitle">Коментарі</h4>
+                                <div class="comments-list" id="modalCommentsList">
+                                    <!-- comments loaded by JS -->
+                                </div>
+                                <form id="modalCommentForm" class="comment-form">
+                                    <textarea name="comment" placeholder="Напишіть коментар..." required></textarea>
+                                    <button type="submit">Надіслати</button>
+                                </form>
+                            </section>
+                        </div>
+                    </div>
+                </div>`;
+
+            // Add modal to page
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // Get references to new elements
+            const modal = document.querySelector('.recipe-modal-overlay:last-child');
+            const closeBtn = modal.querySelector('.modal-close');
+
+            // Open modal with animation
+            requestAnimationFrame(() => {
+                modal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            });
+
+            // set recipe id on modal and fire event for comments loader
+            try { modal.setAttribute('data-recipe-id', card.dataset.recipeId || card.dataset.recipe_id || ''); } catch (e) {}
+            document.dispatchEvent(new CustomEvent('recipeModalOpen', { detail: { recipeId: card.dataset.recipeId || card.dataset.recipe_id || '' } }));
+
+
+            // Close handlers
+            const closeModal = () => {
+                modal.classList.remove('open');
+                document.body.style.overflow = '';
+                setTimeout(() => modal.remove(), 300);
+            };
+
+            closeBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeModal();
+            });
+        }
+
         // Open recipe modal
         function openRecipeModal(recipe) {
             document.getElementById('modalImage').src = (recipe.image_path && recipe.image_path.trim()) ? recipe.image_path : 'images/homepage/salad1.jpg';
@@ -674,19 +767,9 @@
         grid.addEventListener('click', (e) => {
             if (e.target.classList.contains('recipe-button')) {
                 const card = e.target.closest('.recipe-card');
-                if (card && card.dataset.recipeId) {
-                    // Get recipe data from card's data-* attributes
-                    const recipe = {
-                        id: card.dataset.recipeId,
-                        title: card.querySelector('h4')?.textContent || 'Без назви',
-                        image_path: card.querySelector('.recipe-image')?.style.backgroundImage?.replace(/url\(["']?/, '').replace(/["']?\)/, '') || 'images/homepage/salad1.jpg',
-                        username: card.querySelector('.recipe-description')?.textContent.replace('👨‍🍳 ', '') || 'Автор',
-                        created_at: card.querySelector('.cook-time')?.textContent || 'Недавно',
-                        category: card.querySelector('.recipe-category')?.textContent || 'Загальне',
-                        ingredients: card.dataset.ingredients || '',
-                        instructions: card.dataset.instructions || ''
-                    };
-                    openRecipeModal(recipe);
+                if (card) {
+                    // Use nice inline modal
+                    openRecipeModalInline(card);
                 }
             }
             if (e.target.classList.contains('recipe-view-btn')) {

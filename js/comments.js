@@ -94,8 +94,8 @@
             const isAdmin = isLogged && (session.role === 'admin');
             if (isLogged && (isOwner || isAdmin)) {
                 actions.innerHTML = `
-                    <button class="comment-action-btn comment-edit" title="Редагувати"><i class="fa fa-edit" aria-hidden="true"></i></button>
-                    <button class="comment-action-btn comment-delete" title="Видалити"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                    <button class="comment-action-btn edit" title="Редагувати"><i class="fas fa-edit" aria-hidden="true"></i></button>
+                    <button class="comment-action-btn delete" title="Видалити"><i class="fas fa-trash-alt" aria-hidden="true"></i></button>
                 `;
             }
 
@@ -109,7 +109,7 @@
         }
 
         // attach handlers
-        container.querySelectorAll('.comment-edit').forEach(btn => {
+        container.querySelectorAll('.comment-action-btn.edit').forEach(btn => {
             btn.addEventListener('click', (ev) => {
                 ev.preventDefault();
                 const item = btn.closest('.comment-item');
@@ -161,7 +161,7 @@
             });
         });
 
-        container.querySelectorAll('.comment-delete').forEach(btn => {
+        container.querySelectorAll('.comment-action-btn.delete').forEach(btn => {
             btn.addEventListener('click', async (ev) => {
                 ev.preventDefault();
                 const item = btn.closest('.comment-item');
