@@ -265,6 +265,8 @@
                 <button class="modal-close" id="seasonModalClose" aria-label="Закрити">×</button>
                 <div class="season-modal-image">
                     <img src="" alt="" id="seasonModalImage">
+                    <button class="season-prev" aria-label="Попередній рецепт">‹</button>
+                    <button class="season-next" aria-label="Наступний рецепт">›</button>
                 </div>
                 <div class="season-modal-content">
                     <h3 id="seasonModalTitle"></h3>
@@ -272,9 +274,48 @@
                     <div class="season-recipes-grid">
                         <!-- Single recipe view (carousel) populated by JS -->
                     </div>
-                    <button class="season-prev" aria-label="Попередній рецепт">‹</button>
-                    <button class="season-next" aria-label="Наступний рецепт">›</button>
                     <!-- view-all removed per design -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Recipe Modal -->
+        <div class="recipe-modal-overlay" id="recipeModal" aria-hidden="true">
+            <div class="recipe-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+                <button class="modal-close" id="modalClose" aria-label="Закрити">×</button>
+                <div class="modal-image-wrap">
+                    <img src="images/homepage/salad1.jpg" alt="Фото страви" id="modalImage">
+                </div>
+                <div class="modal-body">
+                    <h3 id="modalTitle">Рецепт</h3>
+                    <div class="modal-tags">
+                        <span class="tag difficulty" id="modalDifficulty">Середня</span>
+                        <span class="tag time" id="modalTime">30 хв</span>
+                    </div>
+
+                    <section class="modal-section ingredients">
+                        <h4>Інгредієнти:</h4>
+                        <ul class="ingredients-list" id="modalIngredients">
+                            <!-- ingredients populated by JS -->
+                        </ul>
+                    </section>
+
+                    <section class="modal-section preparation">
+                        <h4>Приготування:</h4>
+                        <ol id="modalPreparation">
+                            <!-- steps populated by JS -->
+                        </ol>
+                    </section>
+                        <section class="comments-section" aria-labelledby="commentsTitle">
+                            <h4 id="commentsTitle">Коментарі</h4>
+                            <div class="comments-list" id="modalCommentsList">
+                                <!-- comments loaded by JS -->
+                            </div>
+                            <form id="modalCommentForm" class="comment-form">
+                                <textarea name="comment" placeholder="Напишіть коментар..." required></textarea>
+                                <button type="submit">Надіслати</button>
+                            </form>
+                        </section>
                 </div>
             </div>
         </div>

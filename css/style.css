@@ -1968,22 +1968,33 @@ body.modal-open {
     }
 
     .season-card {
-        aspect-ratio: 1 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: flex-end !important;
-        padding: 1rem !important;
-        border-radius: 12px !important;
-        background-size: cover !important;
-        background-position: center !important;
+        height: auto !important;
+        min-height: 180px !important;
+        display: block !important;
+        padding: 0 !important;
+        border-radius: 14px !important;
+        overflow: hidden !important;
+        background: transparent !important;
         color: white !important;
         text-shadow: 0 2px 4px rgba(0,0,0,0.5) !important;
     }
 
+    .season-card img {
+        width: 100% !important;
+        height: 180px !important;
+        object-fit: cover !important;
+    }
+
     .season-card h3 {
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        right: auto !important;
+        padding: 1rem !important;
+        background: rgba(0,0,0,0.6) !important;
         margin: 0 !important;
-        font-size: 1.1rem !important;
-        font-weight: 600 !important;
+        font-size: 1rem !important;
+        transform: none !important;
     }
 }
 
@@ -1997,9 +2008,6 @@ body.modal-open {
     position: fixed !important;
     inset: 0 !important;
     z-index: 10000 !important;
-}
-    transition: opacity 0.5s ease;
-    will-change: opacity;
 }
 .fade-page.visible {
     opacity: 1;
