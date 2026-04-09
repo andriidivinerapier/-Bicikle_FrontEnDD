@@ -1365,7 +1365,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         const statusText = statusTexts[status] || 'Невідомо';
                         
                         article.innerHTML = `
-                            <div class="recipe-image" style="background-image: url('${image}')"></div>
+                            <div class="recipe-image" style="background-image: url('${image}')">
+                                <div class="recipe-card-actions">
+                                    <button class="recipe-card-action btn-icon" title="Редагувати"><i class="fas fa-edit"></i></button>
+                                    <button class="recipe-card-action btn-icon btn-danger" title="Видалити"><i class="fas fa-trash-alt"></i></button>
+                                </div>
+                            </div>
                             <div class="recipe-info">
                                 <h4>${escapeHtml(recipe.title || 'Без назви')}</h4>
                                 <p class="recipe-description">${escapeHtml(firstIngredient)}</p>
@@ -1373,10 +1378,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <div class="meta-left">
                                         <button class="recipe-button">Рецепт</button>
                                         <span style="color: ${statusColor}; font-weight: 600; font-size: 0.85rem; margin-left: 8px;">${statusText}</span>
-                                    </div>
-                                    <div class="meta-right">
-                                        <button class="btn-icon" title="Редагувати"><i class="fas fa-edit"></i></button>
-                                        <button class="btn-icon btn-danger" title="Видалити"><i class="fas fa-trash-alt"></i></button>
                                     </div>
                                 </div>
                             </div>

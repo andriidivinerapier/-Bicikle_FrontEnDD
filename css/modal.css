@@ -374,9 +374,8 @@
 }
 .btn-cancel:active { transform: translateY(0); }
 
-/* Make Save and Cancel equal size inside edit modal */
-#edit-modal .submit-btn,
-#edit-modal .btn-cancel {
+/* Make Save button proper size inside edit modal */
+#edit-modal .submit-btn {
     flex: 1 1 0;
     width: auto !important;
     padding: 12px 18px;
@@ -384,36 +383,204 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-}
-
-#edit-modal .submit-btn {
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(255, 122, 0, 0.3);
 }
 
-#edit-modal .btn-cancel {
-    background: transparent;
-    border: 1px solid rgba(255,255,255,0.08);
-}
-
-/* Force exact same dimensions for both buttons (width and height) */
+/* Force proper dimensions for the button */
 #edit-modal .buttons-row {
     display: flex;
     gap: 12px;
 }
-#edit-modal .submit-btn, #edit-modal .btn-cancel {
+#edit-modal .submit-btn {
     box-sizing: border-box;
-    height: 48px; /* exact same height */
+    height: 48px;
     padding: 0 20px;
     font-size: 1rem;
 }
 
-/* Ensure buttons are vertically aligned: remove animations/transforms/margins */
+/* Ensure button is properly aligned: remove animations/transforms/margins */
 #edit-modal .submit-btn {
     animation: none !important;
     transform: none !important;
     margin: 0 !important;
 }
-#edit-modal .btn-cancel {
-    margin: 0 !important;
+
+@media (max-width: 768px) {
+    #edit-modal {
+        padding: 0;
+        align-items: stretch;
+        justify-content: flex-start;
+        overflow-y: auto;
+    }
+
+    #edit-modal .modal-content {
+        width: 100%;
+        max-width: 100%;
+        min-height: 100vh;
+        max-height: none;
+        border-radius: 0;
+        padding: 1rem;
+        margin: 0;
+        background: #12161D;
+        box-shadow: none;
+        padding-bottom: 80px; /* Prevent last fields and buttons from hiding behind smartphone bottom panel */
+    }
+
+    #edit-modal .close-modal {
+        position: absolute;
+        top: 18px;
+        right: 18px;
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        background: rgba(0, 0, 0, 0.55);
+        color: #ffffff;
+        font-size: 1.3rem;
+        z-index: 20;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #edit-modal h3 {
+        margin-top: 0;
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+
+    #edit-modal .recipe-form-content {
+        padding: 0;
+        gap: 1rem;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    #edit-modal .form-group-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    #edit-modal .form-group input,
+    #edit-modal .form-group select,
+    #edit-modal .form-group textarea,
+    #edit-modal .file-input-wrapper .btn {
+        min-height: 48px;
+        padding: 0.95rem 1rem;
+        font-size: 1rem;
+    }
+
+    #edit-modal .form-group textarea {
+        min-height: 120px;
+    }
+
+    #edit-modal .file-input-wrapper {
+        display: grid;
+        gap: 0.75rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px dashed rgba(255, 122, 0, 0.35);
+        border-radius: 18px;
+    }
+
+    #edit-modal .add-btn {
+        width: 100%;
+        padding: 1rem;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 122, 0, 0.25);
+        color: #ffb87a;
+        background: rgba(255, 122, 0, 0.08);
+        font-size: 1rem;
+    }
+
+    #edit-modal .ingredients-list,
+    #edit-modal .steps-list {
+        gap: 0.85rem;
+    }
+
+    #edit-modal .ingredient-item,
+    #edit-modal .step-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        padding: 0.85rem;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.03);
+        position: relative;
+    }
+
+    #edit-modal .ingredient-item input,
+    #edit-modal .step-item textarea {
+        margin-right: 60px; /* Sufficient right margin to not overlap delete button */
+        box-sizing: border-box;
+    }
+
+    #edit-modal .delete-btn {
+        position: absolute;
+        top: 0.85rem;
+        right: 0.85rem;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border-radius: 14px;
+        background: rgba(255, 75, 75, 0.18);
+        color: #ffb4b4;
+        font-size: 1.15rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 5;
+    }
+
+    #edit-modal .buttons-row {
+        position: static; /* Change from sticky to static so it flows in document and doesn't overlap floating menu button */
+        bottom: auto;
+        left: auto;
+        width: 100%;
+        padding: 0.75rem 0;
+        margin: 1rem 0 0;
+        background: none;
+        flex-direction: row; /* Keep buttons in one row on wider mobiles */
+        gap: 10px;
+        z-index: auto;
+        display: flex;
+        flex-wrap: wrap; /* Allow wrapping on very narrow screens */
+    }
+
+    #edit-modal .submit-btn {
+        flex: 1; /* Full width since only one button */
+        border-radius: 14px;
+        padding: 1rem;
+        font-size: 1rem;
+        background: linear-gradient(90deg, #ff7a30, #ffa550);
+        color: #111;
+        box-shadow: 0 14px 28px rgba(255, 122, 0, 0.24);
+    }
+
+    /* Image fixes: ensure images don't break layout */
+    #edit-modal img,
+    #edit-modal .current-image img,
+    #edit-current-image img {
+        max-width: 100% !important;
+        height: auto !important;
+        box-sizing: border-box !important;
+    }
+
+    #edit-modal .current-image,
+    #edit-current-image {
+        box-sizing: border-box !important;
+    }
+
+    #edit-modal .modal-content::-webkit-scrollbar {
+        width: 8px;
+    }
+    #edit-modal .modal-content::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    #edit-modal .modal-content::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+    }
 }
