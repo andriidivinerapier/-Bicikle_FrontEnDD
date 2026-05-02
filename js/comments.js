@@ -309,7 +309,7 @@
         // remove existing prompt if any
         const existing = form.parentElement.querySelector('.comment-login-prompt');
         if (existing) existing.remove();
-        form.style.display = 'none';
+        form.classList.add('hidden');
         const wrap = document.createElement('div');
         wrap.className = 'comment-login-prompt';
         wrap.innerHTML = `
@@ -352,7 +352,7 @@
     function removeLoginPrompt(form) {
         const existing = form.parentElement.querySelector('.comment-login-prompt');
         if (existing) existing.remove();
-        form.style.display = '';
+        form.classList.remove('hidden');
     }
 
     // handle modal open events
