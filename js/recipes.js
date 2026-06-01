@@ -14,8 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Функція для завантаження рецептів з backend
     async function loadRecipesPage(category = 'all', page = 1) {
-        // If the recipes grid is not present on this page, abort to avoid
-        // reading properties of null (e.g. recipesGrid.id).
         if (!recipesGrid) {
             console.warn('recipesGrid element not found — skipping loadRecipesPage');
             return;

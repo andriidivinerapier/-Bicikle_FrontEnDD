@@ -1867,5 +1867,37 @@
     }
 }
 
+.create-recipe-validation-toast {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 10050;
+    max-width: 360px;
+    background: rgba(231, 76, 60, 0.96);
+    color: #ffffff;
+    border-radius: 14px;
+    padding: 14px 18px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+}
+.create-recipe-validation-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (max-width: 640px) {
+    .create-recipe-validation-toast {
+        right: 14px;
+        bottom: 14px;
+        width: calc(100% - 28px);
+        max-width: none;
+    }
+}
+
 
 

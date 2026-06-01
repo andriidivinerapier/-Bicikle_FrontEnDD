@@ -7,6 +7,149 @@ $composerAutoload = __DIR__ . '/../vendor/autoload.php';
 if (file_exists($composerAutoload)) {
     require_once $composerAutoload;
 }
+
+function sendUsingNativeMail($toEmail, $subject, $body, $fromEmail, $fromName, $replyTo = null)
+{
+    if (stripos(PHP_OS, 'WIN') === 0) {
+        $smtpServer = ini_get('SMTP');
+        $sendmailFrom = ini_get('sendmail_from');
+        if (!$smtpServer || !$sendmailFrom) {
+            return false;
+        }
+    }
+
+    $headers = [
+        'MIME-Version: 1.0',
+        'Content-Type: text/plain; charset=UTF-8',
+        'From: ' . $fromName . ' <' . $fromEmail . '>',
+        'Reply-To: ' . ($replyTo ?: $fromEmail),
+        'X-Mailer: PHP/' . phpversion(),
+    ];
+
+    return mail($toEmail, $subject, $body, implode("\r\n", $headers));
+}
+
+function sendUsingSmtpSocket($host, $port, $username, $password, $fromEmail, $fromName, $toEmail, $subject, $body, $replyTo)
+{
+    $timeout = 30;
+    $remote = ($port === 465 ? 'ssl://' : '') . $host . ':' . $port;
+    $socket = stream_socket_client($remote, $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT);
+    if (!$socket) {
+        return "socket error: {$errno} - {$errstr}";
+    }
+
+    $readLine = function () use ($socket) {
+        $lines = '';
+        while (($line = fgets($socket, 515)) !== false) {
+            $lines .= $line;
+            if (isset($line[3]) && $line[3] === ' ') {
+                break;
+            }
+        }
+        return $lines;
+    };
+
+    $writeLine = function ($data) use ($socket) {
+        fwrite($socket, $data);
+    };
+
+    $response = $readLine();
+    if (substr($response, 0, 3) !== '220') {
+        fclose($socket);
+        return 'connection failed: ' . trim($response);
+    }
+
+    $writeLine("EHLO localhost\r\n");
+    $response = $readLine();
+    if (substr($response, 0, 3) !== '250') {
+        fclose($socket);
+        return 'EHLO failed: ' . trim($response);
+    }
+
+    if ($port === 587) {
+        $writeLine("STARTTLS\r\n");
+        $response = $readLine();
+        if (substr($response, 0, 3) !== '220') {
+            fclose($socket);
+            return 'STARTTLS failed: ' . trim($response);
+        }
+        if (!stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+            fclose($socket);
+            return 'Unable to enable TLS';
+        }
+        $writeLine("EHLO localhost\r\n");
+        $response = $readLine();
+        if (substr($response, 0, 3) !== '250') {
+            fclose($socket);
+            return 'EHLO after STARTTLS failed: ' . trim($response);
+        }
+    }
+
+    $writeLine("AUTH LOGIN\r\n");
+    $response = $readLine();
+    if (substr($response, 0, 3) !== '334') {
+        fclose($socket);
+        return 'AUTH LOGIN failed: ' . trim($response);
+    }
+
+    $writeLine(base64_encode($username) . "\r\n");
+    $response = $readLine();
+    if (substr($response, 0, 3) !== '334') {
+        fclose($socket);
+        return 'Username rejected: ' . trim($response);
+    }
+
+    $writeLine(base64_encode($password) . "\r\n");
+    $response = $readLine();
+    if (substr($response, 0, 3) !== '235') {
+        fclose($socket);
+        return 'Authentication failed: ' . trim($response);
+    }
+
+    $writeLine("MAIL FROM:<{$fromEmail}>\r\n");
+    $response = $readLine();
+    if (substr($response, 0, 3) !== '250') {
+        fclose($socket);
+        return 'MAIL FROM failed: ' . trim($response);
+    }
+
+    $writeLine("RCPT TO:<{$toEmail}>\r\n");
+    $response = $readLine();
+    if (substr($response, 0, 3) !== '250' && substr($response, 0, 3) !== '251') {
+        fclose($socket);
+        return 'RCPT TO failed: ' . trim($response);
+    }
+
+    $writeLine("DATA\r\n");
+    $response = $readLine();
+    if (substr($response, 0, 3) !== '354') {
+        fclose($socket);
+        return 'DATA failed: ' . trim($response);
+    }
+
+    $headers = [
+        'From: ' . $fromName . ' <' . $fromEmail . '>',
+        'Reply-To: ' . $replyTo,
+        'To: ' . $toEmail,
+        'Subject: ' . $subject,
+        'MIME-Version: 1.0',
+        'Content-Type: text/plain; charset=UTF-8',
+    ];
+
+    $mailData = implode("\r\n", $headers) . "\r\n\r\n" . $body . "\r\n.\r\n";
+    $writeLine($mailData);
+
+    $response = $readLine();
+    if (substr($response, 0, 3) !== '250') {
+        fclose($socket);
+        return 'SEND failed: ' . trim($response);
+    }
+
+    $writeLine("QUIT\r\n");
+    fclose($socket);
+    return true;
+}
+
 // load email config
 $emailCfgPath = __DIR__ . '/email-config.php';
 $emailCfg = file_exists($emailCfgPath) ? include $emailCfgPath : [];
@@ -58,23 +201,26 @@ $message = "Код для підтвердження зміни електрон
 $sent = false;
 $errorMsg = '';
 
-// Try PHPMailer if configured
-if (!empty($emailCfg) && !empty($emailCfg['use_smtp']) && class_exists('PHPMailer\\PHPMailer\\PHPMailer')) {
+$fromEmail = $emailCfg['from_email'] ?? 'noreply@example.com';
+$fromName = $emailCfg['from_name'] ?? 'Site';
+$smtpUser = getenv('SMTP_USER') ?: ($emailCfg['username'] ?? $fromEmail);
+$smtpPass = getenv('SMTP_PASS') ?: getenv('GMAIL_APP_PASSWORD') ?: ($emailCfg['password'] ?? null);
+$smtpHost = getenv('SMTP_HOST') ?: ($emailCfg['host'] ?? 'smtp.gmail.com');
+$smtpPort = getenv('SMTP_PORT') ? (int)getenv('SMTP_PORT') : ($emailCfg['port'] ?? 587);
+$useSmtp = !empty($emailCfg['use_smtp']) && !empty($smtpPass);
+
+// Try PHPMailer if configured and available
+if ($useSmtp && class_exists('PHPMailer\\PHPMailer\\PHPMailer')) {
     try {
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-        if (!empty($emailCfg['use_smtp'])) {
-            $mail->isSMTP();
-            $mail->Host = $emailCfg['host'];
-            $mail->SMTPAuth = true;
-            $mail->Username = $emailCfg['username'];
-            $mail->Password = $emailCfg['password'];
-            $mail->SMTPSecure = $emailCfg['secure'] ?: '';
-            $mail->Port = $emailCfg['port'] ?: 587;
-        }
-        $fromEmail = $emailCfg['from_email'] ?? 'noreply@example.com';
-        $fromName = $emailCfg['from_name'] ?? 'Site';
+        $mail->isSMTP();
+        $mail->Host = $smtpHost;
+        $mail->SMTPAuth = true;
+        $mail->Username = $smtpUser;
+        $mail->Password = $smtpPass;
+        $mail->SMTPSecure = $emailCfg['secure'] ?: PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = $smtpPort;
         $mail->setFrom($fromEmail, $fromName);
-        // set Sender and reply-to explicitly to help some SMTP providers respect the display name
         $mail->Sender = $fromEmail;
         $mail->addReplyTo($fromEmail, $fromName);
         $mail->addAddress($oldEmail);
@@ -86,17 +232,25 @@ if (!empty($emailCfg) && !empty($emailCfg['use_smtp']) && class_exists('PHPMaile
     } catch (Exception $e) {
         $sent = false;
         $errorMsg = $e->getMessage();
+        file_put_contents(__DIR__ . '/request-email-change.log', "[PHPMailer] " . $errorMsg . "\n", FILE_APPEND);
     }
-} else {
-    // Fallback to mail()
-    $fromEmail = $emailCfg['from_email'] ?? 'noreply@example.com';
-    $fromName = $emailCfg['from_name'] ?? 'Site';
+}
+
+if (!$sent && $useSmtp) {
+    $smtpResult = sendUsingSmtpSocket($smtpHost, $smtpPort, $smtpUser, $smtpPass, $fromEmail, $fromName, $oldEmail, $subject, $message, $fromEmail);
+    if ($smtpResult === true) {
+        $sent = true;
+    } else {
+        $errorMsg = $smtpResult;
+        file_put_contents(__DIR__ . '/request-email-change.log', "[SMTP socket] " . $smtpResult . "\n", FILE_APPEND);
+    }
+}
+
+if (!$sent) {
     $headers = 'From: ' . $fromName . ' <' . $fromEmail . '>' . "\r\n" . 'Content-Type: text/plain; charset=utf-8';
-    try {
-        $sent = @mail($oldEmail, $subject, $message, $headers);
-    } catch (Exception $e) {
-        $sent = false;
-        $errorMsg = $e->getMessage();
+    $sent = @mail($oldEmail, $subject, $message, $headers);
+    if (!$sent) {
+        file_put_contents(__DIR__ . '/request-email-change.log', "[mail()] failed for {$oldEmail}\n");
     }
 }
 

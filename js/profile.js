@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const editProfileBtn = document.getElementById('editProfileBtn');
     const profileLogoutBtn = document.getElementById('profileLogoutBtn');
 
-    // Load user profile statistics
+
     function loadUserProfileStats() {
         fetch('backend/get-user-profile.php')
             .then(res => res.json())
@@ -723,6 +723,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const createOverlay = document.getElementById('createRecipeOverlay');
     const createClose = document.getElementById('createRecipeClose');
     const createForm = document.getElementById('profileCreateRecipeForm');
+    if (createForm) {
+        createForm.noValidate = true;
+    }
 
     function openCreateModal() {
         if (createOverlay) {
@@ -759,6 +762,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Submit create recipe form
     if (createForm) {
+        function showCreateRecipeValidationError(message) {
+            let toast = document.querySelector('.create-recipe-validation-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.className = 'create-recipe-validation-toast';
+                document.body.appendChild(toast);
+            }
+
+            toast.textContent = message;
+            toast.classList.add('show');
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
         // File input handler
         const fileInput = document.getElementById('profileRecipeImage');
         const imageFileInfo = document.getElementById('imageFileName');
@@ -937,7 +956,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ingredients: ingredientsArray.length, 
                     steps: stepsArray.length 
                 });
-                showToast('Заповніть усі обов\'язкові поля!', 'error');
+                showCreateRecipeValidationError('Будь ласка заповніть всі поля!');
                 return;
             }
             

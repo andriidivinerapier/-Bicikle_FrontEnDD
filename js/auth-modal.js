@@ -436,7 +436,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const fd = new FormData();
             fd.append('email', email);
             fetch('backend/request-password-reset.php', { method: 'POST', body: fd })
-                .then(r => r.json())
+                .then(r => r.text().then(text => {
+                    let data = null;
+                    try {
+                        data = JSON.parse(text);
+                    } catch (err) {
+                        // ignore parse error, keep raw text
+                    }
+
+                    if (!r.ok) {
+                        const message = data && data.message ? data.message : (typeof text === 'string' && text.trim() ? text : 'Помилка сервера');
+                        throw new Error(message);
+                    }
+
+                    if (!data) {
+                        throw new Error('Invalid JSON response from server');
+                    }
+                    return data;
+                }))
                 .then(data => {
                     if (data.status === 'ok') {
                         showAuthToast('Код відправлено, перевірте пошту', 'success');
@@ -447,7 +464,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         showAuthToast(data.message || 'Помилка при відправці', 'error');
                     }
                 })
-                .catch(() => showAuthToast('Помилка зʼєднання з сервером', 'error'))
+                .catch((err) => {
+                    console.error('request-password-reset error:', err);
+                    showAuthToast(err.message || 'Помилка зʼєднання з сервером', 'error');
+                })
                 .finally(() => {
                     if (submitBtn) {
                         submitBtn.disabled = false;
