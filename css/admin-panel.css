@@ -290,6 +290,29 @@ body {
     box-shadow: 0 18px 40px rgba(231,76,60,0.18);
 }
 
+.btn-block {
+    background: linear-gradient(180deg, #3498db, #2574a9);
+    color: #ffffff;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 700;
+    box-shadow: 0 8px 18px rgba(52,152,219,0.12);
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+}
+
+.btn-block:hover {
+    background: linear-gradient(180deg, #3ca7eb, #1f6ea8);
+    transform: translateY(-3px);
+    box-shadow: 0 18px 40px rgba(52,152,219,0.18);
+}
+    transform: translateY(-3px);
+    box-shadow: 0 18px 40px rgba(231,76,60,0.18);
+}
+
 .btn-delete:active {
     transform: translateY(-1px) scale(0.995);
 }

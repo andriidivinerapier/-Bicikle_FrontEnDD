@@ -1079,8 +1079,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3500);
     }
 
-    // Confirm modal helper
-    function showConfirmModal(message) {
+    // Confirm modal helper — delegate to the nicer confirm-delete modal when available
+    function showConfirmModal(message, title) {
+        if (typeof window.showConfirmDelete === 'function') {
+            return window.showConfirmDelete(message, title || 'Підтвердіть дію');
+        }
         return new Promise((resolve) => {
             let modal = document.getElementById('confirmModal');
             if (!modal) return resolve(false);
@@ -1393,7 +1396,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="recipe-image" style="background-image: url('${image}')">
                                 <div class="recipe-card-actions">
                                     <button class="recipe-card-action btn-icon" data-id="${recipe.id || ''}" title="Редагувати"><i class="fas fa-edit"></i></button>
-                                    <button class="recipe-card-action btn-icon btn-danger" data-id="${recipe.id || ''}" title="Видалити"><i class="fas fa-trash-alt"></i></button>
+                                    <button class="recipe-card-action btn-icon btn-danger comment-action-btn delete" data-id="${recipe.id || ''}" title="Видалити"><i class="fas fa-trash-alt"></i></button>
                                 </div>
                             </div>
                             <div class="recipe-info">
@@ -1873,6 +1876,28 @@ document.addEventListener('DOMContentLoaded', () => {
         if (editImageBtn && fileInput) {
             editImageBtn.addEventListener('click', (ev) => { ev.preventDefault(); fileInput.click(); });
         }
+
+        // Custom Ukrainian validation messages for edit modal required fields
+        const titleInput = document.getElementById('editRecipeTitle');
+        const diffSelect = document.getElementById('editRecipeDifficulty');
+        const timeSelect = document.getElementById('editRecipeTime');
+        const catSelect = document.getElementById('editRecipeCategory');
+        const setUkrValidation = (el) => {
+            if (!el) return;
+            el.addEventListener('invalid', (ev) => {
+                try { ev.target.setCustomValidity('Заповніть це поле.'); } catch (e) {}
+            });
+            el.addEventListener('input', (ev) => {
+                try { ev.target.setCustomValidity(''); } catch (e) {}
+            });
+            el.addEventListener('change', (ev) => {
+                try { ev.target.setCustomValidity(''); } catch (e) {}
+            });
+        };
+        setUkrValidation(titleInput);
+        setUkrValidation(diffSelect);
+        setUkrValidation(timeSelect);
+        setUkrValidation(catSelect);
 
         if (addIngredientBtn && ingredientsContainer) {
             addIngredientBtn.addEventListener('click', (e) => {

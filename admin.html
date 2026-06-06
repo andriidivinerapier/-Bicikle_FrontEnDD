@@ -116,12 +116,13 @@
                                 <th>Нікнейм</th>
                                 <th>Email</th>
                                 <th>Роль</th>
+                                <th>Статус</th>
                                 <th>Дата реєстрації</th>
                                 <th>Дії</th>
                             </tr>
                         </thead>
                         <tbody id="users-tbody">
-                            <tr><td colspan="6" class="loading-text">Завантаження...</td></tr>
+                            <tr><td colspan="7" class="loading-text">Завантаження...</td></tr>
                         </tbody>
                     </table>
                     
@@ -300,7 +301,11 @@
 
                 <div class="form-group">
                     <label for="edit-recipe-image">Зображення рецепту</label>
-                    <input type="file" id="edit-recipe-image" name="image" accept="image/*">
+                    <div class="custom-file-input" style="display:flex;align-items:center;gap:10px;">
+                        <input type="file" id="edit-recipe-image" name="image" accept="image/*" style="position:absolute;left:-9999px;" aria-hidden="true">
+                        <button type="button" id="edit-recipe-image-btn" class="btn">Виберіть файл</button>
+                        <span id="edit-recipe-image-filename" class="file-name">Файл не обраний</span>
+                    </div>
                     <div id="edit-current-image" class="current-image"></div>
                 </div>
 

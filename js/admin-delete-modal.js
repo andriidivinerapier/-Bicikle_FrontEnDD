@@ -43,10 +43,21 @@
 
             // Allow customizing button labels and confirm button class (approve/reject)
             btnYes.textContent = opts.confirmText || 'Так';
-            btnNo.textContent = opts.cancelText || 'Ні';
+            // If cancelText is explicitly null/false, hide the cancel button
+            if (opts.cancelText === null || opts.cancelText === false) {
+                btnNo.style.display = 'none';
+            } else {
+                btnNo.style.display = '';
+                btnNo.textContent = (typeof opts.cancelText === 'string' && opts.cancelText.length) ? opts.cancelText : 'Ні';
+            }
             // Clean custom classes then add requested class
             btnYes.classList.remove('approve','reject');
-            if (opts.confirmClass) btnYes.classList.add(opts.confirmClass);
+            if (opts.confirmClass) {
+                btnYes.classList.add(opts.confirmClass);
+            } else if (opts.cancelText === null || opts.cancelText === false) {
+                // When cancel button is hidden, make confirm button stand out as a destructive/red action
+                btnYes.classList.add('reject');
+            }
 
             function cleanup(){
                 modal.classList.remove('open');
@@ -63,7 +74,7 @@
             function onKey(ev){ if (ev.key === 'Escape' || ev.key === 'Esc') { ev.preventDefault(); onNo(); } }
 
             btnYes.addEventListener('click', onYes);
-            btnNo.addEventListener('click', onNo);
+            if (btnNo.style.display !== 'none') btnNo.addEventListener('click', onNo);
             modal.addEventListener('click', onOverlay);
             document.addEventListener('keydown', onKey);
 

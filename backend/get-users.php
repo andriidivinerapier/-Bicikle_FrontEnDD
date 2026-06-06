@@ -33,6 +33,43 @@ if ($colCheck) {
 
 $createdExpr = $hasCreatedAt ? 'created_at' : "'' AS created_at";
 
+$hasBlocked = false;
+$blockedExpr = "0 AS blocked";
+$hasBlockedUntil = false;
+$blockedUntilExpr = "NULL AS blocked_until";
+$colCheck = $conn->prepare("SELECT COUNT(*) as cnt FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'users' AND COLUMN_NAME = 'blocked'");
+if ($colCheck) {
+    $dbName = $conn->real_escape_string($dbname ?? '');
+    $colCheck->bind_param('s', $dbName);
+    if ($colCheck->execute()) {
+        $colCheck->bind_result($cnt);
+        if ($colCheck->fetch()) {
+            $hasBlocked = intval($cnt) > 0;
+        }
+    }
+    $colCheck->close();
+}
+
+$colCheck = $conn->prepare("SELECT COUNT(*) as cnt FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'users' AND COLUMN_NAME = 'blocked_until'");
+if ($colCheck) {
+    $dbName = $conn->real_escape_string($dbname ?? '');
+    $colCheck->bind_param('s', $dbName);
+    if ($colCheck->execute()) {
+        $colCheck->bind_result($cnt);
+        if ($colCheck->fetch()) {
+            $hasBlockedUntil = intval($cnt) > 0;
+        }
+    }
+    $colCheck->close();
+}
+
+if ($hasBlocked) {
+    $blockedExpr = 'blocked';
+}
+if ($hasBlockedUntil) {
+    $blockedUntilExpr = 'blocked_until';
+}
+
 // Helper to return an error and log details
 function _return_error($msg, $internal = '') {
     if ($internal) error_log("get-users.php error: $internal");
@@ -42,7 +79,7 @@ function _return_error($msg, $internal = '') {
 try {
     if ($q !== '') {
         $like = '%' . $q . '%';
-        $sql = "SELECT id, username, email, role, $createdExpr FROM users WHERE username LIKE ? ORDER BY " . ($hasCreatedAt ? 'created_at' : 'id') . " DESC";
+        $sql = "SELECT id, username, email, role, $blockedExpr, $blockedUntilExpr, $createdExpr FROM users WHERE username LIKE ? ORDER BY " . ($hasCreatedAt ? 'created_at' : 'id') . " DESC";
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
             _return_error('Помилка серверу при підготовці запиту', $conn->error);
@@ -51,7 +88,7 @@ try {
         }
         $stmt->bind_param('s', $like);
     } else {
-        $sql = "SELECT id, username, email, role, $createdExpr FROM users ORDER BY " . ($hasCreatedAt ? 'created_at' : 'id') . " DESC";
+        $sql = "SELECT id, username, email, role, $blockedExpr, $blockedUntilExpr, $createdExpr FROM users ORDER BY " . ($hasCreatedAt ? 'created_at' : 'id') . " DESC";
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
             _return_error('Помилка серверу при підготовці запиту', $conn->error);
@@ -68,7 +105,7 @@ try {
     }
 
     // Use bind_result + fetch to avoid dependency on mysqlnd/get_result()
-    $stmt->bind_result($id, $username, $email, $role, $created_at);
+    $stmt->bind_result($id, $username, $email, $role, $blocked, $blocked_until, $created_at);
     $users = [];
     while ($stmt->fetch()) {
         $users[] = [
@@ -76,6 +113,8 @@ try {
             'username' => $username,
             'email' => $email,
             'role' => $role,
+            'blocked' => $blocked ? 1 : 0,
+            'blocked_until' => $blocked_until,
             'created_at' => $created_at
         ];
     }

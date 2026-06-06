@@ -631,6 +631,29 @@
     background: rgba(255, 50, 50, 0.4);
 }
 
+/* Apply comment-style action button visuals to recipe card action buttons when using shared classes */
+.recipe-card-editable .comment-action-btn {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 1px solid rgba(16,24,32,0.06);
+    background: transparent;
+    cursor: pointer;
+    transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    color: inherit;
+}
+.recipe-card-editable .comment-action-btn i { font-size: 14px; line-height:1; }
+.recipe-card-editable .comment-action-btn.delete {
+    background: linear-gradient(180deg, #fff4f4 0%, #ffe6e6 100%);
+    color: #8b1d1d;
+    border-color: rgba(255,77,77,0.08);
+    box-shadow: 0 6px 12px rgba(255,77,77,0.04) inset;
+}
+.recipe-card-editable .comment-action-btn.delete:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255,77,77,0.08); }
+
 .recipe-info {
     padding: 1.5rem;
     display: flex;

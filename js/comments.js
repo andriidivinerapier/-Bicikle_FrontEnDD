@@ -209,6 +209,11 @@
     }
 
     function showDeleteModal() {
+        // If a nicer shared confirm modal exists, delegate to it
+        if (typeof window.showConfirmDelete === 'function') {
+            return window.showConfirmDelete('Ви дійсно хочете видалити цей коментар?','Видалити коментар?');
+        }
+
         return new Promise((resolve) => {
             const overlay = createDeleteModal();
             const dialog = overlay.querySelector('.comment-delete-modal');

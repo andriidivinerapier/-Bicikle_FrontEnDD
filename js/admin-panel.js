@@ -119,6 +119,35 @@ function initializeAdminPanel() {
             loadUsers({ q: usersSearchInput.value });
         });
     }
+
+    // Wire custom file button and filename text for edit form (Ukrainian)
+    const editImageInput = document.getElementById('edit-recipe-image');
+    const editImageBtn = document.getElementById('edit-recipe-image-btn');
+    const editImageFilename = document.getElementById('edit-recipe-image-filename');
+    const editImagePreview = document.getElementById('edit-current-image');
+    if (editImageBtn && editImageInput) {
+        editImageBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            editImageInput.click();
+        });
+    }
+    if (editImageInput && editImageFilename) {
+        editImageInput.addEventListener('change', (e) => {
+            const f = e.target.files && e.target.files[0];
+            if (f) editImageFilename.textContent = f.name;
+            else editImageFilename.textContent = 'Файл не обраний';
+            if (editImagePreview) {
+                if (f) {
+                    const url = URL.createObjectURL(f);
+                    editImagePreview.innerHTML = `<img src="${url}" alt="preview">`;
+                    const img = editImagePreview.querySelector('img');
+                    if (img) img.onload = () => URL.revokeObjectURL(url);
+                } else {
+                    editImagePreview.innerHTML = '';
+                }
+            }
+        });
+    }
     if (refreshUsersBtn) refreshUsersBtn.addEventListener('click', () => loadUsers());
 
     // load users list initially (if section exists)
@@ -1060,14 +1089,15 @@ function loadUsers(opts = {}) {
     const q = opts.q || '';
     const tbody = document.getElementById('users-tbody');
     if (!tbody) return;
-    tbody.innerHTML = '<tr><td colspan="6" class="loading-text">Завантаження...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="loading-text">Завантаження...</td></tr>';
     // Verify admin session first to avoid silent access-denied responses
     fetch('backend/session.php').then(r => r.json()).then(sess => {
         if (!sess || sess.status !== 'logged' || sess.role !== 'admin') {
-            tbody.innerHTML = '<tr><td colspan="6" class="loading-text">Потрібна авторизація адміністратора</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" class="loading-text">Потрібна авторизація адміністратора</td></tr>';
             console.warn('loadUsers: not admin session', sess);
             return;
         }
+        window.adminUserId = sess.id;
 
         const params = new URLSearchParams();
         if (q) params.set('q', q);
@@ -1079,18 +1109,18 @@ function loadUsers(opts = {}) {
                 if (data.status === 'success' && Array.isArray(data.users)) {
                     displayUsers(data.users);
                 } else {
-                    tbody.innerHTML = `<tr><td colspan="6" class="loading-text">Помилка: ${data.message || 'Невідома помилка'}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="7" class="loading-text">Помилка: ${data.message || 'Невідома помилка'}</td></tr>`;
                     if (data && data.message) showToast(data.message, 'error');
                 }
             })
             .catch(err => {
                 console.error('Load users error:', err);
-                tbody.innerHTML = '<tr><td colspan="6" class="loading-text">Помилка завантаження</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="loading-text">Помилка завантаження</td></tr>';
                 showToast('Помилка при завантаженні списку користувачів', 'error');
             });
     }).catch(err => {
         console.error('Session check failed before loading users:', err);
-        tbody.innerHTML = '<tr><td colspan="6" class="loading-text">Помилка перевірки сесії</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="loading-text">Помилка перевірки сесії</td></tr>';
     });
 }
 
@@ -1098,7 +1128,7 @@ function displayUsers(users) {
     const tbody = document.getElementById('users-tbody');
     if (!tbody) return;
     if (!users || users.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="loading-text">Користувачів не знайдено</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="loading-text">Користувачів не знайдено</td></tr>';
         return;
     }
 
@@ -1106,21 +1136,101 @@ function displayUsers(users) {
     users.forEach(u => {
         const tr = document.createElement('tr');
         const created = u.created_at ? new Date(u.created_at).toLocaleString('uk-UA') : '-';
+        const blockedUntil = u.blocked_until ? new Date(u.blocked_until) : null;
+        const isBlockedUntilActive = blockedUntil && blockedUntil > new Date();
+        const isBlocked = !!u.blocked || isBlockedUntilActive;
+        let statusText = 'Активний';
+        let statusStyle = 'color: #5cb85c; font-weight: 600;';
+        if (isBlockedUntilActive) {
+            statusText = `Заблоковано до ${blockedUntil.toLocaleString('uk-UA')}`;
+            statusStyle = 'color: #d9534f; font-weight: 600;';
+        } else if (!!u.blocked) {
+            statusText = 'Заблокований';
+            statusStyle = 'color: #d9534f; font-weight: 600;';
+        }
+        const canToggle = u.role !== 'admin' && u.id !== window.adminUserId;
+        const actionLabel = isBlocked ? 'Розблокувати' : 'Заблокувати';
+        const actionButton = canToggle ? `<button class="btn-block" data-user-id="${u.id}" data-block-action="${isBlocked ? 'unblock' : 'block'}">${actionLabel}</button>` : '';
         tr.innerHTML = `
             <td>${u.id}</td>
             <td>${escapeHtml(u.username || '-')}</td>
             <td>${escapeHtml(u.email || '-')}</td>
             <td>${escapeHtml(u.role || 'user')}</td>
+            <td><span style="${statusStyle}">${statusText}</span></td>
             <td>${created}</td>
             <td>
-                <button class="btn-delete" data-user-id="${u.id}">Видалити</button>
+                ${actionButton}
+                <button class="btn-delete" data-user-id="${u.id}" data-user-role="${u.role}">Видалити</button>
             </td>
         `;
-        const delBtn = tr.querySelector('button[data-user-id]');
+        const blockBtn = tr.querySelector('button.btn-block');
+        const delBtn = tr.querySelector('button.btn-delete');
+
+        if (blockBtn) {
+            blockBtn.addEventListener('click', (e) => {
+                const uid = Number(blockBtn.getAttribute('data-user-id'));
+                const action = blockBtn.getAttribute('data-block-action');
+                if (!uid || !action) return;
+                const actionText = action === 'block' ? 'заблокувати' : 'розблокувати';
+                if (!confirm(`Ви впевнені, що хочете ${actionText} цього користувача?`)) return;
+
+                const fd = new FormData();
+                fd.append('user_id', uid);
+                fd.append('action', action);
+
+                if (action === 'block') {
+                    const duration = prompt('Вкажіть термін блокування у годинах (1–168), або 0 для безстрокового', '24');
+                    if (duration === null) return;
+                    const durationTrimmed = duration.trim();
+                    if (durationTrimmed === '') {
+                        showToast('Потрібно вказати термін блокування', 'error');
+                        return;
+                    }
+                    const hours = Number(durationTrimmed);
+                    if (!Number.isInteger(hours) || hours < 0 || hours > 168) {
+                        showToast('Термін блокування має бути цілим числом від 0 до 168', 'error');
+                        return;
+                    }
+                    fd.append('duration_hours', hours);
+                }
+
+                fetch('backend/toggle-user-block.php', { method: 'POST', body: fd })
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res && res.status === 'success') {
+                            showToast(res.message || 'Оновлено', 'success');
+                            loadUsers();
+                        } else {
+                            showToast(res.message || 'Помилка при зміні статусу', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Toggle user block error:', err);
+                        showToast('Помилка при зміні статусу користувача', 'error');
+                    });
+            });
+        }
+
         if (delBtn) {
             delBtn.addEventListener('click', (e) => {
                 const uid = Number(delBtn.getAttribute('data-user-id'));
                 if (!uid) return;
+                const userRole = delBtn.getAttribute('data-user-role');
+                if (userRole === 'admin') {
+                    const modalFn = (typeof showAdminModal === 'function') ? showAdminModal : null;
+                    if (modalFn) {
+                        modalFn({
+                            title: 'Дія неможлива',
+                            message: 'Видалення адміністратора неможливо!',
+                            confirmText: 'Закрити',
+                            cancelText: null
+                        }).catch(() => {});
+                    } else {
+                        alert('Видалення адміністратора неможливо!');
+                    }
+                    return;
+                }
+
                 const modalFn = (typeof showAdminModal === 'function') ? showAdminModal : null;
                 const promptPromise = modalFn ? modalFn({
                     title: 'Видалити користувача?',
