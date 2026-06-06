@@ -259,10 +259,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateAuthUI(user) {
+        const isProfilePage = window.location.pathname.includes('profile.html');
+
         if (user && user.username) {
             // 🖥️ ДЕСКТОП
             if (loginButton) loginButton.style.display = 'none';
-            if (profileContainer) profileContainer.style.display = 'flex';
+            if (profileContainer) profileContainer.style.display = isProfilePage ? 'none' : 'flex';
             if (profileNameEl) profileNameEl.textContent = user.username;
             if (profileAvatarEl) {
                 if (user.avatar_path) {
@@ -284,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 📱 МОБІЛЬНЕ МЕНЮ
             if (mobileLoginBtn) mobileLoginBtn.style.display = 'none';
-            if (mobileMenuProfile) mobileMenuProfile.style.display = 'flex';
+            if (mobileMenuProfile) mobileMenuProfile.style.display = isProfilePage ? 'none' : 'flex';
             if (mobileProfileName) mobileProfileName.textContent = user.username.toUpperCase();
             if (mobileProfileAvatar) {
                 if (user.avatar_path) {
@@ -347,6 +349,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function ensureProfilePageHeaderHidden() {
+        const isProfilePage = window.location.pathname.includes('profile.html');
+        if (!isProfilePage) return;
+
+        const profileContainer = document.getElementById('profileContainer');
+        const profileMenu = document.getElementById('profileMenu');
+        const profileBtn = document.getElementById('profileBtn');
+
+        if (profileMenu) {
+            profileMenu.classList.remove('open');
+            profileMenu.setAttribute('aria-hidden', 'true');
+        }
+        if (profileBtn) {
+            profileBtn.setAttribute('aria-expanded', 'false');
+            profileBtn.style.display = 'none';
+        }
+        if (profileContainer) {
+            profileContainer.style.display = 'none';
+        }
+    }
+
+    ensureProfilePageHeaderHidden();
+
     function checkSession() {
         fetch('backend/session.php')
             .then(res => res.json())
@@ -370,6 +395,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     checkSession();
+
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+            ensureProfilePageHeaderHidden();
+            checkSession();
+        }
+    });
 
     if (registerForm) {
         registerForm.addEventListener('submit', (e) => {

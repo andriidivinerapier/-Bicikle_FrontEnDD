@@ -1143,9 +1143,15 @@ function displayUsers(users) {
         let statusStyle = 'color: #5cb85c; font-weight: 600;';
         if (isBlockedUntilActive) {
             statusText = `Заблоковано до ${blockedUntil.toLocaleString('uk-UA')}`;
+            if (u.blocked_reason) {
+                statusText += `<br><span style="font-size:0.92em;color:#555;">Причина: ${escapeHtml(u.blocked_reason)}</span>`;
+            }
             statusStyle = 'color: #d9534f; font-weight: 600;';
         } else if (!!u.blocked) {
             statusText = 'Заблокований';
+            if (u.blocked_reason) {
+                statusText += `<br><span style="font-size:0.92em;color:#555;">Причина: ${escapeHtml(u.blocked_reason)}</span>`;
+            }
             statusStyle = 'color: #d9534f; font-weight: 600;';
         }
         const canToggle = u.role !== 'admin' && u.id !== window.adminUserId;
@@ -1167,31 +1173,53 @@ function displayUsers(users) {
         const delBtn = tr.querySelector('button.btn-delete');
 
         if (blockBtn) {
-            blockBtn.addEventListener('click', (e) => {
+            blockBtn.addEventListener('click', async (e) => {
                 const uid = Number(blockBtn.getAttribute('data-user-id'));
                 const action = blockBtn.getAttribute('data-block-action');
                 if (!uid || !action) return;
-                const actionText = action === 'block' ? 'заблокувати' : 'розблокувати';
-                if (!confirm(`Ви впевнені, що хочете ${actionText} цього користувача?`)) return;
+                const isBlock = action === 'block';
+                const modalTitle = isBlock ? 'Заблокувати користувача' : 'Розблокувати користувача';
+                const modalMessage = isBlock ? 'Ви дійсно хочете заблокувати цього користувача?' : 'Ви дійсно хочете розблокувати цього користувача?';
+
+                const result = typeof window.showAdminModal === 'function'
+                    ? await window.showAdminModal({
+                        title: modalTitle,
+                        message: modalMessage,
+                        showReason: isBlock,
+                        inputType: isBlock ? 'number' : null,
+                        inputLabel: 'Термін блокування у днях (1–10)',
+                        placeholder: 'Наприклад: 3',
+                        inputMin: 1,
+                        inputMax: 10,
+                        inputStep: 1,
+                        reasonLabel: 'Причина блокування',
+                        reasonPlaceholder: 'Наприклад: порушення правил',
+                        confirmText: isBlock ? 'Заблокувати' : 'Розблокувати',
+                        cancelText: 'Ні',
+                        confirmClass: isBlock ? 'reject' : 'approve'
+                    })
+                    : { confirmed: confirm(modalMessage), input: null, reason: null };
+
+                if (!result || !result.confirmed) return;
 
                 const fd = new FormData();
                 fd.append('user_id', uid);
                 fd.append('action', action);
 
-                if (action === 'block') {
-                    const duration = prompt('Вкажіть термін блокування у годинах (1–168), або 0 для безстрокового', '24');
-                    if (duration === null) return;
-                    const durationTrimmed = duration.trim();
-                    if (durationTrimmed === '') {
-                        showToast('Потрібно вказати термін блокування', 'error');
+                if (isBlock) {
+                    const daysValue = (result.input || '').trim();
+                    const days = Number(daysValue);
+                    const blockReason = (result.reason || '').trim();
+                    if (daysValue === '' || !Number.isInteger(days) || days < 1 || days > 10) {
+                        showToast('Термін блокування має бути цілим числом від 1 до 10 днів', 'error');
                         return;
                     }
-                    const hours = Number(durationTrimmed);
-                    if (!Number.isInteger(hours) || hours < 0 || hours > 168) {
-                        showToast('Термін блокування має бути цілим числом від 0 до 168', 'error');
+                    if (!blockReason) {
+                        showToast('Потрібно вказати причину блокування', 'error');
                         return;
                     }
-                    fd.append('duration_hours', hours);
+                    fd.append('duration_hours', days * 24);
+                    fd.append('reason', blockReason);
                 }
 
                 fetch('backend/toggle-user-block.php', { method: 'POST', body: fd })

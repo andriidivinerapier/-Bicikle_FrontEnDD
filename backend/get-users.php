@@ -63,11 +63,29 @@ if ($colCheck) {
     $colCheck->close();
 }
 
+$hasBlockedReason = false;
+$blockedReasonExpr = "NULL AS blocked_reason";
+$colCheck = $conn->prepare("SELECT COUNT(*) as cnt FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'users' AND COLUMN_NAME = 'blocked_reason'");
+if ($colCheck) {
+    $dbName = $conn->real_escape_string($dbname ?? '');
+    $colCheck->bind_param('s', $dbName);
+    if ($colCheck->execute()) {
+        $colCheck->bind_result($cnt);
+        if ($colCheck->fetch()) {
+            $hasBlockedReason = intval($cnt) > 0;
+        }
+    }
+    $colCheck->close();
+}
+
 if ($hasBlocked) {
     $blockedExpr = 'blocked';
 }
 if ($hasBlockedUntil) {
     $blockedUntilExpr = 'blocked_until';
+}
+if ($hasBlockedReason) {
+    $blockedReasonExpr = 'blocked_reason';
 }
 
 // Helper to return an error and log details
@@ -79,7 +97,7 @@ function _return_error($msg, $internal = '') {
 try {
     if ($q !== '') {
         $like = '%' . $q . '%';
-        $sql = "SELECT id, username, email, role, $blockedExpr, $blockedUntilExpr, $createdExpr FROM users WHERE username LIKE ? ORDER BY " . ($hasCreatedAt ? 'created_at' : 'id') . " DESC";
+        $sql = "SELECT id, username, email, role, $blockedExpr, $blockedUntilExpr, $blockedReasonExpr, $createdExpr FROM users WHERE username LIKE ? ORDER BY " . ($hasCreatedAt ? 'created_at' : 'id') . " DESC";
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
             _return_error('Помилка серверу при підготовці запиту', $conn->error);
@@ -88,7 +106,7 @@ try {
         }
         $stmt->bind_param('s', $like);
     } else {
-        $sql = "SELECT id, username, email, role, $blockedExpr, $blockedUntilExpr, $createdExpr FROM users ORDER BY " . ($hasCreatedAt ? 'created_at' : 'id') . " DESC";
+        $sql = "SELECT id, username, email, role, $blockedExpr, $blockedUntilExpr, $blockedReasonExpr, $createdExpr FROM users ORDER BY " . ($hasCreatedAt ? 'created_at' : 'id') . " DESC";
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
             _return_error('Помилка серверу при підготовці запиту', $conn->error);
@@ -105,7 +123,7 @@ try {
     }
 
     // Use bind_result + fetch to avoid dependency on mysqlnd/get_result()
-    $stmt->bind_result($id, $username, $email, $role, $blocked, $blocked_until, $created_at);
+    $stmt->bind_result($id, $username, $email, $role, $blocked, $blocked_until, $blocked_reason, $created_at);
     $users = [];
     while ($stmt->fetch()) {
         $users[] = [
@@ -115,6 +133,7 @@ try {
             'role' => $role,
             'blocked' => $blocked ? 1 : 0,
             'blocked_until' => $blocked_until,
+            'blocked_reason' => $blocked_reason,
             'created_at' => $created_at
         ];
     }

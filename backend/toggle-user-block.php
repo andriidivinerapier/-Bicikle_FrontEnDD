@@ -6,6 +6,8 @@ ini_set('display_errors', '0');
 session_start();
 require_once 'db.php';
 
+date_default_timezone_set('Europe/Kyiv');
+
 if (!isset($_SESSION['user']) || ($_SESSION['user']['role'] ?? '') !== 'admin') {
     http_response_code(403);
     echo json_encode(['status' => 'error', 'message' => 'Доступ заборонено']);
@@ -22,13 +24,14 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $targetId = intval($_POST['user_id'] ?? 0);
 $action = trim($_POST['action'] ?? '');
 $durationHours = isset($_POST['duration_hours']) ? intval($_POST['duration_hours']) : null;
+$blockReason = isset($_POST['reason']) ? trim($_POST['reason']) : '';
 if ($targetId <= 0 || !in_array($action, ['block', 'unblock'], true)) {
     echo json_encode(['status' => 'error', 'message' => 'Невірні дані']);
     $conn->close();
     exit;
 }
-if ($action === 'block' && $durationHours !== null && ($durationHours < 0 || $durationHours > 168)) {
-    echo json_encode(['status' => 'error', 'message' => 'Термін блокування має бути від 0 до 168 годин']);
+if ($action === 'block' && $durationHours !== null && ($durationHours < 24 || $durationHours > 240)) {
+    echo json_encode(['status' => 'error', 'message' => 'Термін блокування має бути від 1 до 10 днів']);
     $conn->close();
     exit;
 }
@@ -38,6 +41,28 @@ if ($targetId === $adminId) {
     echo json_encode(['status' => 'error', 'message' => 'Ви не можете змінювати статус власного облікового запису']);
     $conn->close();
     exit;
+}
+
+$hasBlockedReason = false;
+$colCheck = $conn->prepare("SELECT COUNT(*) as cnt FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'users' AND COLUMN_NAME = 'blocked_reason'");
+if ($colCheck) {
+    $dbName = $conn->real_escape_string($dbname ?? '');
+    $colCheck->bind_param('s', $dbName);
+    if ($colCheck->execute()) {
+        $colCheck->bind_result($cnt);
+        if ($colCheck->fetch()) {
+            $hasBlockedReason = intval($cnt) > 0;
+        }
+    }
+    $colCheck->close();
+}
+if (!$hasBlockedReason) {
+    if ($conn->query("ALTER TABLE users ADD COLUMN blocked_reason TEXT NULL DEFAULT NULL") === FALSE) {
+        error_log('toggle-user-block.php alter error: ' . $conn->error);
+        echo json_encode(['status' => 'error', 'message' => 'Помилка серверу при оновленні схеми']);
+        $conn->close();
+        exit;
+    }
 }
 
 $stmt = $conn->prepare('SELECT role, blocked FROM users WHERE id = ? LIMIT 1');
@@ -74,34 +99,50 @@ if ($role === 'admin') {
 
 if ($action === 'block') {
     $newBlocked = 1;
-    if ($durationHours === null) {
-        echo json_encode(['status' => 'error', 'message' => 'Потрібно вказати термін блокування']);
+    if ($durationHours === null || $durationHours === 0) {
+        echo json_encode(['status' => 'error', 'message' => 'Потрібно вказати термін блокування від 1 до 10 днів']);
         $conn->close();
         exit;
     }
-    if ($durationHours === 0) {
-        $blockedUntil = null;
-        $message = 'Користувача заблоковано без терміну';
-    } else {
-        $date = new DateTime();
+    if ($blockReason === '') {
+        echo json_encode(['status' => 'error', 'message' => 'Потрібно вказати причину блокування']);
+        $conn->close();
+        exit;
+    }
+    if (mb_strlen($blockReason) > 500) {
+        echo json_encode(['status' => 'error', 'message' => 'Причина блокування не має перевищувати 500 символів']);
+        $conn->close();
+        exit;
+    }
+    $blockReason = preg_replace('/[\r\n]+/u', ' ', $blockReason);
+    {
+        $date = new DateTime('now', new DateTimeZone('Europe/Kyiv'));
         $date->modify("+{$durationHours} hours");
         $blockedUntil = $date->format('Y-m-d H:i:s');
-        $message = "Користувача заблоковано на $durationHours год.";
+        if ($durationHours % 24 === 0) {
+            $days = intdiv($durationHours, 24);
+            $dayWord = $days === 1 ? 'день' : 'дні';
+            $message = "Користувача заблоковано на $days $dayWord.";
+        } else {
+            $message = "Користувача заблоковано на $durationHours год.";
+        }
+        $message .= " Причина: $blockReason";
     }
 } else {
     $newBlocked = 0;
     $blockedUntil = null;
+    $blockReason = null;
     $message = 'Користувача розблоковано';
 }
 
-$update = $conn->prepare('UPDATE users SET blocked = ?, blocked_until = ? WHERE id = ?');
+$update = $conn->prepare('UPDATE users SET blocked = ?, blocked_until = ?, blocked_reason = ? WHERE id = ?');
 if (!$update) {
     error_log('toggle-user-block.php update prepare error: ' . $conn->error);
     echo json_encode(['status' => 'error', 'message' => 'Помилка серверу']);
     $conn->close();
     exit;
 }
-$update->bind_param('isi', $newBlocked, $blockedUntil, $targetId);
+$update->bind_param('issi', $newBlocked, $blockedUntil, $blockReason, $targetId);
 if (!$update->execute()) {
     error_log('toggle-user-block.php update execute error: ' . $update->error);
     echo json_encode(['status' => 'error', 'message' => 'Не вдалося оновити статус користувача']);

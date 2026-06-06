@@ -12,8 +12,12 @@
                     <div class="adm-modal-title" id="adm-title">Підтвердження</div>
                 </div>
                 <div class="adm-modal-desc" id="adm-desc">Ви дійсно хочете виконати цю дію?</div>
-                <div class="adm-modal-reason" id="adm-reason-wrap" style="display:none;">
-                    <label for="adm-reason" style="display:block;margin-bottom:6px;font-weight:600;color:var(--adm-modal-text);">Причина видалення (буде надіслано/записано)</label>
+                <div class="adm-modal-input" id="adm-input-wrap" style="display:none;margin-top:8px;">
+                    <label id="adm-input-label" for="adm-input" style="display:block;margin-bottom:6px;font-weight:600;color:var(--adm-modal-text);">Значення</label>
+                    <input id="adm-input" type="text" placeholder="">
+                </div>
+                <div class="adm-modal-reason" id="adm-reason-wrap" style="display:none;margin-top:8px;">
+                    <label id="adm-reason-label" for="adm-reason" style="display:block;margin-bottom:6px;font-weight:600;color:var(--adm-modal-text);">Причина (опціонально)</label>
                     <textarea id="adm-reason" placeholder="Опишіть причину (опціонально)"></textarea>
                 </div>
                 <div class="adm-modal-actions">
@@ -30,16 +34,35 @@
             const modal = ensureAdminModal();
             const titleEl = modal.querySelector('#adm-title');
             const descEl = modal.querySelector('#adm-desc');
+            const inputWrap = modal.querySelector('#adm-input-wrap');
+            const inputLabel = modal.querySelector('#adm-input-label');
+            const inputField = modal.querySelector('#adm-input');
             const reasonWrap = modal.querySelector('#adm-reason-wrap');
-            const reasonInput = modal.querySelector('#adm-reason');
+            const reasonLabel = modal.querySelector('#adm-reason-label');
+            const reasonTextarea = modal.querySelector('#adm-reason');
             const btnYes = modal.querySelector('#adm-confirm');
             const btnNo = modal.querySelector('#adm-cancel');
 
             // Set texts and visibility
             titleEl.textContent = opts.title || 'Підтвердження';
             descEl.textContent = opts.message || '';
+            inputWrap.style.display = opts.inputType ? 'block' : 'none';
+            inputLabel.textContent = opts.inputLabel || 'Значення';
             reasonWrap.style.display = opts.showReason ? 'block' : 'none';
-            if (reasonInput) reasonInput.value = opts.defaultReason || '';
+            reasonLabel.textContent = opts.reasonLabel || 'Причина (опціонально)';
+
+            const useInput = Boolean(opts.inputType);
+            if (useInput) {
+                inputField.type = opts.inputType;
+                inputField.value = opts.defaultInput || '';
+                inputField.placeholder = opts.placeholder || '';
+                inputField.min = opts.inputMin !== undefined ? opts.inputMin : '';
+                inputField.max = opts.inputMax !== undefined ? opts.inputMax : '';
+                inputField.step = opts.inputStep !== undefined ? opts.inputStep : '';
+            }
+
+            reasonTextarea.value = opts.defaultReason || '';
+            reasonTextarea.placeholder = opts.reasonPlaceholder || 'Опишіть причину (опціонально)';
 
             // Allow customizing button labels and confirm button class (approve/reject)
             btnYes.textContent = opts.confirmText || 'Так';
@@ -68,7 +91,7 @@
                 modal.removeEventListener('click', onOverlay);
                 document.removeEventListener('keydown', onKey);
             }
-            function onYes(e){ e && e.preventDefault(); const reason = reasonInput ? reasonInput.value.trim() : ''; cleanup(); resolve({confirmed:true, reason}); }
+            function onYes(e){ e && e.preventDefault(); const inputValue = useInput ? inputField.value.trim() : null; const reasonValue = reasonTextarea.value.trim(); cleanup(); resolve({confirmed:true, input: inputValue, reason: reasonValue}); }
             function onNo(e){ e && e.preventDefault(); cleanup(); resolve({confirmed:false}); }
             function onOverlay(ev){ if (ev.target === modal) { cleanup(); resolve({confirmed:false}); } }
             function onKey(ev){ if (ev.key === 'Escape' || ev.key === 'Esc') { ev.preventDefault(); onNo(); } }
