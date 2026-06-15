@@ -35,6 +35,9 @@ if (file_exists($autoload)) {
     require $autoload;
 }
 
+$emailCfgPath = __DIR__ . '/email-config.php';
+$emailCfg = file_exists($emailCfgPath) ? include $emailCfgPath : [];
+
 function sendUsingNativeMail($supportEmail, $subject, $body, $name, $email)
 {
     $fromEmail = getenv('SMTP_USER') ?: 'ihtp103@gmail.com';
