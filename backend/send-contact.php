@@ -35,8 +35,9 @@ if (file_exists($autoload)) {
     require $autoload;
 }
 
-// Твоя робоча пошта для отримання листів
-$supportEmail = 'andriy.yakubjak@kpk-lp.com.ua';
+// Load email config from .env
+$emailCfg = include(__DIR__ . '/email-config.php');
+$supportEmail = $emailCfg['from_email'] ?? 'ihtp103@gmail.com';
 
 function sendUsingNativeMail($supportEmail, $subject, $body, $name, $email)
 {
@@ -187,10 +188,10 @@ $phPMailerAvailable = class_exists('PHPMailer\\PHPMailer\\PHPMailer');
 $emailBody = "від користувача: {$name} ({$email})\n\nповідомлення:\n{$message}";
 
 if (!$phPMailerAvailable) {
-    $smtpUser = 'ihtp103@gmail.com';
-    $smtpPass = 'oxofoqhluirkjdir';
-    $smtpHost = 'smtp.gmail.com';
-    $smtpPort = 587;
+    $smtpUser = $emailCfg['username'] ?? getenv('SMTP_USER') ?: 'ihtp103@gmail.com';
+    $smtpPass = $emailCfg['password'] ?? getenv('SMTP_PASS') ?: null;
+    $smtpHost = $emailCfg['host'] ?? getenv('SMTP_HOST') ?: 'smtp.gmail.com';
+    $smtpPort = $emailCfg['port'] ?? (int)getenv('SMTP_PORT') ?: 587;
 
     if (!empty($smtpPass)) {
         $smtpResult = sendUsingSmtpSocket($smtpHost, $smtpPort, $smtpUser, $smtpPass, $smtpUser, 'CookBook', $supportEmail, "[Contact] {$subject}", $emailBody, $email);
@@ -226,17 +227,17 @@ try {
     };
     
     $mail->isSMTP();
-    $mail->Host = 'smtp.gmail.com';
-    $mail->SMTPAuth = true;
-    
-    // Прямий хардкод без getenv
-    $smtpUser = 'ihtp103@gmail.com';
-    $smtpPass = 'oxofoqhluirkjdir';
+    $smtpUser = $emailCfg['username'] ?? getenv('SMTP_USER') ?: 'ihtp103@gmail.com';
+    $smtpPass = $emailCfg['password'] ?? getenv('SMTP_PASS') ?: null;
+    $smtpHost = $emailCfg['host'] ?? getenv('SMTP_HOST') ?: 'smtp.gmail.com';
+    $smtpPort = $emailCfg['port'] ?? (int)getenv('SMTP_PORT') ?: 587;
 
+    $mail->Host = $smtpHost;
+    $mail->SMTPAuth = true;
     $mail->Username = $smtpUser;
     $mail->Password = $smtpPass;
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->Port = 587;
+    $mail->Port = $smtpPort;
     $mail->CharSet = 'UTF-8';
     
     $mail->setFrom($smtpUser, 'CookBook');

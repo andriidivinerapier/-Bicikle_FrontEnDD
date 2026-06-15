@@ -1,41 +1,129 @@
 <?php
-// backend/get-recipe.php — повертає один рецепт з таблиці recipes або user_recipes за id
-header('Content-Type: application/json; charset=utf-8');
-require_once 'db.php';
+// backend/get-recipes.php — отримати рецепти з фільтруванням і пагінацією
 
-$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-if (!$id) {
-    echo json_encode(['status' => 'error', 'message' => 'Невідомий id']);
-    exit;
+require 'db.php';
+
+header('Content-Type: application/json');
+
+// Параметри
+$category = isset($_GET['category']) ? trim($_GET['category']) : 'all';
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$per_page = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 12;
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+
+// 🛠 СЛОВНИК-МАПЕР: Перекладаємо українські категорії у англійські слоги для бази даних
+$category_map = [
+    'Веганські'       => 'vegan',
+    'Супи'            => 'soups',
+    'Десерти'         => 'desserts',
+    'Сніданки'        => 'breakfast',
+    'Обіди'           => 'lunch',
+    'Вечері'          => 'dinner',
+    'Напої'           => 'drinks',
+    'Випічка'         => 'pastries',
+    'Салати'          => 'salads',
+    'Закуски'         => 'snacks',
+    'Весняні страви'  => 'season_spring',
+    'Літні страви'    => 'season_summer',
+    'Осінні страви'   => 'season_autumn',
+    'Зимові страви'   => 'season_winter'
+];
+
+// Якщо з фронтенду прийшла українська назва, підміняємо її на значення для БД
+if (array_key_exists($category, $category_map)) {
+    $category = $category_map[$category];
 }
 
-$stmt = $conn->prepare('SELECT id, user_id, title, category, ingredients, instructions, image_path, difficulty, COALESCE(cooking_time, `time`) AS cooking_time, created_at FROM recipes WHERE id = ? LIMIT 1');
-$stmt->bind_param('i', $id);
-if ($stmt->execute()) {
-    $res = $stmt->get_result();
-    if ($row = $res->fetch_assoc()) {
-        echo json_encode(['status' => 'success', 'recipe' => $row, 'source' => 'admin']);
-        $stmt->close();
-        $conn->close();
-        exit;
+// Валідація
+if ($page < 1) $page = 1;
+if ($per_page < 1 || $per_page > 100) $per_page = 12;
+
+$offset = ($page - 1) * $per_page;
+
+try {
+    // Escape search and category
+    $search_escaped = !empty($search) ? $conn->real_escape_string($search) : '';
+    $category_escaped = (!empty($category) && $category !== 'all' && $category !== 'Усі') ? $conn->real_escape_string($category) : '';
+    
+    // Build WHERE conditions for both tables
+    $where_conditions = [];
+    if (!empty($category_escaped)) {
+        $where_conditions[] = "category = '$category_escaped'";
     }
-}
-$stmt->close();
-
-// Fallback: look into user_recipes
-$stmt2 = $conn->prepare('SELECT id, user_id, title, category, ingredients, instructions, image_path, difficulty, COALESCE(cooking_time, `time`) AS cooking_time, created_at FROM user_recipes WHERE id = ? LIMIT 1');
-$stmt2->bind_param('i', $id);
-if ($stmt2->execute()) {
-    $res2 = $stmt2->get_result();
-    if ($row2 = $res2->fetch_assoc()) {
-        echo json_encode(['status' => 'success', 'recipe' => $row2, 'source' => 'user']);
-        $stmt2->close();
-        $conn->close();
-        exit;
+    if (!empty($search_escaped)) {
+        $where_conditions[] = "(title LIKE '%$search_escaped%' OR instructions LIKE '%$search_escaped%')";
     }
-}
-$stmt2->close();
+    
+    $where = !empty($where_conditions) ? " AND " . implode(" AND ", $where_conditions) : "";
+    
+    // Count ONLY admin recipes from recipes table
+    $count_sql = "SELECT COUNT(*) as cnt FROM recipes WHERE status = 'approved'$where";
+    
+    $total_recipes = 0;
+    
+    $result = $conn->query($count_sql);
+    if ($result) {
+        $row = $result->fetch_assoc();
+        $total_recipes = intval($row['cnt']);
+    }
+    
+    $total_pages = ceil($total_recipes / $per_page);
 
-echo json_encode(['status' => 'error', 'message' => 'Рецепт не знайдено']);
+    // Get ONLY admin recipes from recipes table (STRICTLY from recipes table only, not user_recipes)
+    $sql = "
+        SELECT 
+            r.id,
+            r.title,
+            r.category,
+            r.ingredients,
+            r.instructions,
+            r.image_path,
+            r.difficulty,
+            r.`time` AS cooking_time,
+            r.is_featured,
+            COALESCE(u.username, 'Recepty') as author,
+            r.created_at,
+            'admin' as source
+        FROM recipes r
+        LEFT JOIN users u ON r.user_id = u.id
+        WHERE r.status = 'approved'$where
+        ORDER BY r.created_at DESC
+        LIMIT $offset, $per_page
+    ";
+
+    $result = $conn->query($sql);
+    if (!$result) {
+        throw new Exception("Query failed: " . $conn->error);
+    }
+
+    $recipes = [];
+    while ($row = $result->fetch_assoc()) {
+        // Розділяємо інгредієнти та інструкції
+        $row['ingredients_array'] = array_filter(explode('|', $row['ingredients']));
+        $row['instructions_array'] = array_filter(explode('|', $row['instructions']));
+        unset($row['ingredients'], $row['instructions']);
+        
+        $recipes[] = $row;
+    }
+
+    echo json_encode([
+        'status' => 'success',
+        'data' => $recipes,
+        'pagination' => [
+            'current_page' => $page,
+            'per_page' => $per_page,
+            'total_recipes' => $total_recipes,
+            'total_pages' => $total_pages
+        ]
+    ]);
+
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode([
+        'status' => 'error',
+        'message' => $e->getMessage()
+    ]);
+}
+
 $conn->close();
 ?>
