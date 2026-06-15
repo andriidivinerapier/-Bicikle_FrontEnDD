@@ -2,14 +2,31 @@
 /**
  * SMTP configuration loader.
  *
- * This file prefers environment variables (SetEnv in .htaccess or system env):
- *  - SMTP_USER
- *  - SMTP_PASS
- *  - SUPPORT_EMAIL
- *
- * If environment variables are not present, the default placeholders remain
- * so you can edit them here manually.
+ * This file loads environment variables from .env file or system environment.
+ * Priority: .env file > system environment variables > defaults
  */
+
+// Load .env file if it exists
+if (file_exists(__DIR__ . '/../.env')) {
+    $envFile = file(__DIR__ . '/../.env');
+    foreach ($envFile as $line) {
+        $line = trim($line);
+        // Skip empty lines and comments
+        if (!$line || $line[0] === '#') {
+            continue;
+        }
+        // Parse KEY=VALUE format
+        if (strpos($line, '=') !== false) {
+            list($key, $val) = explode('=', $line, 2);
+            $key = trim($key);
+            $val = trim($val);
+            // Only set if not already in environment
+            if (!getenv($key)) {
+                putenv($key . '=' . $val);
+            }
+        }
+    }
+}
 
 $envUser = getenv('SMTP_USER');
 $envPass = getenv('SMTP_PASS');

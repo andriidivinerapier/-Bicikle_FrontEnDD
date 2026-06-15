@@ -1,0 +1,10 @@
+.env
+vendor/
+.htaccess
+node_modules/
+*.log
+uploads/*
+!uploads/.gitkeep
+ibd_backups/
+ibdata1
+ibtmp1
