@@ -81,7 +81,7 @@ window.addEventListener('scroll', () => {
 // Анімація для карток при завантаженні сторінки
 // Fetch featured recipe and populate hero area
 function fetchFeaturedRecipe() {
-    fetch('/recepty/backend/get-featured-recipe.php')
+    fetch('backend/get-featured-recipe.php')
         .then(res => res.json())
         .then(json => {
             if (json && json.status === 'success' && json.recipe) {
