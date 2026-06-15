@@ -32,7 +32,16 @@ $envUser = getenv('SMTP_USER');
 $envPass = getenv('SMTP_PASS');
 $supportEmail = getenv('SUPPORT_EMAIL');
 
-return [
+// Debug logging
+$debugMsg = sprintf("[%s] Config loaded: SMTP_USER=%s, SMTP_PASS=%s, SUPPORT_EMAIL=%s\n", 
+    date('Y-m-d H:i:s'),
+    $envUser ? substr($envUser, 0, 5) . '...' : 'NOT SET',
+    $envPass ? 'SET (len:' . strlen($envPass) . ')' : 'NOT SET',
+    $supportEmail ? $supportEmail : 'NOT SET'
+);
+@file_put_contents(__DIR__ . '/email-config-debug.log', $debugMsg, FILE_APPEND);
+
+$config = [
     // enable SMTP by default; set to false to fallback to PHP mail()
     'use_smtp' => true,
 
@@ -47,3 +56,5 @@ return [
     'from_email' => $supportEmail ?: ($envUser ?: 'noreply@example.com'),
     'from_name' => 'CookBook',
 ];
+
+return $config;

@@ -210,7 +210,14 @@ function sendUsingSmtpSocket($host, $port, $username, $password, $fromEmail, $fr
 $emailCfgPath = __DIR__ . '/email-config.php';
 $emailCfg = file_exists($emailCfgPath) ? include $emailCfgPath : [];
 
+$debugLog = sprintf("[%s] === PASSWORD RESET REQUEST START ===\n", date('Y-m-d H:i:s'));
+$debugLog .= "Config file exists: " . (file_exists($emailCfgPath) ? 'YES' : 'NO') . "\n";
+$debugLog .= "Config loaded: username=" . ($emailCfg['username'] ?? 'NOT SET') . ", password=" . (!empty($emailCfg['password']) ? 'SET' : 'NOT SET') . "\n";
+
 $phPMailerAvailable = class_exists('PHPMailer\\PHPMailer\\PHPMailer');
+$debugLog .= "PHPMailer available: " . ($phPMailerAvailable ? 'YES' : 'NO') . "\n";
+
+file_put_contents(__DIR__ . '/password-reset-debug.log', $debugLog, FILE_APPEND);
 
 if (!$phPMailerAvailable) {
     $smtpUser = getenv('SMTP_USER') ?: (isset($_SERVER['SMTP_USER']) ? $_SERVER['SMTP_USER'] : null) ?: (function_exists('apache_getenv') ? apache_getenv('SMTP_USER') : null) ?: ($emailCfg['username'] ?? 'ihtp103@gmail.com');
