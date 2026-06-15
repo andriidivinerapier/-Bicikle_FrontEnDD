@@ -35,12 +35,12 @@ if (file_exists($autoload)) {
     require $autoload;
 }
 
-$emailCfgPath = __DIR__ . '/email-config.php';
-$emailCfg = file_exists($emailCfgPath) ? include $emailCfgPath : [];
+// Твоя робоча пошта для отримання листів
+$supportEmail = 'andriy.yakubjak@kpk-lp.com.ua';
 
 function sendUsingNativeMail($supportEmail, $subject, $body, $name, $email)
 {
-    $fromEmail = getenv('SMTP_USER') ?: 'ihtp103@gmail.com';
+    $fromEmail = 'ihtp103@gmail.com';
     $fromName = 'CookBook';
 
     if (stripos(PHP_OS, 'WIN') === 0) {
@@ -183,16 +183,14 @@ function sendUsingSmtpSocket($host, $port, $username, $password, $fromEmail, $fr
     return true;
 }
 
-// If PHPMailer classes are not available, try SMTP and/or native mail before falling back.
 $phPMailerAvailable = class_exists('PHPMailer\\PHPMailer\\PHPMailer');
-$supportEmail = getenv('SUPPORT_EMAIL') ?: 'ihtp103@gmail.com';
 $emailBody = "від користувача: {$name} ({$email})\n\nповідомлення:\n{$message}";
 
 if (!$phPMailerAvailable) {
-    $smtpUser = getenv('SMTP_USER') ?: 'ihtp103@gmail.com';
-    $smtpPass = getenv('SMTP_PASS') ?: getenv('oxofoqhluirkjdir') ?: (isset($_SERVER['SMTP_PASS']) ? $_SERVER['SMTP_PASS'] : null) ?: (function_exists('apache_getenv') ? apache_getenv('SMTP_PASS') : null);
-    $smtpHost = getenv('SMTP_HOST') ?: 'smtp.gmail.com';
-    $smtpPort = getenv('SMTP_PORT') ? (int)getenv('SMTP_PORT') : 587;
+    $smtpUser = 'ihtp103@gmail.com';
+    $smtpPass = 'oxofoqhluirkjdir';
+    $smtpHost = 'smtp.gmail.com';
+    $smtpPort = 587;
 
     if (!empty($smtpPass)) {
         $smtpResult = sendUsingSmtpSocket($smtpHost, $smtpPort, $smtpUser, $smtpPass, $smtpUser, 'CookBook', $supportEmail, "[Contact] {$subject}", $emailBody, $email);
@@ -222,7 +220,7 @@ use PHPMailer\PHPMailer\Exception;
 
 try {
     $mail = new PHPMailer(true);
-    $mail->SMTPDebug = 4; // Full debug for diagnosing auth/send issues
+    $mail->SMTPDebug = 4;
     $mail->Debugoutput = function($str, $level) {
         file_put_contents(__DIR__ . '/smtp-debug.log', "[Level $level] $str\n", FILE_APPEND);
     };
@@ -230,20 +228,10 @@ try {
     $mail->isSMTP();
     $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
-    // Load SMTP credentials from environment variables (do NOT hard-code credentials)
-    // Default SMTP user (do NOT include passwords here). Change via env var.
-    $smtpUser = getenv('SMTP_USER') ?: 'ihtp103@gmail.com';
-    // Try several sources for the SMTP password: environment, server variables, apache env
-    $smtpPass = getenv('SMTP_PASS') ?: getenv('oxofoqhluirkjdir') ?: (isset($_SERVER['SMTP_PASS']) ? $_SERVER['SMTP_PASS'] : null) ?: (function_exists('apache_getenv') ? apache_getenv('SMTP_PASS') : null);
-
-    if (empty($smtpPass)) {
-        // SMTP not configured — save locally as fallback
-        $logLine = sprintf("[%s] %s <%s> | %s\n%s\n---\n", date('c'), $name, $email, $subject, $message);
-        file_put_contents(__DIR__ . '/contact-fallback.log', $logLine, FILE_APPEND);
-        http_response_code(200);
-        echo json_encode(['status' => 'ok', 'message' => 'Повідомлення збережено локально (SMTP не налаштовано)']);
-        exit;
-    }
+    
+    // Прямий хардкод без getenv
+    $smtpUser = 'ihtp103@gmail.com';
+    $smtpPass = 'oxofoqhluirkjdir';
 
     $mail->Username = $smtpUser;
     $mail->Password = $smtpPass;
@@ -251,10 +239,7 @@ try {
     $mail->Port = 587;
     $mail->CharSet = 'UTF-8';
     
-    // Use authenticated SMTP user as the From address to avoid Gmail auth issues
     $mail->setFrom($smtpUser, 'CookBook');
-    // Deliver to SUPPORT_EMAIL if set, otherwise to the SMTP user
-    $supportEmail = getenv('SUPPORT_EMAIL') ?: $smtpUser;
     $mail->addAddress($supportEmail);
     $mail->addReplyTo($email, $name);
     $mail->Subject = "[Contact] {$subject}";
