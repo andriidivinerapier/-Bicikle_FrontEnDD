@@ -11,6 +11,29 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $per_page = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 12;
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
+// 🛠 СЛОВНИК-МАПЕР: Перекладаємо українські категорії у англійські слоги для бази даних
+$category_map = [
+    'Веганські'       => 'vegan',
+    'Супи'            => 'soups',
+    'Десерти'         => 'desserts',
+    'Сніданки'        => 'breakfast',
+    'Обіди'           => 'lunch',
+    'Вечері'          => 'dinner',
+    'Напої'           => 'drinks',
+    'Випічка'         => 'pastries',
+    'Салати'          => 'salads',
+    'Закуски'         => 'snacks',
+    'Весняні страви'  => 'season_spring',
+    'Літні страви'    => 'season_summer',
+    'Осінні страви'   => 'season_autumn',
+    'Зимові страви'   => 'season_winter'
+];
+
+// Якщо з фронтенду прийшла українська назва, підміняємо її на значення для БД
+if (array_key_exists($category, $category_map)) {
+    $category = $category_map[$category];
+}
+
 // Валідація
 if ($page < 1) $page = 1;
 if ($per_page < 1 || $per_page > 100) $per_page = 12;
@@ -57,6 +80,7 @@ try {
             r.image_path,
             r.difficulty,
             r.`time` AS cooking_time,
+            r.is_featured,
             COALESCE(u.username, 'Recepty') as author,
             r.created_at,
             'admin' as source
