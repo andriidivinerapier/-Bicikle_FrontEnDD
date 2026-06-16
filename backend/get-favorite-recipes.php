@@ -39,7 +39,7 @@ if ($colCheck) {
 $recipes = [];
 if ($hasSource) {
     $sql = "(
-        SELECT r.id, r.title, r.ingredients, r.instructions, r.category, r.image_path, r.created_at, u.username, r.user_id as owner_id, 'admin' AS source, f.created_at AS favorited_at
+        SELECT r.id, r.title, r.ingredients, r.instructions, r.category, r.image_path, r.difficulty, r.time, NULL as cooking_time, r.created_at, u.username, r.user_id as owner_id, 'admin' AS source, f.created_at AS favorited_at
         FROM favorites f
         JOIN recipes r ON f.recipe_id = r.id
         LEFT JOIN users u ON r.user_id = u.id
@@ -47,7 +47,7 @@ if ($hasSource) {
     )
     UNION ALL
     (
-        SELECT ur.id, ur.title, ur.ingredients, ur.instructions, ur.category, ur.image_path, ur.created_at, u.username, ur.user_id as owner_id, 'user' AS source, f.created_at AS favorited_at
+        SELECT ur.id, ur.title, ur.ingredients, ur.instructions, ur.category, ur.image_path, ur.difficulty, ur.time, ur.cooking_time, ur.created_at, u.username, ur.user_id as owner_id, 'user' AS source, f.created_at AS favorited_at
         FROM favorites f
         JOIN user_recipes ur ON f.recipe_id = ur.id
         LEFT JOIN users u ON ur.user_id = u.id
@@ -68,6 +68,9 @@ if ($hasSource) {
                     'instructions' => $row['instructions'],
                     'category' => $row['category'],
                     'image_path' => $row['image_path'],
+                    'difficulty' => $row['difficulty'] ?? '',
+                    'time' => $row['time'] ?? null,
+                    'cooking_time' => $row['cooking_time'] ?? null,
                     'created_at' => $row['created_at'],
                     'username' => $row['username'] ?? null,
                     'user_id' => $row['owner_id'] ?? null,
@@ -80,7 +83,7 @@ if ($hasSource) {
 } else {
     // No 'source' column — match favorites.recipe_id against both tables without filtering by source
     $sql = "(
-        SELECT r.id, r.title, r.ingredients, r.instructions, r.category, r.image_path, r.created_at, u.username, r.user_id as owner_id, 'admin' AS source, f.created_at AS favorited_at
+        SELECT r.id, r.title, r.ingredients, r.instructions, r.category, r.image_path, r.difficulty, r.time, NULL as cooking_time, r.created_at, u.username, r.user_id as owner_id, 'admin' AS source, f.created_at AS favorited_at
         FROM favorites f
         JOIN recipes r ON f.recipe_id = r.id
         LEFT JOIN users u ON r.user_id = u.id
@@ -88,7 +91,7 @@ if ($hasSource) {
     )
     UNION ALL
     (
-        SELECT ur.id, ur.title, ur.ingredients, ur.instructions, ur.category, ur.image_path, ur.created_at, u.username, ur.user_id as owner_id, 'user' AS source, f.created_at AS favorited_at
+        SELECT ur.id, ur.title, ur.ingredients, ur.instructions, ur.category, ur.image_path, ur.difficulty, ur.time, ur.cooking_time, ur.created_at, u.username, ur.user_id as owner_id, 'user' AS source, f.created_at AS favorited_at
         FROM favorites f
         JOIN user_recipes ur ON f.recipe_id = ur.id
         LEFT JOIN users u ON ur.user_id = u.id
@@ -109,6 +112,9 @@ if ($hasSource) {
                     'instructions' => $row['instructions'],
                     'category' => $row['category'],
                     'image_path' => $row['image_path'],
+                    'difficulty' => $row['difficulty'] ?? '',
+                    'time' => $row['time'] ?? null,
+                    'cooking_time' => $row['cooking_time'] ?? null,
                     'created_at' => $row['created_at'],
                     'username' => $row['username'] ?? null,
                     'user_id' => $row['owner_id'] ?? null,

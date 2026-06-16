@@ -69,7 +69,7 @@ try {
     // Fetch paginated results
         if ($category) {
                 $stmt = $conn->prepare(
-                        'SELECT ur.id, ur.title, ur.ingredients, ur.instructions, ur.category, ur.image_path, ur.created_at, 
+                        'SELECT ur.id, ur.title, ur.ingredients, ur.instructions, ur.category, ur.image_path, ur.difficulty, ur.time, ur.cooking_time, ur.created_at, 
                                         COALESCE(u.username, "Невідомий автор") AS username, u.id as user_id, "user" as source
                          FROM user_recipes ur
                          LEFT JOIN users u ON ur.user_id = u.id
@@ -82,7 +82,7 @@ try {
                 $stmt->bind_param('sssssii', $search, $search, $search, $category, $category_label, $offset, $per_page);
         } else {
         $stmt = $conn->prepare(
-            'SELECT ur.id, ur.title, ur.ingredients, ur.instructions, ur.category, ur.image_path, ur.created_at, 
+            'SELECT ur.id, ur.title, ur.ingredients, ur.instructions, ur.category, ur.image_path, ur.difficulty, ur.time, ur.cooking_time, ur.created_at, 
                     COALESCE(u.username, "Невідомий автор") AS username, u.id as user_id, "user" as source
              FROM user_recipes ur
              LEFT JOIN users u ON ur.user_id = u.id

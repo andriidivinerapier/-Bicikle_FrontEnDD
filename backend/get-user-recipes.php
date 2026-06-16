@@ -15,7 +15,7 @@ if (!$user_id) {
     exit;
 }
 
-$stmt = $conn->prepare('SELECT id, title, ingredients, instructions, category, image_path, status, difficulty, cooking_time, created_at, "user" as source FROM user_recipes WHERE user_id = ? ORDER BY created_at DESC');
+$stmt = $conn->prepare('SELECT id, title, ingredients, instructions, category, image_path, status, difficulty, time, cooking_time, created_at, "user" as source FROM user_recipes WHERE user_id = ? ORDER BY created_at DESC');
 $stmt->bind_param('i', $user_id);
 if ($stmt->execute()) {
     $res = $stmt->get_result();

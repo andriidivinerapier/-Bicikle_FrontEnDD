@@ -1404,6 +1404,10 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <p class="recipe-description">${escapeHtml(firstIngredient)}</p>
                                 <div class="recipe-meta">
                                     <div class="meta-left">
+                                        <span class="cook-time">${escapeHtml(formattedTime || '—')}</span>
+                                        <span class="recipe-category">${escapeHtml(mapCategory(recipe.category || ''))}</span>
+                                    </div>
+                                    <div class="meta-right">
                                         <button class="recipe-button">Рецепт</button>
                                         <span style="color: ${statusColor}; font-weight: 600; font-size: 0.85rem; margin-left: 8px;">${statusText}</span>
                                     </div>
