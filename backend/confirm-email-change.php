@@ -33,7 +33,15 @@ if ($code !== ($pending['code'] ?? '')) {
 }
 
 $user_id = intval($_SESSION['user']['id']);
-$newEmail = $pending['new_email'];
+// validate pending email as additional safety
+$newEmail = trim($pending['new_email'] ?? '');
+$newEmail = mb_strtolower($newEmail, 'UTF-8');
+$emailPattern = '/^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$/u';
+if ($newEmail === '' || !filter_var($newEmail, FILTER_VALIDATE_EMAIL) || !preg_match($emailPattern, $newEmail)) {
+    unset($_SESSION['pending_email_change']);
+    echo json_encode(['success' => false, 'error' => 'Некоректна пошта']);
+    exit;
+}
 
 // Update users table
 $stmt = $conn->prepare('UPDATE users SET email = ? WHERE id = ?');

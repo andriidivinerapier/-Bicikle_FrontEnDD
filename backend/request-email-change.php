@@ -166,8 +166,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $user_id = intval($_SESSION['user']['id']);
 $newEmail = trim($_POST['new_email'] ?? ($_POST['email'] ?? ''));
-
-if ($newEmail === '' || !filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
+// normalize and strict-validate
+$newEmail = mb_strtolower($newEmail, 'UTF-8');
+$emailPattern = '/^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$/u';
+if ($newEmail === '' || !filter_var($newEmail, FILTER_VALIDATE_EMAIL) || !preg_match($emailPattern, $newEmail)) {
     echo json_encode(['status' => 'error', 'message' => 'Некоректна пошта']);
     exit;
 }

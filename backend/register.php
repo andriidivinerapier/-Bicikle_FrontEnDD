@@ -15,6 +15,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // Нормалізуємо email до нижнього регістру і перевіряємо формат строгіше
+    $email = mb_strtolower($email, 'UTF-8');
+    $emailPattern = '/^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$/u';
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match($emailPattern, $email)) {
+        echo json_encode(['status' => 'error', 'message' => 'Невірний формат email']);
+        exit;
+    }
+
+    // Забороняємо використовувати email як пароль або дуже схожі значення
+    if ($password === $email || stripos($password, '@') !== false && stripos($password, substr($email, 0, strpos($email, '@'))) !== false) {
+        echo json_encode(['status' => 'error', 'message' => 'Невалідний пароль']);
+        exit;
+    }
+
     // Перевірка мінімальної довжини пароля (мінімум 7 символів)
     if (mb_strlen($password, 'UTF-8') < 7) {
         echo json_encode(['status' => 'error', 'message' => 'Пароль має містити мінімум 7 символів']);

@@ -406,10 +406,30 @@ document.addEventListener('DOMContentLoaded', () => {
     if (registerForm) {
         registerForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            // Client-side validation
+            const emailInput = registerForm.registerEmail;
+            const pwd = registerForm.registerPassword.value;
+            const pwd2 = registerForm.registerConfirmPassword.value;
+            // Stricter client-side email regex to match server
+            const emailPattern = /^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$/;
+            const emailValue = (emailInput.value || '').trim().toLowerCase();
+            if (!emailPattern.test(emailValue)) {
+                showAuthToast('Невірний формат email', 'error');
+                return;
+            }
+            if (!pwd || pwd.length < 7) {
+                showAuthToast('Пароль має містити мінімум 7 символів', 'error');
+                return;
+            }
+            if (pwd !== pwd2) {
+                showAuthToast('Паролі не співпадають', 'error');
+                return;
+            }
+
             const formData = new FormData();
-            formData.append('username', registerForm.registerName.value);
-            formData.append('email', registerForm.registerEmail.value);
-            formData.append('password', registerForm.registerPassword.value);
+            formData.append('username', registerForm.registerName.value.trim());
+            formData.append('email', emailValue);
+            formData.append('password', pwd);
 
             fetch('backend/register.php', { method: 'POST', body: formData })
                 .then(res => res.json())

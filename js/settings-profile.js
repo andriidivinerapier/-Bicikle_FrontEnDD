@@ -164,13 +164,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (saveEmail) {
         saveEmail.addEventListener('click', async () => {
-            const newEmail = document.getElementById('newEmailSettings').value || '';
+            const newEmailRaw = document.getElementById('newEmailSettings').value || '';
+            const newEmail = newEmailRaw.trim().toLowerCase();
             if (!newEmail) return (window.showToast ? showToast('Введіть нову пошту', 'error') : alert('Введіть нову пошту'));
-            const emailRegex = /^\S+@\S+\.\S+$/;
+            const emailRegex = /^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$/;
             if (!emailRegex.test(newEmail)) return (window.showToast ? showToast('Невірний формат пошти', 'error') : alert('Невірний формат пошти'));
 
             const fd = new FormData();
-            fd.append('new_email', newEmail.trim());
+            fd.append('new_email', newEmail);
 
             try {
                 saveEmail.disabled = true;
