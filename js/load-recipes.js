@@ -237,9 +237,10 @@ function createRecipeCard(recipe) {
     return card;
 }
 
-// Завантажуємо рецепти на сторінці index.html
+// Завантажуємо рецепти на сторінці index.html або на корені сайту
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.location.pathname.includes('index.html') || window.location.pathname.endsWith('/recepty/')) {
+    const path = window.location.pathname;
+    if (path.includes('index.html') || path === '/' || path.endsWith('/') || path.endsWith('/recepty/')) {
         // Завантажуємо рецепти для всіх трьох секцій
         loadRecipes(null, {
             category: 'all',
