@@ -1384,9 +1384,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             'rejected': '#dc3545'
                         };
                         const statusTexts = {
-                            'pending': '⏳ На модерації',
-                            'approved': '✅ Схвалено',
-                            'rejected': '❌ Відхилено'
+                            'pending': 'На модерації',
+                            'approved': 'Схвалено',
+                            'rejected': 'Відхилено'
                         };
                         const status = recipe.status || 'pending';
                         const statusColor = statusColors[status] || '#9aa6b6';

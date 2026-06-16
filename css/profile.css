@@ -1881,7 +1881,10 @@
     }
 
     .recipe-card-editable .recipe-meta .meta-right {
-        display: none;
+        display: flex;
+        gap: 0.6rem;
+        align-items: center;
+        justify-content: flex-end;
     }
 
     .recipe-card-editable .recipe-meta {
