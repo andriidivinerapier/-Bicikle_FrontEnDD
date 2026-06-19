@@ -8,3 +8,4 @@ uploads/*
 ibd_backups/
 ibdata1
 ibtmp1
+backend/db.php
