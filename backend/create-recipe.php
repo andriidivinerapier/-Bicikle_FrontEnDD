@@ -4,33 +4,6 @@ header('Content-Type: application/json; charset=utf-8');
 session_start();
 require_once 'db.php';
 
-// Prevent raw PHP errors from breaking JSON responses; capture and return them instead
-ini_set('display_errors', '0');
-ini_set('log_errors', '1');
-error_reporting(E_ALL);
-
-// start output buffering so accidental output can be captured
-ob_start();
-
-register_shutdown_function(function() {
-    $err = error_get_last();
-    if ($err && ($err['type'] & (E_ERROR|E_PARSE|E_CORE_ERROR|E_COMPILE_ERROR|E_USER_ERROR))) {
-        // fatal error occurred — return structured JSON instead of HTML
-        if (!headers_sent()) header('Content-Type: application/json; charset=utf-8', true, 500);
-        $buf = ob_get_clean();
-        $payload = [
-            'status' => 'error',
-            'message' => 'Fatal error on server',
-            'debug_fatal' => $err,
-            'output_buffer' => $buf
-        ];
-        echo json_encode($payload);
-    } else {
-        // discard any buffered accidental output for normal execution
-        @ob_end_clean();
-    }
-});
-
 // Debug logging
 $debug_log = [];
 $debug_log['session_user'] = isset($_SESSION['user']) ? 'set' : 'not_set';
@@ -106,7 +79,6 @@ $create_sql = "CREATE TABLE IF NOT EXISTS recipes (
     category VARCHAR(100) DEFAULT '',
     difficulty VARCHAR(50) DEFAULT '',
     time INT DEFAULT 0,
-    cooking_time INT DEFAULT 0,
     image_path VARCHAR(255) DEFAULT '',
     is_featured TINYINT(1) DEFAULT 0,
     status VARCHAR(20) NOT NULL DEFAULT 'approved',
@@ -125,7 +97,6 @@ $columns_to_add = [
     'reviewed_at' => 'DATETIME DEFAULT NULL',
     'difficulty' => "VARCHAR(50) DEFAULT ''",
     'time' => 'INT DEFAULT 0'
-    'cooking_time' => 'INT DEFAULT 0'
 ];
 
 // add is_featured if missing
@@ -216,7 +187,6 @@ if ($table === 'user_recipes') {
         category VARCHAR(100) DEFAULT '',
         difficulty VARCHAR(50) DEFAULT '',
         time INT DEFAULT 0,
-            cooking_time INT DEFAULT 0,
         image_path VARCHAR(255) DEFAULT '',
         status VARCHAR(20) NOT NULL DEFAULT 'pending',
         review_reason TEXT DEFAULT NULL,
@@ -255,11 +225,11 @@ if ($check_feat && $check_feat->num_rows > 0) {
     if ($is_featured && $table === 'recipes') {
         $conn->query("UPDATE recipes SET is_featured = 0 WHERE is_featured = 1");
     }
-    $stmt = $conn->prepare("INSERT INTO $table (user_id, title, ingredients, instructions, category, difficulty, time, cooking_time, image_path, is_featured, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param('isssssiisis', $user_id, $title, $ingredients, $instructions, $category, $difficulty, $time_int, $time_int, $image_path, $is_featured, $status);
+    $stmt = $conn->prepare("INSERT INTO $table (user_id, title, ingredients, instructions, category, difficulty, time, image_path, is_featured, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param('isssssisis', $user_id, $title, $ingredients, $instructions, $category, $difficulty, $time_int, $image_path, $is_featured, $status);
 } else {
-    $stmt = $conn->prepare("INSERT INTO $table (user_id, title, ingredients, instructions, category, difficulty, time, cooking_time, image_path, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param('isssssiiss', $user_id, $title, $ingredients, $instructions, $category, $difficulty, $time_int, $time_int, $image_path, $status);
+    $stmt = $conn->prepare("INSERT INTO $table (user_id, title, ingredients, instructions, category, difficulty, time, image_path, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param('isssssiss', $user_id, $title, $ingredients, $instructions, $category, $difficulty, $time_int, $image_path, $status);
 }
 
     if ($stmt->execute()) {
