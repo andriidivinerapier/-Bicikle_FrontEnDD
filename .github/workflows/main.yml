@@ -16,8 +16,8 @@ jobs:
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.REMOTE_HOST }}
-          username: ${{ secrets.FTP_USER }}
-          password: ${{ secrets.FTP_PASSWORD }}
+          username: 'root'
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           source: "./*"
           target: "/var/www/html"
