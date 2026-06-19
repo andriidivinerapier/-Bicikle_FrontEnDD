@@ -684,9 +684,10 @@
             document.getElementById('modalImage').src = (recipe.image_path && recipe.image_path.trim()) ? recipe.image_path : 'images/homepage/salad1.jpg';
             document.getElementById('modalTitle').textContent = recipe.title || 'Без назви';
             
-            // Set difficulty and time (extracted from ingredients first line or default)
+            // Set difficulty and time (extract from whichever time field is populated)
             const difficulty = recipe.difficulty || 'Середня';
-            const time = recipe.cooking_time ? `${recipe.cooking_time} хв` : '30 хв';
+            const timeVal = recipe.cooking_time || recipe.time || '30';
+            const time = isNaN(timeVal) ? timeVal : `${timeVal} хв`;
             
             const difficultyTag = document.getElementById('modalDifficulty');
             const timeTag = document.getElementById('modalTime');
