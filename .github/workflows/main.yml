@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+
 jobs:
   web-deploy:
     name: Deploy
@@ -12,10 +13,11 @@ jobs:
         uses: actions/checkout@v5
 
       - name: SFTP Deploy
-        uses: wlixcc/SFTP-Deploy-Action@v1.2
+        uses: appleboy/scp-action@v0.1.7
         with:
-          server: ${{ secrets.REMOTE_HOST }}
-          username: ${{ secrets.FTP_USER }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          remote_path: '/var/www/html' 
+          host: ${{ secrets.REMOTE_HOST }}
+          username: 'root'
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
+          source: "./*"
+          target: "/var/www/html"
