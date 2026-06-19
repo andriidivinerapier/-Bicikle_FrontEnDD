@@ -1,24 +1,21 @@
-name: FTP deploy on push
-
+name: Deploy to DigitalOcean
 on:
   push:
     branches:
       - main
-
 jobs:
   web-deploy:
     name: Deploy
     runs-on: ubuntu-latest
-
     steps:
-      - name: Get latest code
+      - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Sync files
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+      - name: SFTP Deploy
+        uses: wlixcc/SFTP-Deploy-Action@v1.2
         with:
           server: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: ${{ secrets.FTP_PATH }}
+          remote_path: '/var/www/html' 
           port: 22
