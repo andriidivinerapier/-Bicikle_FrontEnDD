@@ -18,6 +18,6 @@ jobs:
           host: ${{ secrets.REMOTE_HOST }}
           username: 'root'
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
+          port: 21
           source: "./*"
           target: "/var/www/html"
